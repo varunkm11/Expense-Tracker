@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Student Expense Tracker{% endblock %}</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <!-- Navigation -->
+    {% if user.is_authenticated %}
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-brand">
+                <h2>💰 ExpenseTracker</h2>
+            </div>
+            <div class="nav-menu">
+                <a href="{% url 'dashboard' %}" class="nav-link {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}">
+                    📊 Dashboard
+                </a>
+                <a href="{% url 'add_expense' %}" class="nav-link {% if request.resolver_match.url_name == 'add_expense' %}active{% endif %}">
+                    ➕ Add Expense
+                </a>
+                <a href="{% url 'expense_list' %}" class="nav-link {% if request.resolver_match.url_name == 'expense_list' %}active{% endif %}">
+                    📝 Expenses
+                </a>
+                <a href="{% url 'monthly_summary' %}" class="nav-link {% if request.resolver_match.url_name == 'monthly_summary' %}active{% endif %}">
+                    📈 Summary
+                </a>
+                <a href="{% url 'budget_management' %}" class="nav-link {% if request.resolver_match.url_name == 'budget_management' %}active{% endif %}">
+                    💳 Budget
+                </a>
+                <div class="nav-user">
+                    <span class="user-greeting">Hi, {{ user.first_name|default:user.username }}!</span>
+                    <a href="{% url 'logout' %}" class="nav-link logout">🚪 Logout</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+    {% endif %}
+
+    <!-- Main Content -->
+    <main class="main-content {% if not user.is_authenticated %}auth-page{% endif %}">
+        <!-- Messages -->
+        {% if messages %}
+        <div class="messages-container">
+            {% for message in messages %}
+            <div class="message message-{{ message.tags }}">
+                {{ message }}
+                <button class="message-close" onclick="this.parentElement.remove()">×</button>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        <!-- Page Content -->
+        <div class="content-wrapper">
+            {% block content %}
+            {% endblock %}
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <p>&copy; 2025 Student Expense Tracker - Manage your finances wisely</p>
+    </footer>
+
+    <!-- JavaScript -->
+    <script src="{% static 'js/main.js' %}"></script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

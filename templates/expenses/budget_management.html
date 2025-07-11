@@ -1,0 +1,338 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Budget Management - Student Expense Tracker{% endblock %}
+
+{% block content %}
+<div class="fade-in">
+    <!-- Page Header -->
+    <div class="card-header">
+        <div>
+            <h1 class="card-title">💳 Budget Management</h1>
+            <p class="card-subtitle">Set and track your monthly spending limits</p>
+        </div>
+    </div>
+
+    <!-- Add New Budget -->
+    <div class="card">
+        <div class="card-header">
+            <h2 class="card-title">➕ Set Monthly Budget</h2>
+        </div>
+        
+        <form method="post" class="form-container">
+            {% csrf_token %}
+            
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                <div class="form-group">
+                    <label for="{{ form.month.id_for_label }}" class="form-label">Month</label>
+                    {{ form.month }}
+                    {% if form.month.errors %}
+                        <div style="color: #e74c3c; font-size: 0.9rem; margin-top: 0.5rem;">
+                            {{ form.month.errors.0 }}
+                        </div>
+                    {% endif %}
+                </div>
+                
+                <div class="form-group">
+                    <label for="{{ form.total_budget.id_for_label }}" class="form-label">Budget Amount (₹)</label>
+                    {{ form.total_budget }}
+                    {% if form.total_budget.errors %}
+                        <div style="color: #e74c3c; font-size: 0.9rem; margin-top: 0.5rem;">
+                            {{ form.total_budget.errors.0 }}
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <button type="submit" class="btn btn-success">
+                💾 Save Budget
+            </button>
+        </form>
+    </div>
+
+    <!-- Budget Suggestions -->
+    <div class="card" style="background: linear-gradient(135deg, #f8f9fa, #e9ecef);">
+        <div class="card-header">
+            <h2 class="card-title">💡 Budget Suggestions for Students</h2>
+        </div>
+        
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
+            <div class="quick-suggestion" data-amount="2000">
+                <div style="font-size: 1.5rem;">🎒</div>
+                <strong>Basic Student</strong>
+                <div style="color: #666;">₹2,000/month</div>
+                <small>Food, transport, basic needs</small>
+            </div>
+            <div class="quick-suggestion" data-amount="3500">
+                <div style="font-size: 1.5rem;">📚</div>
+                <strong>Regular Student</strong>
+                <div style="color: #666;">₹3,500/month</div>
+                <small>Books, entertainment, outings</small>
+            </div>
+            <div class="quick-suggestion" data-amount="5000">
+                <div style="font-size: 1.5rem;">🎓</div>
+                <strong>Comfortable</strong>
+                <div style="color: #666;">₹5,000/month</div>
+                <small>All needs + savings</small>
+            </div>
+            <div class="quick-suggestion" data-amount="7000">
+                <div style="font-size: 1.5rem;">💰</div>
+                <strong>Premium</strong>
+                <div style="color: #666;">₹7,000/month</div>
+                <small>Flexible spending</small>
+            </div>
+        </div>
+    </div>
+
+    <!-- Existing Budgets -->
+    {% if budgets %}
+    <div class="card">
+        <div class="card-header">
+            <h2 class="card-title">📊 Your Budget History</h2>
+        </div>
+        
+        <div style="display: flex; flex-direction: column; gap: 1rem;">
+            {% for budget in budgets %}
+            <div class="category-item">
+                <div class="category-info">
+                    <div class="category-icon">
+                        {% if budget.get_budget_percentage < 70 %}😊
+                        {% elif budget.get_budget_percentage < 90 %}😐
+                        {% else %}😟{% endif %}
+                    </div>
+                    <div>
+                        <strong>{{ budget.month|date:"F Y" }}</strong>
+                        <br>
+                        <small style="color: #666;">
+                            ₹{{ budget.get_spent_amount|floatformat:0 }} of ₹{{ budget.total_budget|floatformat:0 }} 
+                            ({{ budget.get_budget_percentage|floatformat:1 }}%)
+                        </small>
+                    </div>
+                </div>
+                <div style="text-align: right;">
+                    <div class="category-amount">₹{{ budget.get_remaining_budget|floatformat:0 }}</div>
+                    <small style="color: #666;">remaining</small>
+                </div>
+            </div>
+            
+            <!-- Progress bar for each budget -->
+            <div class="budget-progress" style="margin-top: -0.5rem; margin-bottom: 1rem;">
+                <div class="budget-progress-bar 
+                    {% if budget.get_budget_percentage < 70 %}progress-safe
+                    {% elif budget.get_budget_percentage < 90 %}progress-warning
+                    {% else %}progress-danger{% endif %}"
+                    style="width: {{ budget.get_budget_percentage|floatformat:1 }}%">
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Budget Tips -->
+    <div class="card" style="background: linear-gradient(135deg, #2ecc71, #27ae60); color: white;">
+        <div class="card-header" style="border-color: rgba(255,255,255,0.2);">
+            <h2 class="card-title" style="color: white;">🎯 Smart Budgeting Tips</h2>
+        </div>
+        
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem;">
+            <div style="padding: 1rem; background: rgba(255,255,255,0.1); border-radius: 8px;">
+                <strong>📊 50/30/20 Rule</strong>
+                <p style="margin-top: 0.5rem; opacity: 0.9;">50% needs, 30% wants, 20% savings</p>
+            </div>
+            <div style="padding: 1rem; background: rgba(255,255,255,0.1); border-radius: 8px;">
+                <strong>🎯 Track Daily</strong>
+                <p style="margin-top: 0.5rem; opacity: 0.9;">Monitor expenses daily to stay on track</p>
+            </div>
+            <div style="padding: 1rem; background: rgba(255,255,255,0.1); border-radius: 8px;">
+                <strong>🚨 Emergency Fund</strong>
+                <p style="margin-top: 0.5rem; opacity: 0.9;">Keep aside money for unexpected expenses</p>
+            </div>
+            <div style="padding: 1rem; background: rgba(255,255,255,0.1); border-radius: 8px;">
+                <strong>📱 Use Technology</strong>
+                <p style="margin-top: 0.5rem; opacity: 0.9;">Use this app to track every expense</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Budget Calculator -->
+    <div class="card">
+        <div class="card-header">
+            <h2 class="card-title">🧮 Budget Calculator</h2>
+            <p class="card-subtitle">Calculate your ideal monthly budget</p>
+        </div>
+        
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem;">
+            <div>
+                <h4 style="margin-bottom: 1rem;">Monthly Income/Allowance</h4>
+                
+                <div class="form-group">
+                    <label class="form-label">Parent Allowance (₹)</label>
+                    <input type="number" id="parentAllowance" class="form-input" placeholder="5000" min="0">
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Part-time Job (₹)</label>
+                    <input type="number" id="partTimeIncome" class="form-input" placeholder="2000" min="0">
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Scholarship/Other (₹)</label>
+                    <input type="number" id="otherIncome" class="form-input" placeholder="1000" min="0">
+                </div>
+                
+                <button onclick="calculateBudget()" class="btn btn-primary">
+                    🧮 Calculate Ideal Budget
+                </button>
+            </div>
+            
+            <div>
+                <h4 style="margin-bottom: 1rem;">Recommended Budget Breakdown</h4>
+                
+                <div id="budgetResult" style="display: none;">
+                    <div style="background: #f8f9fa; padding: 1.5rem; border-radius: 8px; margin-bottom: 1rem;">
+                        <h5>Total Monthly Income: <span id="totalIncome" style="color: #2ecc71;">₹0</span></h5>
+                    </div>
+                    
+                    <div style="display: flex; flex-direction: column; gap: 1rem;">
+                        <div style="display: flex; justify-content: space-between; padding: 0.5rem 0; border-bottom: 1px solid #eee;">
+                            <span>📚 Education & Books (20%)</span>
+                            <strong id="educationBudget">₹0</strong>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; padding: 0.5rem 0; border-bottom: 1px solid #eee;">
+                            <span>🍽️ Food & Meals (40%)</span>
+                            <strong id="foodBudget">₹0</strong>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; padding: 0.5rem 0; border-bottom: 1px solid #eee;">
+                            <span>🚌 Transportation (15%)</span>
+                            <strong id="transportBudget">₹0</strong>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; padding: 0.5rem 0; border-bottom: 1px solid #eee;">
+                            <span>🎬 Entertainment (15%)</span>
+                            <strong id="entertainmentBudget">₹0</strong>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; padding: 0.5rem 0; border-bottom: 1px solid #eee;">
+                            <span>💰 Savings (10%)</span>
+                            <strong id="savingsBudget">₹0</strong>
+                        </div>
+                    </div>
+                    
+                    <button onclick="useSuggestedBudget()" class="btn btn-success" style="width: 100%; margin-top: 1rem;">
+                        ✨ Use This Budget
+                    </button>
+                </div>
+                
+                <div id="budgetPlaceholder" style="text-align: center; padding: 2rem; color: #666;">
+                    <div style="font-size: 3rem; margin-bottom: 1rem;">🧮</div>
+                    <p>Enter your income details to get personalized budget recommendations</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.quick-suggestion {
+    padding: 1rem;
+    background: #ffffff;
+    border-radius: 8px;
+    border: 2px solid #e0e0e0;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.quick-suggestion:hover {
+    border-color: #000000;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+.quick-suggestion.selected {
+    border-color: #2ecc71;
+    background: #2ecc7110;
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Quick budget suggestions
+    const suggestions = document.querySelectorAll('.quick-suggestion');
+    const budgetInput = document.querySelector('input[name="total_budget"]');
+    
+    suggestions.forEach(suggestion => {
+        suggestion.addEventListener('click', function() {
+            suggestions.forEach(s => s.classList.remove('selected'));
+            this.classList.add('selected');
+            
+            const amount = this.dataset.amount;
+            if (budgetInput) {
+                budgetInput.value = amount;
+                budgetInput.style.borderColor = '#2ecc71';
+            }
+        });
+    });
+    
+    // Set current month as default
+    const monthInput = document.querySelector('input[name="month"]');
+    if (monthInput && !monthInput.value) {
+        const now = new Date();
+        const year = now.getFullYear();
+        const month = String(now.getMonth() + 1).padStart(2, '0');
+        monthInput.value = `${year}-${month}`;
+    }
+});
+
+function calculateBudget() {
+    const parentAllowance = parseFloat(document.getElementById('parentAllowance').value) || 0;
+    const partTimeIncome = parseFloat(document.getElementById('partTimeIncome').value) || 0;
+    const otherIncome = parseFloat(document.getElementById('otherIncome').value) || 0;
+    
+    const totalIncome = parentAllowance + partTimeIncome + otherIncome;
+    
+    if (totalIncome === 0) {
+        alert('Please enter your income details');
+        return;
+    }
+    
+    // Calculate budget breakdown
+    const educationBudget = Math.round(totalIncome * 0.20);
+    const foodBudget = Math.round(totalIncome * 0.40);
+    const transportBudget = Math.round(totalIncome * 0.15);
+    const entertainmentBudget = Math.round(totalIncome * 0.15);
+    const savingsBudget = Math.round(totalIncome * 0.10);
+    
+    // Update display
+    document.getElementById('totalIncome').textContent = `₹${totalIncome.toLocaleString()}`;
+    document.getElementById('educationBudget').textContent = `₹${educationBudget.toLocaleString()}`;
+    document.getElementById('foodBudget').textContent = `₹${foodBudget.toLocaleString()}`;
+    document.getElementById('transportBudget').textContent = `₹${transportBudget.toLocaleString()}`;
+    document.getElementById('entertainmentBudget').textContent = `₹${entertainmentBudget.toLocaleString()}`;
+    document.getElementById('savingsBudget').textContent = `₹${savingsBudget.toLocaleString()}`;
+    
+    // Show result
+    document.getElementById('budgetPlaceholder').style.display = 'none';
+    document.getElementById('budgetResult').style.display = 'block';
+    
+    // Store calculated budget for use
+    window.calculatedBudget = totalIncome - savingsBudget; // Total budget minus savings
+}
+
+function useSuggestedBudget() {
+    const budgetInput = document.querySelector('input[name="total_budget"]');
+    if (budgetInput && window.calculatedBudget) {
+        budgetInput.value = window.calculatedBudget;
+        budgetInput.style.borderColor = '#2ecc71';
+        
+        // Scroll to budget form
+        document.querySelector('form').scrollIntoView({ behavior: 'smooth' });
+        
+        // Add visual feedback
+        budgetInput.style.backgroundColor = '#2ecc7110';
+        setTimeout(() => {
+            budgetInput.style.backgroundColor = '';
+        }, 2000);
+    }
+}
+</script>
+{% endblock %}

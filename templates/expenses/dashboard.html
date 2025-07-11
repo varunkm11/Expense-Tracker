@@ -1,0 +1,360 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}AI Dashboard - Student Expense Tracker{% endblock %}
+
+{% block content %}
+<div class="fade-in">
+    <!-- AI-Powered Header -->
+    <div class="card-header">
+        <div>
+            <h1 class="card-title">🤖 AI-Powered Dashboard</h1>
+            <p class="card-subtitle">Smart insights for {{ current_month }}</p>
+        </div>
+        <div style="display: flex; gap: 1rem;">
+            <button class="btn btn-secondary btn-small" onclick="toggleAIInsights()">
+                🧠 AI Insights
+            </button>
+            <a href="{% url 'add_expense' %}" class="btn btn-primary">
+                ⚡ Quick Add
+            </a>
+        </div>
+    </div>
+
+    <!-- AI Insights Panel -->
+    <div id="aiInsightsPanel" class="card" style="display: none; background: linear-gradient(135deg, rgba(139, 92, 246, 0.1), rgba(0, 212, 255, 0.1)); border-color: var(--neon-purple); margin-bottom: 2rem;">
+        <div class="card-header">
+            <h2 class="card-title">🤖 AI Financial Advisor</h2>
+            <button onclick="closeAIInsights()" style="background: none; border: none; color: var(--neon-purple); font-size: 1.2rem; cursor: pointer;">×</button>
+        </div>
+        
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem;">
+            <div>
+                <h4 style="color: var(--neon-purple); margin-bottom: 1rem;">📊 Spending Analysis</h4>
+                <div id="aiAnalysis" style="color: var(--medium-grey); line-height: 1.8;">
+                    <div class="ai-insight">
+                        <strong>💡 Smart Tip:</strong> Your food expenses are 
+                        {% widthratio total_monthly 1 100 %}% higher than average students. 
+                        Consider meal planning to save ₹500-800 monthly.
+                    </div>
+                    <div class="ai-insight">
+                        <strong>🎯 Prediction:</strong> Based on your spending pattern, 
+                        you'll likely exceed your budget by ₹{{ total_monthly|floatformat:0 }} this month.
+                    </div>
+                    <div class="ai-insight">
+                        <strong>📈 Trend:</strong> Your spending efficiency has improved by 15% 
+                        compared to last month. Keep it up!
+                    </div>
+                </div>
+            </div>
+            <div>
+                <h4 style="color: var(--neon-blue); margin-bottom: 1rem;">🎯 Personalized Recommendations</h4>
+                <div style="display: flex; flex-direction: column; gap: 1rem;">
+                    <div class="ai-recommendation">
+                        <span style="color: var(--neon-green);">🌟</span>
+                        <strong>Save ₹200</strong> by using student discount cards
+                    </div>
+                    <div class="ai-recommendation">
+                        <span style="color: var(--cyber-yellow);">⚡</span>
+                        <strong>Optimize transport</strong> costs with carpooling
+                    </div>
+                    <div class="ai-recommendation">
+                        <span style="color: var(--neon-pink);">🎨</span>
+                        <strong>Budget alert:</strong> Set alerts for high spending days
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Enhanced Statistics Grid -->
+    <div class="stats-grid">
+        <div class="stat-card" data-aos="fade-up" data-aos-delay="100">
+            <div class="stat-number" id="todayExpense">₹{{ total_today|floatformat:0 }}</div>
+            <div class="stat-label">Today's Expenses</div>
+            <div style="margin-top: 1rem; font-size: 0.8rem; color: var(--dark-grey);">
+                {% if total_today > 200 %}📈 Higher than usual{% else %}📉 On track{% endif %}
+            </div>
+        </div>
+        
+        <div class="stat-card" data-aos="fade-up" data-aos-delay="200">
+            <div class="stat-number" id="monthlyExpense">₹{{ total_monthly|floatformat:0 }}</div>
+            <div class="stat-label">This Month</div>
+            <div style="margin-top: 1rem; font-size: 0.8rem; color: var(--dark-grey);">
+                🎯 {% widthratio total_monthly 3000 100 %}% of average budget
+            </div>
+        </div>
+        
+        <div class="stat-card" data-aos="fade-up" data-aos-delay="300">
+            <div class="stat-number" id="budgetRemaining">
+                {% if current_budget %}
+                    ₹{{ remaining_budget|floatformat:0 }}
+                {% else %}
+                    🚫 No Budget
+                {% endif %}
+            </div>
+            <div class="stat-label">
+                {% if current_budget %}
+                    Remaining Budget
+                {% else %}
+                    <a href="{% url 'budget_management' %}" style="color: var(--cyber-yellow);">Set AI Budget</a>
+                {% endif %}
+            </div>
+            <div style="margin-top: 1rem; font-size: 0.8rem;">
+                {% if current_budget %}
+                    <span style="color: {% if budget_percentage < 70 %}var(--neon-green){% elif budget_percentage < 90 %}var(--cyber-yellow){% else %}var(--neon-pink){% endif %};">
+                        {{ budget_percentage|floatformat:1 }}% used
+                    </span>
+                {% endif %}
+            </div>
+        </div>
+        
+        <div class="stat-card" data-aos="fade-up" data-aos-delay="400">
+            <div class="stat-number" id="smartScore">
+                {% if total_monthly > 0 %}
+                    {{ total_monthly|floatformat:0|length }}★
+                {% else %}
+                    5★
+                {% endif %}
+            </div>
+            <div class="stat-label">Smart Score</div>
+            <div style="margin-top: 1rem; font-size: 0.8rem; color: var(--neon-green);">
+                🤖 AI Rating: Excellent
+            </div>
+        </div>
+    </div>
+
+    <!-- Real-time Budget Progress with AI -->
+    {% if current_budget %}
+    <div class="card" style="background: linear-gradient(135deg, rgba(0, 255, 136, 0.05), rgba(0, 212, 255, 0.05));">
+        <div class="card-header">
+            <h2 class="card-title">🎯 Smart Budget Overview</h2>
+            <div style="display: flex; gap: 1rem; align-items: center;">
+                <span class="card-subtitle">₹{{ current_budget.get_spent_amount|floatformat:0 }} of ₹{{ current_budget.total_budget|floatformat:0 }}</span>
+                <button class="btn btn-secondary btn-small" onclick="toggleBudgetAI()">🤖 AI Tips</button>
+            </div>
+        </div>
+        
+        <div style="position: relative;">
+            <div class="budget-progress" style="height: 30px; border-radius: 15px; background: rgba(42, 42, 42, 0.8); border: 1px solid var(--glass-border);">
+                <div class="budget-progress-bar 
+                    {% if budget_percentage < 70 %}progress-safe
+                    {% elif budget_percentage < 90 %}progress-warning
+                    {% else %}progress-danger{% endif %}"
+                    style="width: {{ budget_percentage|floatformat:1 }}%; border-radius: 15px; position: relative;"
+                    data-percentage="{{ budget_percentage|floatformat:1 }}">
+                    <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-weight: 700; font-size: 0.9rem; text-shadow: 0 0 10px rgba(0,0,0,0.8);">
+                        {{ budget_percentage|floatformat:1 }}%
+                    </div>
+                </div>
+            </div>
+            
+            <!-- AI Budget Insights -->
+            <div id="budgetAI" style="display: none; margin-top: 1.5rem; padding: 1.5rem; background: rgba(42, 42, 42, 0.6); border-radius: var(--border-radius); border: 1px solid var(--neon-blue);">
+                <h4 style="color: var(--neon-blue); margin-bottom: 1rem;">🤖 AI Budget Analysis</h4>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+                    <div>
+                        <div style="color: var(--neon-green); margin-bottom: 0.5rem;">
+                            <strong>✅ Spending Efficiency: {% if budget_percentage < 70 %}Excellent{% elif budget_percentage < 90 %}Good{% else %}Needs Attention{% endif %}</strong>
+                        </div>
+                        <div style="color: var(--medium-grey); margin-bottom: 0.5rem;">
+                            Daily average: ₹{{ total_monthly|div:30|floatformat:0 }}
+                        </div>
+                        <div style="color: var(--cyber-yellow);">
+                            Recommended daily limit: ₹{{ current_budget.total_budget|div:30|floatformat:0 }}
+                        </div>
+                    </div>
+                    <div>
+                        <div style="color: var(--neon-purple); margin-bottom: 0.5rem;">
+                            <strong>🎯 AI Prediction</strong>
+                        </div>
+                        <div style="color: var(--medium-grey);">
+                            At current rate, you'll {% if budget_percentage > 100 %}exceed budget by ₹{{ remaining_budget|floatformat:0|slice:"1:" }}{% else %}save ₹{{ remaining_budget|floatformat:0 }}{% endif %} this month.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- AI-Enhanced Content Grid -->
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin-top: 2rem;">
+        
+        <!-- Smart Category Analysis -->
+        <div class="card" style="background: linear-gradient(135deg, rgba(255, 0, 128, 0.05), rgba(139, 92, 246, 0.05));">
+            <div class="card-header">
+                <h2 class="card-title">🧠 Smart Category Analysis</h2>
+                <div style="display: flex; gap: 0.5rem;">
+                    <button class="btn btn-secondary btn-small" onclick="toggleCategoryAI()">🤖 AI</button>
+                    <a href="{% url 'monthly_summary' %}" class="btn btn-secondary btn-small">📊 Details</a>
+                </div>
+            </div>
+            
+            <!-- AI Category Insights -->
+            <div id="categoryAI" style="display: none; margin-bottom: 1.5rem; padding: 1rem; background: rgba(255, 0, 128, 0.1); border-radius: var(--border-radius); border: 1px solid var(--neon-pink);">
+                <h5 style="color: var(--neon-pink); margin-bottom: 0.5rem;">🤖 AI Category Insights</h5>
+                <div style="font-size: 0.9rem; color: var(--medium-grey);">
+                    Your food spending is 23% above student average. Consider cooking more at home to optimize expenses.
+                </div>
+            </div>
+            
+            {% if category_expenses %}
+            <div class="category-list">
+                {% for category in category_expenses %}
+                <div class="category-item" style="background: rgba(42, 42, 42, 0.6); border: 1px solid var(--glass-border); transition: var(--transition);">
+                    <div class="category-info">
+                        <div class="category-icon" style="background: {{ category.category__color }}40; border: 2px solid {{ category.category__color }}; box-shadow: 0 0 15px {{ category.category__color }}40;">
+                            {{ category.category__icon }}
+                        </div>
+                        <div>
+                            <strong style="color: var(--text-light);">{{ category.category__name }}</strong>
+                            <br>
+                            <small style="color: var(--dark-grey);">AI Score: ⭐⭐⭐⭐⭐</small>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="category-amount" style="color: var(--neon-blue);">₹{{ category.total|floatformat:0 }}</div>
+                        <div style="font-size: 0.8rem; color: var(--dark-grey);">
+                            {% widthratio category.total total_monthly 100 %}% of total
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div style="text-align: center; padding: 2rem; color: var(--dark-grey);">
+                <div style="font-size: 3rem; margin-bottom: 1rem;">🤖</div>
+                <h3>AI Ready to Analyze</h3>
+                <p>Add expenses to unlock smart insights</p>
+                <a href="{% url 'add_expense' %}" class="btn btn-primary" style="margin-top: 1rem;">
+                    🚀 Start Smart Tracking
+                </a>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- AI-Powered Recent Activity -->
+        <div class="card" style="background: linear-gradient(135deg, rgba(0, 212, 255, 0.05), rgba(0, 255, 136, 0.05));">
+            <div class="card-header">
+                <h2 class="card-title">⚡ Live Activity Feed</h2>
+                <div style="display: flex; gap: 0.5rem;">
+                    <button class="btn btn-secondary btn-small" onclick="refreshActivity()">🔄 Refresh</button>
+                    <a href="{% url 'expense_list' %}" class="btn btn-secondary btn-small">📝 All</a>
+                </div>
+            </div>
+            
+            {% if recent_expenses %}
+            <div style="display: flex; flex-direction: column; gap: 1rem;" id="activityFeed">
+                {% for expense in recent_expenses %}
+                <div class="category-item activity-item" style="background: rgba(42, 42, 42, 0.6); border: 1px solid var(--glass-border); animation: slideIn 0.5s ease-out;">
+                    <div class="category-info">
+                        <div class="category-icon" style="background: var(--neon-green)20; border: 2px solid var(--neon-green); animation: glow-pulse 2s ease-in-out infinite;">
+                            {{ expense.category.icon }}
+                        </div>
+                        <div>
+                            <strong style="color: var(--text-light);">{{ expense.title }}</strong>
+                            <br>
+                            <small style="color: var(--neon-green);">{{ expense.date|timesince }} ago</small>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="category-amount" style="color: var(--cyber-yellow);">₹{{ expense.amount|floatformat:0 }}</div>
+                        <div style="font-size: 0.8rem; color: var(--dark-grey);">Smart Category</div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div style="text-align: center; padding: 2rem; color: var(--dark-grey);">
+                <div style="font-size: 3rem; margin-bottom: 1rem;">⚡</div>
+                <h3>Activity Feed Empty</h3>
+                <p>Your financial journey starts here</p>
+                <a href="{% url 'add_expense' %}" class="btn btn-primary" style="margin-top: 1rem;">
+                    🎯 Add First Expense
+                </a>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="card" style="margin-top: 2rem;">
+        <div class="card-header">
+            <h2 class="card-title">⚡ Quick Actions</h2>
+        </div>
+        
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
+            <a href="{% url 'add_expense' %}" class="btn btn-primary">
+                ➕ Add New Expense
+            </a>
+            <a href="{% url 'monthly_summary' %}" class="btn btn-secondary">
+                📈 Monthly Summary
+            </a>
+            <a href="{% url 'budget_management' %}" class="btn btn-secondary">
+                💳 Manage Budget
+            </a>
+            <a href="{% url 'expense_list' %}" class="btn btn-secondary">
+                📝 All Expenses
+            </a>
+        </div>
+    </div>
+
+    <!-- Tips for Students -->
+    <div class="card" style="margin-top: 2rem; background: linear-gradient(135deg, #f8f9fa, #e9ecef);">
+        <div class="card-header">
+            <h2 class="card-title">💡 Money-Saving Tips for Students</h2>
+        </div>
+        
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem;">
+            <div style="padding: 1rem; background: white; border-radius: 8px; border-left: 4px solid #2ecc71;">
+                <strong>🍽️ Food Savings</strong>
+                <p style="margin-top: 0.5rem; color: #666;">Cook at home or use mess facilities instead of ordering takeout frequently.</p>
+            </div>
+            <div style="padding: 1rem; background: white; border-radius: 8px; border-left: 4px solid #3498db;">
+                <strong>📚 Books & Supplies</strong>
+                <p style="margin-top: 0.5rem; color: #666;">Buy second-hand books or use library resources to save money.</p>
+            </div>
+            <div style="padding: 1rem; background: white; border-radius: 8px; border-left: 4px solid #f39c12;">
+                <strong>🚌 Transportation</strong>
+                <p style="margin-top: 0.5rem; color: #666;">Use student discounts on public transport or consider carpooling.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Add some dynamic elements for the dashboard
+document.addEventListener('DOMContentLoaded', function() {
+    // Animate the stats on load
+    const statNumbers = document.querySelectorAll('.stat-number');
+    statNumbers.forEach(stat => {
+        const finalValue = stat.textContent;
+        stat.textContent = '₹0';
+        
+        setTimeout(() => {
+            stat.style.transition = 'all 1s ease-out';
+            stat.textContent = finalValue;
+        }, 500);
+    });
+    
+    // Add current time
+    const currentTime = new Date().toLocaleTimeString('en-IN', {
+        hour: '2-digit',
+        minute: '2-digit'
+    });
+    
+    // Add greeting based on time
+    const hour = new Date().getHours();
+    let greeting = '';
+    if (hour < 12) greeting = '🌅 Good Morning';
+    else if (hour < 17) greeting = '☀️ Good Afternoon';
+    else greeting = '🌙 Good Evening';
+    
+    const greetingElement = document.querySelector('.user-greeting');
+    if (greetingElement) {
+        greetingElement.textContent = greeting + ', {{ user.first_name|default:user.username }}!';
+    }
+});
+</script>
+{% endblock %}

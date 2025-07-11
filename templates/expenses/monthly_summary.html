@@ -1,0 +1,350 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Monthly Summary - Student Expense Tracker{% endblock %}
+
+{% block content %}
+<div class="fade-in">
+    <!-- Page Header -->
+    <div class="card-header">
+        <div>
+            <h1 class="card-title">📈 Monthly Summary</h1>
+            <p class="card-subtitle">{{ selected_date|date:"F Y" }} expense analysis</p>
+        </div>
+        <div style="display: flex; gap: 1rem;">
+            <form method="get" style="display: flex; gap: 0.5rem; align-items: center;">
+                <select name="month" class="form-select" onchange="this.form.submit()">
+                    {% for i in "123456789012"|make_list %}
+                    <option value="{{ i|add:0 }}" {% if month == i|add:0 %}selected{% endif %}>
+                        {% if i == "1" %}January{% elif i == "2" %}February{% elif i == "3" %}March{% elif i == "4" %}April{% elif i == "5" %}May{% elif i == "6" %}June{% elif i == "7" %}July{% elif i == "8" %}August{% elif i == "9" %}September{% elif i == "10" %}October{% elif i == "11" %}November{% elif i == "12" %}December{% endif %}
+                    </option>
+                    {% endfor %}
+                </select>
+                <select name="year" class="form-select" onchange="this.form.submit()">
+                    {% for year_option in "2024,2025,2026"|split:"," %}
+                    <option value="{{ year_option }}" {% if year == year_option|add:0 %}selected{% endif %}>{{ year_option }}</option>
+                    {% endfor %}
+                </select>
+            </form>
+            <a href="{% url 'add_expense' %}" class="btn btn-primary">➕ Add Expense</a>
+        </div>
+    </div>
+
+    <!-- Summary Stats -->
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-number">₹{{ total_amount|floatformat:0 }}</div>
+            <div class="stat-label">Total Spent</div>
+        </div>
+        
+        <div class="stat-card">
+            <div class="stat-number">{{ category_breakdown|length }}</div>
+            <div class="stat-label">Categories Used</div>
+        </div>
+        
+        <div class="stat-card">
+            <div class="stat-number">
+                {% if budget %}
+                    ₹{{ budget.get_remaining_budget|floatformat:0 }}
+                {% else %}
+                    No Budget
+                {% endif %}
+            </div>
+            <div class="stat-label">
+                {% if budget %}
+                    Remaining Budget
+                {% else %}
+                    <a href="{% url 'budget_management' %}" style="color: #f39c12;">Set Budget</a>
+                {% endif %}
+            </div>
+        </div>
+        
+        <div class="stat-card">
+            <div class="stat-number">
+                {% if total_amount > 0 %}
+                    ₹{{ total_amount|floatformat:0|mul:30|div:30|floatformat:0 }}
+                {% else %}
+                    ₹0
+                {% endif %}
+            </div>
+            <div class="stat-label">Avg. per Day</div>
+        </div>
+    </div>
+
+    <!-- Charts Section -->
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin-bottom: 2rem;">
+        
+        <!-- Daily Spending Chart -->
+        <div class="card">
+            <div class="card-header">
+                <h2 class="card-title">📊 Daily Spending</h2>
+            </div>
+            <div class="chart-container">
+                <canvas id="dailyChart" data-chart-data='{{ daily_expenses|safe }}'></canvas>
+            </div>
+        </div>
+        
+        <!-- Category Breakdown Chart -->
+        <div class="card">
+            <div class="card-header">
+                <h2 class="card-title">🎯 Category Breakdown</h2>
+            </div>
+            <div class="chart-container">
+                <canvas id="categoryChart" data-chart-data='{{ category_breakdown|safe }}'></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- Category Details -->
+    <div class="card">
+        <div class="card-header">
+            <h2 class="card-title">📋 Category-wise Breakdown</h2>
+        </div>
+        
+        {% if category_breakdown %}
+        <div class="category-list">
+            {% for category in category_breakdown %}
+            <div class="category-item">
+                <div class="category-info">
+                    <div class="category-icon" style="background-color: {{ category.category__color }}20;">
+                        {{ category.category__icon }}
+                    </div>
+                    <div>
+                        <strong>{{ category.category__name }}</strong>
+                        <br>
+                        <small style="color: #666;">
+                            {% widthratio category.total total_amount 100 %}% of total spending
+                        </small>
+                    </div>
+                </div>
+                <div class="category-amount">₹{{ category.total|floatformat:0 }}</div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div style="text-align: center; padding: 2rem; color: #666;">
+            <div style="font-size: 3rem; margin-bottom: 1rem;">📊</div>
+            <h3>No expenses recorded</h3>
+            <p>Start adding expenses to see your spending analysis</p>
+            <a href="{% url 'add_expense' %}" class="btn btn-primary" style="margin-top: 1rem;">
+                ➕ Add Your First Expense
+            </a>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Budget Progress -->
+    {% if budget %}
+    <div class="card">
+        <div class="card-header">
+            <h2 class="card-title">💳 Budget Analysis</h2>
+        </div>
+        
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; align-items: center;">
+            <div>
+                <div style="margin-bottom: 1rem;">
+                    <strong>Monthly Budget: ₹{{ budget.total_budget|floatformat:0 }}</strong>
+                </div>
+                <div style="margin-bottom: 1rem;">
+                    <strong>Amount Spent: ₹{{ budget.get_spent_amount|floatformat:0 }}</strong>
+                </div>
+                <div style="margin-bottom: 1rem;">
+                    <strong>Remaining: ₹{{ budget.get_remaining_budget|floatformat:0 }}</strong>
+                </div>
+                
+                <div class="budget-progress">
+                    <div class="budget-progress-bar 
+                        {% if budget.get_budget_percentage < 70 %}progress-safe
+                        {% elif budget.get_budget_percentage < 90 %}progress-warning
+                        {% else %}progress-danger{% endif %}"
+                        style="width: {{ budget.get_budget_percentage|floatformat:1 }}%"
+                        data-percentage="{{ budget.get_budget_percentage|floatformat:1 }}">
+                    </div>
+                </div>
+                
+                <div style="text-align: center; margin-top: 1rem;">
+                    <strong>{{ budget.get_budget_percentage|floatformat:1 }}% of budget used</strong>
+                </div>
+            </div>
+            
+            <div style="text-align: center;">
+                {% if budget.get_budget_percentage < 70 %}
+                    <div style="font-size: 3rem; color: #2ecc71;">😊</div>
+                    <h3 style="color: #2ecc71;">Great Job!</h3>
+                    <p>You're staying within budget. Keep it up!</p>
+                {% elif budget.get_budget_percentage < 90 %}
+                    <div style="font-size: 3rem; color: #f39c12;">😐</div>
+                    <h3 style="color: #f39c12;">Watch Out!</h3>
+                    <p>You're approaching your budget limit. Be careful with spending.</p>
+                {% else %}
+                    <div style="font-size: 3rem; color: #e74c3c;">😟</div>
+                    <h3 style="color: #e74c3c;">Over Budget!</h3>
+                    <p>You've exceeded your monthly budget. Consider reviewing your expenses.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Money-Saving Tips -->
+    <div class="card" style="background: linear-gradient(135deg, #f8f9fa, #e9ecef);">
+        <div class="card-header">
+            <h2 class="card-title">💡 Smart Saving Tips</h2>
+        </div>
+        
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem;">
+            {% if total_amount > 3000 %}
+            <div style="padding: 1rem; background: white; border-radius: 8px; border-left: 4px solid #e74c3c;">
+                <strong>💰 High Spending Alert</strong>
+                <p style="margin-top: 0.5rem; color: #666;">You've spent ₹{{ total_amount|floatformat:0 }} this month. Consider reviewing your expenses.</p>
+            </div>
+            {% endif %}
+            
+            <div style="padding: 1rem; background: white; border-radius: 8px; border-left: 4px solid #2ecc71;">
+                <strong>🍽️ Food Optimization</strong>
+                <p style="margin-top: 0.5rem; color: #666;">Plan your meals and cook at home to save 30-40% on food expenses.</p>
+            </div>
+            
+            <div style="padding: 1rem; background: white; border-radius: 8px; border-left: 4px solid #3498db;">
+                <strong>📚 Student Discounts</strong>
+                <p style="margin-top: 0.5rem; color: #666;">Always ask for student discounts on books, software, and transportation.</p>
+            </div>
+            
+            <div style="padding: 1rem; background: white; border-radius: 8px; border-left: 4px solid #f39c12;">
+                <strong>🎯 Set Goals</strong>
+                <p style="margin-top: 0.5rem; color: #666;">Set monthly savings goals to build better financial habits.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Create daily spending chart
+    const dailyCanvas = document.getElementById('dailyChart');
+    if (dailyCanvas) {
+        const dailyData = JSON.parse(dailyCanvas.dataset.chartData || '{}');
+        const ctx = dailyCanvas.getContext('2d');
+        
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: Object.keys(dailyData),
+                datasets: [{
+                    label: 'Daily Expenses (₹)',
+                    data: Object.values(dailyData),
+                    borderColor: '#000000',
+                    backgroundColor: 'rgba(0, 0, 0, 0.1)',
+                    borderWidth: 3,
+                    fill: true,
+                    tension: 0.4,
+                    pointBackgroundColor: '#000000',
+                    pointBorderColor: '#ffffff',
+                    pointBorderWidth: 2,
+                    pointRadius: 4,
+                    pointHoverRadius: 6
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        grid: {
+                            color: '#e0e0e0'
+                        },
+                        ticks: {
+                            callback: function(value) {
+                                return '₹' + value;
+                            }
+                        }
+                    },
+                    x: {
+                        grid: {
+                            color: '#e0e0e0'
+                        }
+                    }
+                },
+                animation: {
+                    duration: 2000,
+                    easing: 'easeInOutCubic'
+                }
+            }
+        });
+    }
+    
+    // Create category chart
+    const categoryCanvas = document.getElementById('categoryChart');
+    if (categoryCanvas) {
+        const categoryData = {{ category_breakdown|safe }};
+        const ctx = categoryCanvas.getContext('2d');
+        
+        const labels = categoryData.map(item => item.category__name);
+        const values = categoryData.map(item => item.total);
+        const colors = [
+            'rgba(0, 0, 0, 0.8)',
+            'rgba(102, 102, 102, 0.8)',
+            'rgba(46, 204, 113, 0.8)',
+            'rgba(52, 152, 219, 0.8)',
+            'rgba(243, 156, 18, 0.8)',
+            'rgba(231, 76, 60, 0.8)',
+            'rgba(155, 89, 182, 0.8)',
+            'rgba(26, 188, 156, 0.8)'
+        ];
+        
+        new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                labels: labels,
+                datasets: [{
+                    data: values,
+                    backgroundColor: colors,
+                    borderColor: '#ffffff',
+                    borderWidth: 2,
+                    hoverBorderWidth: 3
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            padding: 15,
+                            usePointStyle: true,
+                            font: {
+                                size: 11,
+                                weight: '500'
+                            }
+                        }
+                    }
+                },
+                animation: {
+                    animateRotate: true,
+                    duration: 2000
+                }
+            }
+        });
+    }
+    
+    // Animate budget progress
+    setTimeout(() => {
+        const progressBar = document.querySelector('.budget-progress-bar');
+        if (progressBar) {
+            const percentage = progressBar.dataset.percentage;
+            progressBar.style.width = '0%';
+            setTimeout(() => {
+                progressBar.style.width = percentage + '%';
+            }, 500);
+        }
+    }, 1000);
+});
+</script>
+{% endblock %}
