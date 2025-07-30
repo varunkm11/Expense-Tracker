@@ -24,9 +24,22 @@ export const register = async (req: Request, res: Response) => {
       return res.status(400).json({ error: 'User already exists with this email' });
     }
 
-    // Create new user
-    const user = new User(validatedData);
+    // Find all existing users
+    const allUsers = await User.find({}, 'email');
+    const allEmails = allUsers.map(u => u.email);
+
+    // Create new user, add all existing users as roommates
+    const user = new User({
+      ...validatedData,
+      roommates: allEmails.filter(email => email !== validatedData.email)
+    });
     await user.save();
+
+    // Add this new user to all other users' roommates
+    await User.updateMany(
+      { email: { $ne: validatedData.email } },
+      { $addToSet: { roommates: validatedData.email } }
+    );
 
     // Generate token
     const token = generateToken(user._id.toString());
