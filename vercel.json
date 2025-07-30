@@ -1,0 +1,23 @@
+{
+  "builds": [
+    {
+      "src": "client/App.tsx",
+      "use": "@vercel/node"
+    },
+    {
+      "src": "server/index.ts",
+      "use": "@vercel/node"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/api/(.*)",
+      "dest": "/netlify/functions/api.ts"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/client/App.tsx"
+    }
+  ],
+  "outputDirectory": "dist/spa"
+}
