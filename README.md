@@ -1,8 +1,13 @@
+
 # Expense-Tracker
 
 A full-featured expense tracking application for managing your personal finances, analyzing spending habits, and optimizing budgets.
 
 [View on GitHub](https://github.com/varunkm11/Expense-Tracker)
+
+## Live Demo
+
+[https://expense-tracker-self-mu.vercel.app/auth](https://expense-tracker-self-mu.vercel.app/auth)
 
 ## Features
 
