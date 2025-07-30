@@ -98,6 +98,9 @@ export function createServer() {
 
   // Authentication routes
   app.post("/api/auth/register", register);
+  app.get("/api/auth/register", (req, res) => {
+    res.status(405).json({ error: "Method Not Allowed. Use POST." });
+  });
   app.post("/api/auth/login", login);
   app.get("/api/auth/profile", verifyToken, getProfile);
   app.put("/api/auth/profile", verifyToken, updateProfile);
