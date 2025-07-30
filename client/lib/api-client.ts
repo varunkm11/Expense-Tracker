@@ -13,7 +13,9 @@ import {
   PaginatedResponse 
 } from '@shared/api';
 
-const API_BASE_URL = '/api';
+const API_BASE_URL = typeof window !== 'undefined' && window.location.hostname === 'localhost'
+  ? '/api'
+  : 'https://expense-tracker-self-mu.vercel.app/api';
 
 class ApiClient {
   private token: string | null = null;
