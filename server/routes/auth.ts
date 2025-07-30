@@ -15,6 +15,7 @@ const loginSchema = z.object({
 });
 
 export const register = async (req: Request, res: Response) => {
+  console.log('Register endpoint called:', req.method, req.body);
   try {
     const validatedData = registerSchema.parse(req.body);
     
