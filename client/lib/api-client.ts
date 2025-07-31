@@ -15,7 +15,7 @@ import {
 
 const API_BASE_URL = typeof window !== 'undefined' && window.location.hostname === 'localhost'
   ? '/api'
-  : 'https://expense-tracker.onrender.com/api';
+  : 'https://expense-tracker-rk26.onrender.com/api';
 
 class ApiClient {
   private token: string | null = null;

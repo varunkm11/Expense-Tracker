@@ -7,7 +7,7 @@ A full-featured expense tracking application for managing your personal finances
 
 ## Live Demo
 
-[https://expense-tracker.onrender.com/auth](https://expense-tracker.onrender.com/auth)
+[https://expense-tracker-rk26.onrender.com/auth](https://expense-tracker-rk26.onrender.com/auth)
 
 ## Features
 
