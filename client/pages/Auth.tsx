@@ -14,7 +14,8 @@ import {
   User,
   Mail,
   Lock,
-  Wallet
+  Wallet,
+  Shield
 } from "lucide-react";
 
 export default function Auth() {
@@ -25,7 +26,8 @@ export default function Auth() {
     email: '',
     password: '',
     name: '',
-    confirmPassword: ''
+    confirmPassword: '',
+    adminCode: ''
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
 
@@ -96,7 +98,7 @@ export default function Auth() {
 
     setIsLoading(true);
     try {
-      await register(formData.email, formData.password, formData.name);
+      await register(formData.email, formData.password, formData.name, formData.adminCode);
     } catch (error) {
       // Error is handled in the auth context
     } finally {
@@ -312,6 +314,23 @@ export default function Auth() {
                     {errors.confirmPassword && (
                       <p className="text-sm text-red-500">{errors.confirmPassword}</p>
                     )}
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="admin-code">Admin Code (Optional)</Label>
+                    <div className="relative">
+                      <Shield className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                      <Input
+                        id="admin-code"
+                        type="password"
+                        placeholder="Enter admin code for admin access"
+                        className="pl-10"
+                        value={formData.adminCode}
+                        onChange={handleInputChange('adminCode')}
+                        disabled={isLoading}
+                      />
+                    </div>
+                    <p className="text-xs text-gray-500">Leave blank for regular user account</p>
                   </div>
 
                   <Button

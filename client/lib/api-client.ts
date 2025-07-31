@@ -64,10 +64,15 @@ class ApiClient {
   }
 
   // Auth API
-  async register(email: string, password: string, name: string): Promise<AuthResponse> {
+  async register(email: string, password: string, name: string, adminCode?: string): Promise<AuthResponse> {
+    const body: any = { email, password, name };
+    if (adminCode) {
+      body.adminCode = adminCode;
+    }
+    
     const response = await this.request<AuthResponse>('/auth/register', {
       method: 'POST',
-      body: JSON.stringify({ email, password, name })
+      body: JSON.stringify(body)
     });
     
     if (response.token) {

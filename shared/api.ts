@@ -19,6 +19,7 @@ export interface User {
   email: string;
   name: string;
   avatar?: string;
+  isAdmin?: boolean;
   roommates: string[];
   preferences: {
     currency: string;

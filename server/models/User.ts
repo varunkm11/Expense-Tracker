@@ -7,6 +7,8 @@ export interface IUser extends Document {
   name: string;
   avatar?: string;
   roommates: string[];
+  isAdmin: boolean;
+  adminCode?: string;
   preferences: {
     currency: string;
     theme: string;
@@ -43,6 +45,14 @@ const userSchema = new Schema<IUser>({
     type: String,
     trim: true
   }],
+  isAdmin: {
+    type: Boolean,
+    default: false
+  },
+  adminCode: {
+    type: String,
+    default: null
+  },
   preferences: {
     currency: {
       type: String,

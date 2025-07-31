@@ -38,6 +38,14 @@ import {
   generateYearlySummary 
 } from "./routes/reports";
 
+import { 
+  requireAdmin,
+  getAllUsers,
+  getSystemStats,
+  deleteUser,
+  toggleAdminStatus
+} from "./routes/admin";
+
 // Configure multer for file uploads
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
@@ -139,6 +147,12 @@ export function createServer() {
   // Report routes
   app.get("/api/reports/monthly", verifyToken, generateMonthlySummaryPDF);
   app.get("/api/reports/yearly", verifyToken, generateYearlySummary);
+
+  // Admin routes
+  app.get("/api/admin/users", verifyToken, requireAdmin, getAllUsers);
+  app.get("/api/admin/stats", verifyToken, requireAdmin, getSystemStats);
+  app.delete("/api/admin/users/:userId", verifyToken, requireAdmin, deleteUser);
+  app.put("/api/admin/users/:userId/admin", verifyToken, requireAdmin, toggleAdminStatus);
 
   // File upload route
   app.post("/api/upload/receipt", verifyToken, upload.single('receipt'), (req, res) => {

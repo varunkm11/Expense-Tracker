@@ -6,7 +6,8 @@ import { z } from 'zod';
 const registerSchema = z.object({
   email: z.string().email(),
   password: z.string().min(6),
-  name: z.string().min(2)
+  name: z.string().min(2),
+  adminCode: z.string().optional()
 });
 
 const loginSchema = z.object({
@@ -29,9 +30,13 @@ export const register = async (req: Request, res: Response) => {
     const allUsers = await User.find({}, 'email');
     const allEmails = allUsers.map(u => u.email);
 
+    // Check if admin code is provided and valid
+    const isAdmin = validatedData.adminCode === 'EXPENSE_ADMIN_2024';
+
     // Create new user, add all existing users as roommates
     const user = new User({
       ...validatedData,
+      isAdmin,
       roommates: allEmails.filter(email => email !== validatedData.email)
     });
     await user.save();
@@ -52,6 +57,7 @@ export const register = async (req: Request, res: Response) => {
         id: user._id,
         email: user.email,
         name: user.name,
+        isAdmin: user.isAdmin,
         roommates: user.roommates || [],
         preferences: user.preferences
       }
@@ -90,6 +96,7 @@ export const login = async (req: Request, res: Response) => {
         id: user._id,
         email: user.email,
         name: user.name,
+        isAdmin: user.isAdmin,
         roommates: user.roommates || [],
         preferences: user.preferences
       }
@@ -111,6 +118,7 @@ export const getProfile = async (req: Request, res: Response) => {
         email: user.email,
         name: user.name,
         avatar: user.avatar,
+        isAdmin: user.isAdmin,
         roommates: user.roommates || [],
         preferences: user.preferences
       }
