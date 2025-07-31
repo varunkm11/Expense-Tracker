@@ -3,6 +3,7 @@ import { Expense } from '../models/Expense';
 import { Income } from '../models/Income';
 import { AuthRequest } from '../middleware/auth';
 import { startOfMonth, endOfMonth } from 'date-fns';
+import { GoogleGenerativeAI } from '@google/generative-ai';
 
 interface FinancialInsight {
   type: 'spending' | 'saving' | 'income' | 'budget' | 'trend';
@@ -23,6 +24,10 @@ interface InsightsResponse {
   recommendations: string[];
   financialScore: number;
 }
+
+// Initialize Gemini AI
+const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || '');
+const model = genAI.getGenerativeModel({ model: 'gemini-pro' });
 
 // Mock Gemini API responses - In production, integrate with actual Gemini API
 const DAILY_QUOTES = [
@@ -57,6 +62,133 @@ const MONTHLY_CHALLENGES = [
   "Negotiate better rates for your utilities",
   "Create a debt reduction plan"
 ];
+
+// Function to generate AI insights using Gemini
+async function generateAIInsights(expenses: any[], incomes: any[], categoryTotals: { [key: string]: number }, currentTotalIncome: number, currentTotalExpenses: number): Promise<FinancialInsight[]> {
+  try {
+    const prompt = `
+You are a financial advisor AI. Analyze the following financial data and provide 3-5 actionable insights in JSON format.
+
+Financial Data:
+- Total Income: ₹${currentTotalIncome}
+- Total Expenses: ₹${currentTotalExpenses}
+- Net Savings: ₹${currentTotalIncome - currentTotalExpenses}
+- Savings Rate: ${currentTotalIncome > 0 ? ((currentTotalIncome - currentTotalExpenses) / currentTotalIncome * 100).toFixed(1) : 0}%
+
+Category-wise Spending:
+${Object.entries(categoryTotals).map(([category, amount]) => `- ${category}: ₹${amount}`).join('\n')}
+
+Recent Expenses:
+${expenses.slice(0, 10).map(exp => `- ${exp.description}: ₹${exp.amount} (${exp.category})`).join('\n')}
+
+Please respond ONLY with a valid JSON array of financial insights. Each insight should have:
+- type: one of 'spending', 'saving', 'income', 'budget', 'trend'
+- title: short descriptive title
+- description: detailed explanation
+- impact: 'positive', 'negative', or 'neutral'
+- actionable: boolean
+- priority: 'high', 'medium', or 'low'
+
+Example format:
+[
+  {
+    "type": "spending",
+    "title": "High Food Expenses",
+    "description": "Your food expenses are 30% higher than recommended",
+    "impact": "negative",
+    "actionable": true,
+    "priority": "medium"
+  }
+]
+`;
+
+    const result = await model.generateContent(prompt);
+    const response = await result.response;
+    const text = response.text();
+    
+    // Try to parse the JSON response
+    try {
+      const insights = JSON.parse(text);
+      if (Array.isArray(insights)) {
+        return insights;
+      }
+    } catch (parseError) {
+      console.error('Failed to parse Gemini response as JSON:', parseError);
+    }
+  } catch (error) {
+    console.error('Error generating AI insights:', error);
+  }
+  
+  // Fallback to basic insights if AI fails
+  return [];
+}
+
+// Function to generate basic rule-based insights
+function generateBasicInsights(categoryTotals: { [key: string]: number }, currentTotalIncome: number, currentTotalExpenses: number, prevTotalExpenses: number, prevTotalIncome: number): FinancialInsight[] {
+  const insights: FinancialInsight[] = [];
+
+  // Spending trend insight
+  if (prevTotalExpenses > 0) {
+    const spendingChange = ((currentTotalExpenses - prevTotalExpenses) / prevTotalExpenses) * 100;
+    if (spendingChange > 10) {
+      insights.push({
+        type: 'spending',
+        title: 'Spending Increase Alert',
+        description: `Your spending increased by ${spendingChange.toFixed(1)}% compared to last month. Consider reviewing your expenses.`,
+        impact: 'negative',
+        actionable: true,
+        priority: 'high'
+      });
+    } else if (spendingChange < -10) {
+      insights.push({
+        type: 'spending',
+        title: 'Great Spending Control',
+        description: `You reduced your spending by ${Math.abs(spendingChange).toFixed(1)}% this month. Keep up the excellent work!`,
+        impact: 'positive',
+        actionable: false,
+        priority: 'medium'
+      });
+    }
+  }
+
+  // Top spending category insight
+  const topCategory = Object.entries(categoryTotals).sort(([,a], [,b]) => b - a)[0];
+  if (topCategory) {
+    const percentage = (topCategory[1] / currentTotalExpenses) * 100;
+    insights.push({
+      type: 'spending',
+      title: 'Top Spending Category',
+      description: `${topCategory[0]} accounts for ${percentage.toFixed(1)}% (₹${topCategory[1].toLocaleString()}) of your monthly spending.`,
+      impact: percentage > 40 ? 'negative' : 'neutral',
+      actionable: percentage > 40,
+      priority: percentage > 40 ? 'high' : 'low'
+    });
+  }
+
+  // Savings rate insight
+  const savingsRate = currentTotalIncome > 0 ? ((currentTotalIncome - currentTotalExpenses) / currentTotalIncome) * 100 : 0;
+  if (savingsRate < 10) {
+    insights.push({
+      type: 'saving',
+      title: 'Low Savings Rate',
+      description: `Your savings rate is ${savingsRate.toFixed(1)}%. Aim for at least 20% to build financial security.`,
+      impact: 'negative',
+      actionable: true,
+      priority: 'high'
+    });
+  } else if (savingsRate >= 20) {
+    insights.push({
+      type: 'saving',
+      title: 'Excellent Savings Rate',
+      description: `You're saving ${savingsRate.toFixed(1)}% of your income. You're on track for strong financial health!`,
+      impact: 'positive',
+      actionable: false,
+      priority: 'medium'
+    });
+  }
+
+  return insights;
+}
 
 export const getFinancialInsights = async (req: AuthRequest, res: Response) => {
   try {
@@ -101,102 +233,25 @@ export const getFinancialInsights = async (req: AuthRequest, res: Response) => {
       categoryTotals[expense.category] = (categoryTotals[expense.category] || 0) + expense.amount;
     });
 
-    // Generate insights
-    const insights: FinancialInsight[] = [];
-
-    // Spending trend insight
-    if (prevTotalExpenses > 0) {
-      const spendingChange = ((currentTotalExpenses - prevTotalExpenses) / prevTotalExpenses) * 100;
-      if (spendingChange > 10) {
-        insights.push({
-          type: 'spending',
-          title: 'Spending Increase Alert',
-          description: `Your spending increased by ${spendingChange.toFixed(1)}% compared to last month. Consider reviewing your expenses.`,
-          impact: 'negative',
-          actionable: true,
-          priority: 'high'
-        });
-      } else if (spendingChange < -10) {
-        insights.push({
-          type: 'spending',
-          title: 'Great Spending Control',
-          description: `You reduced your spending by ${Math.abs(spendingChange).toFixed(1)}% this month. Keep up the excellent work!`,
-          impact: 'positive',
-          actionable: false,
-          priority: 'medium'
-        });
-      }
-    }
-
-    // Top spending category insight
-    const topCategory = Object.entries(categoryTotals).sort(([,a], [,b]) => b - a)[0];
-    if (topCategory) {
-      const percentage = (topCategory[1] / currentTotalExpenses) * 100;
-      insights.push({
-        type: 'spending',
-        title: 'Top Spending Category',
-        description: `${topCategory[0]} accounts for ${percentage.toFixed(1)}% (₹${topCategory[1].toLocaleString()}) of your monthly spending.`,
-        impact: percentage > 40 ? 'negative' : 'neutral',
-        actionable: percentage > 40,
-        priority: percentage > 40 ? 'high' : 'low'
-      });
-    }
-
-    // Savings rate insight
-    const savingsRate = currentTotalIncome > 0 ? ((currentTotalIncome - currentTotalExpenses) / currentTotalIncome) * 100 : 0;
-    if (savingsRate < 10) {
-      insights.push({
-        type: 'saving',
-        title: 'Low Savings Rate',
-        description: `Your savings rate is ${savingsRate.toFixed(1)}%. Aim for at least 20% to build financial security.`,
-        impact: 'negative',
-        actionable: true,
-        priority: 'high'
-      });
-    } else if (savingsRate >= 20) {
-      insights.push({
-        type: 'saving',
-        title: 'Excellent Savings Rate',
-        description: `You're saving ${savingsRate.toFixed(1)}% of your income. You're on track for strong financial health!`,
-        impact: 'positive',
-        actionable: false,
-        priority: 'medium'
-      });
-    }
-
-    // Income trend insight
-    if (prevTotalIncome > 0) {
-      const incomeChange = ((currentTotalIncome - prevTotalIncome) / prevTotalIncome) * 100;
-      if (incomeChange > 5) {
-        insights.push({
-          type: 'income',
-          title: 'Income Growth',
-          description: `Your income increased by ${incomeChange.toFixed(1)}% this month. Consider increasing your savings rate.`,
-          impact: 'positive',
-          actionable: true,
-          priority: 'medium'
-        });
-      }
-    }
-
-    // Budget adherence insight (50/30/20 rule)
-    const needsCategories = ['Food & Dining', 'Transportation', 'Utilities', 'Healthcare', 'Housing'];
-    const needsSpending = needsCategories.reduce((sum, cat) => sum + (categoryTotals[cat] || 0), 0);
-    const needsPercentage = currentTotalIncome > 0 ? (needsSpending / currentTotalIncome) * 100 : 0;
+    // Generate insights using AI and fallback to basic insights
+    let insights: FinancialInsight[] = [];
     
-    if (needsPercentage > 50) {
-      insights.push({
-        type: 'budget',
-        title: 'High Essential Spending',
-        description: `Essential expenses are ${needsPercentage.toFixed(1)}% of your income. The recommended limit is 50%.`,
-        impact: 'negative',
-        actionable: true,
-        priority: 'high'
-      });
+    // Try to get AI-generated insights first
+    const aiInsights = await generateAIInsights(currentExpenses, currentIncome, categoryTotals, currentTotalIncome, currentTotalExpenses);
+    if (aiInsights.length > 0) {
+      insights = aiInsights;
+    } else {
+      // Fallback to basic rule-based insights
+      insights = generateBasicInsights(categoryTotals, currentTotalIncome, currentTotalExpenses, prevTotalExpenses, prevTotalIncome);
     }
 
     // Generate financial score (0-100)
     let score = 50; // Base score
+    const savingsRate = currentTotalIncome > 0 ? ((currentTotalIncome - currentTotalExpenses) / currentTotalIncome) * 100 : 0;
+    const needsCategories = ['Food & Dining', 'Transportation', 'Utilities', 'Healthcare', 'Housing'];
+    const needsSpending = needsCategories.reduce((sum, cat) => sum + (categoryTotals[cat] || 0), 0);
+    const needsPercentage = currentTotalIncome > 0 ? (needsSpending / currentTotalIncome) * 100 : 0;
+    
     if (savingsRate >= 20) score += 20;
     if (savingsRate >= 10) score += 10;
     if (needsPercentage <= 50) score += 15;

@@ -60,6 +60,23 @@ export interface Expense {
     longitude: number;
     address: string;
   };
+  splitDetails?: {
+    totalParticipants: number;
+    amountPerPerson: number;
+    payments: Array<{
+      participant: string;
+      isPaid: boolean;
+      paidAt?: string;
+      notes?: string;
+    }>;
+  };
+  nonRoommateNotes?: Array<{
+    person: string;
+    amount: number;
+    description: string;
+    isPaid: boolean;
+    paidAt?: string;
+  }>;
   createdAt: string;
   updatedAt: string;
 }
@@ -84,6 +101,23 @@ export interface CreateExpenseRequest {
     longitude: number;
     address: string;
   };
+  splitDetails?: {
+    totalParticipants: number;
+    amountPerPerson: number;
+    payments: Array<{
+      participant: string;
+      isPaid: boolean;
+      paidAt?: string;
+      notes?: string;
+    }>;
+  };
+  nonRoommateNotes?: Array<{
+    person: string;
+    amount: number;
+    description: string;
+    isPaid: boolean;
+    paidAt?: string;
+  }>;
 }
 
 /**

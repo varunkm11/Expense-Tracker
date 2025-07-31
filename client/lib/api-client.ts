@@ -178,6 +178,19 @@ class ApiClient {
     return this.request<ExpenseAnalytics>(`/expenses/analytics?period=${period}`);
   }
 
+  async markSplitPaymentPaid(expenseId: string, participant: string, notes?: string): Promise<{ expense: Expense }> {
+    return this.request<{ expense: Expense }>(`/expenses/${expenseId}/split/${participant}/paid`, {
+      method: 'PUT',
+      body: JSON.stringify({ notes })
+    });
+  }
+
+  async markNonRoommatePaymentPaid(expenseId: string, noteIndex: number): Promise<{ expense: Expense }> {
+    return this.request<{ expense: Expense }>(`/expenses/${expenseId}/notes/${noteIndex}/paid`, {
+      method: 'PUT'
+    });
+  }
+
   // Income API
   async createIncome(income: CreateIncomeRequest): Promise<{ income: Income }> {
     return this.request<{ income: Income }>('/income', {

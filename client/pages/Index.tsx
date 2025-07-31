@@ -11,6 +11,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 import { Checkbox } from "@/components/ui/checkbox";
 import { Separator } from "@/components/ui/separator";
 import { ExpenseChart } from "@/components/ExpenseChart";
+import { ExpenseSplitDetails } from "@/components/ExpenseSplitDetails";
 import { useAuth } from "@/contexts/AuthContext";
 import { apiClient } from "@/lib/api-client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -48,7 +49,8 @@ export default function Index() {
     category: "",
     description: "",
     splitWith: [],
-    paidBy: "You"
+    paidBy: "You",
+    nonRoommateNotes: []
   });
   
   const [newIncome, setNewIncome] = useState<CreateIncomeRequest>({
@@ -136,7 +138,8 @@ export default function Index() {
       category: "",
       description: "",
       splitWith: [],
-      paidBy: "You"
+      paidBy: "You",
+      nonRoommateNotes: []
     });
     setReceiptFile(null);
   };
@@ -441,6 +444,70 @@ export default function Index() {
                           </div>
 
                           <div>
+                            <Label>Non-Roommate Expenses</Label>
+                            <div className="space-y-2 mt-2">
+                              {(newExpense.nonRoommateNotes || []).map((note, index) => (
+                                <div key={index} className="flex items-center space-x-2 p-2 border rounded">
+                                  <div className="flex-1 grid grid-cols-3 gap-2">
+                                    <Input
+                                      placeholder="Person name"
+                                      value={note.person}
+                                      onChange={(e) => {
+                                        const notes = [...(newExpense.nonRoommateNotes || [])];
+                                        notes[index] = { ...note, person: e.target.value };
+                                        setNewExpense(prev => ({ ...prev, nonRoommateNotes: notes }));
+                                      }}
+                                    />
+                                    <Input
+                                      type="number"
+                                      placeholder="Amount"
+                                      value={note.amount}
+                                      onChange={(e) => {
+                                        const notes = [...(newExpense.nonRoommateNotes || [])];
+                                        notes[index] = { ...note, amount: Number(e.target.value) };
+                                        setNewExpense(prev => ({ ...prev, nonRoommateNotes: notes }));
+                                      }}
+                                    />
+                                    <Input
+                                      placeholder="Description"
+                                      value={note.description}
+                                      onChange={(e) => {
+                                        const notes = [...(newExpense.nonRoommateNotes || [])];
+                                        notes[index] = { ...note, description: e.target.value };
+                                        setNewExpense(prev => ({ ...prev, nonRoommateNotes: notes }));
+                                      }}
+                                    />
+                                  </div>
+                                  <Button
+                                    type="button"
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={() => {
+                                      const notes = [...(newExpense.nonRoommateNotes || [])];
+                                      notes.splice(index, 1);
+                                      setNewExpense(prev => ({ ...prev, nonRoommateNotes: notes }));
+                                    }}
+                                  >
+                                    ×
+                                  </Button>
+                                </div>
+                              ))}
+                              <Button
+                                type="button"
+                                variant="outline"
+                                size="sm"
+                                onClick={() => {
+                                  const notes = [...(newExpense.nonRoommateNotes || [])];
+                                  notes.push({ person: '', amount: 0, description: '', isPaid: false });
+                                  setNewExpense(prev => ({ ...prev, nonRoommateNotes: notes }));
+                                }}
+                              >
+                                + Add Non-Roommate Note
+                              </Button>
+                            </div>
+                          </div>
+
+                          <div>
                             <Label htmlFor="receipt-upload">Receipt (optional)</Label>
                             <Input
                               id="receipt-upload"
@@ -626,21 +693,24 @@ export default function Index() {
                 ) : expenses.length > 0 ? (
                   <div className="space-y-3">
                     {expenses.map(expense => (
-                      <div key={expense.id} className="flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50 transition-colors">
-                        <div className="flex items-center space-x-4">
-                          <div className={`w-4 h-4 rounded-full ${CATEGORY_COLORS[expense.category as keyof typeof CATEGORY_COLORS] || 'bg-gray-500'}`} />
-                          <div>
-                            <p className="font-medium">{expense.description}</p>
-                            <p className="text-sm text-gray-600">{expense.category} • {new Date(expense.date).toLocaleDateString()}</p>
-                            {expense.splitWith && expense.splitWith.length > 0 && (
-                              <p className="text-xs text-blue-600">Split with: {expense.splitWith.join(', ')}</p>
-                            )}
+                      <div key={expense.id} className="space-y-2">
+                        <div className="flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50 transition-colors">
+                          <div className="flex items-center space-x-4">
+                            <div className={`w-4 h-4 rounded-full ${CATEGORY_COLORS[expense.category as keyof typeof CATEGORY_COLORS] || 'bg-gray-500'}`} />
+                            <div>
+                              <p className="font-medium">{expense.description}</p>
+                              <p className="text-sm text-gray-600">{expense.category} • {new Date(expense.date).toLocaleDateString()}</p>
+                              {expense.splitWith && expense.splitWith.length > 0 && (
+                                <p className="text-xs text-blue-600">Split with: {expense.splitWith.join(', ')}</p>
+                              )}
+                            </div>
+                          </div>
+                          <div className="text-right">
+                            <p className="font-semibold text-lg">₹{expense.amount.toLocaleString()}</p>
+                            <p className="text-sm text-gray-600">by {expense.paidBy}</p>
                           </div>
                         </div>
-                        <div className="text-right">
-                          <p className="font-semibold text-lg">₹{expense.amount.toLocaleString()}</p>
-                          <p className="text-sm text-gray-600">by {expense.paidBy}</p>
-                        </div>
+                        <ExpenseSplitDetails expense={expense} />
                       </div>
                     ))}
                   </div>

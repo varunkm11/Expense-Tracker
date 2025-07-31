@@ -25,7 +25,24 @@ const expenseSchema = z.object({
     latitude: z.number(),
     longitude: z.number(),
     address: z.string()
-  }).optional()
+  }).optional(),
+  splitDetails: z.object({
+    totalParticipants: z.number().min(1),
+    amountPerPerson: z.number().min(0),
+    payments: z.array(z.object({
+      participant: z.string(),
+      isPaid: z.boolean().default(false),
+      paidAt: z.string().optional(),
+      notes: z.string().optional()
+    }))
+  }).optional(),
+  nonRoommateNotes: z.array(z.object({
+    person: z.string(),
+    amount: z.number().min(0),
+    description: z.string(),
+    isPaid: z.boolean().default(false),
+    paidAt: z.string().optional()
+  })).optional()
 });
 
 export const createExpense = async (req: AuthRequest, res: Response) => {
@@ -33,13 +50,32 @@ export const createExpense = async (req: AuthRequest, res: Response) => {
     const validatedData = expenseSchema.parse(req.body);
     const userId = req.user!._id;
 
+    // Calculate split details if splitWith is provided
+    let splitDetails = validatedData.splitDetails;
+    if (validatedData.splitWith && validatedData.splitWith.length > 0 && !splitDetails) {
+      const totalParticipants = validatedData.splitWith.length + 1; // +1 for the payer
+      const amountPerPerson = validatedData.amount / totalParticipants;
+      
+      splitDetails = {
+        totalParticipants,
+        amountPerPerson,
+        payments: validatedData.splitWith.map(participant => ({
+          participant,
+          isPaid: false,
+          notes: ''
+        }))
+      };
+    }
+
     const expense = new Expense({
       ...validatedData,
       userId,
       date: validatedData.date ? new Date(validatedData.date) : new Date(),
       splitWith: validatedData.splitWith || [],
       paidBy: validatedData.paidBy || 'You',
-      tags: validatedData.tags || []
+      tags: validatedData.tags || [],
+      splitDetails,
+      nonRoommateNotes: validatedData.nonRoommateNotes || []
     });
 
     await expense.save();
@@ -311,6 +347,75 @@ export const getExpenseAnalytics = async (req: AuthRequest, res: Response) => {
           ? ((totalExpenses[0]?.total || 0) - previousTotal[0].total) / previousTotal[0].total * 100
           : 0
       }
+    });
+  } catch (error) {
+    res.status(500).json({ error: 'Internal server error' });
+  }
+};
+
+export const markSplitPaymentPaid = async (req: AuthRequest, res: Response) => {
+  try {
+    const { expenseId, participant } = req.params;
+    const { notes } = req.body;
+    const userId = req.user!._id;
+
+    const expense = await Expense.findOne({ 
+      _id: expenseId, 
+      $or: [{ userId }, { splitWith: userId }] 
+    });
+
+    if (!expense) {
+      return res.status(404).json({ error: 'Expense not found' });
+    }
+
+    if (!expense.splitDetails) {
+      return res.status(400).json({ error: 'This expense is not split' });
+    }
+
+    const paymentIndex = expense.splitDetails.payments.findIndex(p => p.participant === participant);
+    if (paymentIndex === -1) {
+      return res.status(404).json({ error: 'Participant not found in split' });
+    }
+
+    expense.splitDetails.payments[paymentIndex].isPaid = true;
+    expense.splitDetails.payments[paymentIndex].paidAt = new Date();
+    if (notes) {
+      expense.splitDetails.payments[paymentIndex].notes = notes;
+    }
+
+    await expense.save();
+
+    res.json({
+      message: 'Split payment marked as paid',
+      expense
+    });
+  } catch (error) {
+    res.status(500).json({ error: 'Internal server error' });
+  }
+};
+
+export const markNonRoommatePaymentPaid = async (req: AuthRequest, res: Response) => {
+  try {
+    const { expenseId, noteIndex } = req.params;
+    const userId = req.user!._id;
+
+    const expense = await Expense.findOne({ _id: expenseId, userId });
+    if (!expense) {
+      return res.status(404).json({ error: 'Expense not found' });
+    }
+
+    if (!expense.nonRoommateNotes || !expense.nonRoommateNotes[parseInt(noteIndex)]) {
+      return res.status(404).json({ error: 'Note not found' });
+    }
+
+    expense.nonRoommateNotes[parseInt(noteIndex)].isPaid = true;
+    expense.nonRoommateNotes[parseInt(noteIndex)].paidAt = new Date();
+
+    await expense.save();
+
+    res.json({
+      message: 'Non-roommate payment marked as paid',
+      expense
     });
   } catch (error) {
     res.status(500).json({ error: 'Internal server error' });

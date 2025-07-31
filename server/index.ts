@@ -15,7 +15,9 @@ import {
   getExpenses, 
   updateExpense, 
   deleteExpense, 
-  getExpenseAnalytics 
+  getExpenseAnalytics,
+  markSplitPaymentPaid,
+  markNonRoommatePaymentPaid
 } from "./routes/expenses";
 
 import { 
@@ -133,6 +135,8 @@ export function createServer() {
   app.put("/api/expenses/:id", verifyToken, updateExpense);
   app.delete("/api/expenses/:id", verifyToken, deleteExpense);
   app.get("/api/expenses/analytics", verifyToken, getExpenseAnalytics);
+  app.put("/api/expenses/:expenseId/split/:participant/paid", verifyToken, markSplitPaymentPaid);
+  app.put("/api/expenses/:expenseId/notes/:noteIndex/paid", verifyToken, markNonRoommatePaymentPaid);
 
   // Income routes
   app.post("/api/income", verifyToken, createIncome);

@@ -22,6 +22,23 @@ export interface IExpense extends Document {
     longitude: number;
     address: string;
   };
+  splitDetails?: {
+    totalParticipants: number;
+    amountPerPerson: number;
+    payments: Array<{
+      participant: string;
+      isPaid: boolean;
+      paidAt?: Date;
+      notes?: string;
+    }>;
+  };
+  nonRoommateNotes?: Array<{
+    person: string;
+    amount: number;
+    description: string;
+    isPaid: boolean;
+    paidAt?: Date;
+  }>;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -104,7 +121,55 @@ const expenseSchema = new Schema<IExpense>({
     latitude: Number,
     longitude: Number,
     address: String
-  }
+  },
+  splitDetails: {
+    totalParticipants: {
+      type: Number,
+      default: 1
+    },
+    amountPerPerson: {
+      type: Number,
+      default: 0
+    },
+    payments: [{
+      participant: {
+        type: String,
+        required: true
+      },
+      isPaid: {
+        type: Boolean,
+        default: false
+      },
+      paidAt: {
+        type: Date
+      },
+      notes: {
+        type: String
+      }
+    }]
+  },
+  nonRoommateNotes: [{
+    person: {
+      type: String,
+      required: true
+    },
+    amount: {
+      type: Number,
+      required: true,
+      min: 0
+    },
+    description: {
+      type: String,
+      required: true
+    },
+    isPaid: {
+      type: Boolean,
+      default: false
+    },
+    paidAt: {
+      type: Date
+    }
+  }]
 }, {
   timestamps: true
 });
