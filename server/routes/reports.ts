@@ -16,9 +16,9 @@ export const generateMonthlySummaryPDF = async (req: AuthRequest, res: Response)
     const previousStartDate = startOfMonth(subMonths(targetDate, 1));
     const previousEndDate = endOfMonth(subMonths(targetDate, 1));
 
-    // Get expenses for current month
+    // Get expenses for current month (owned by user OR where user is in splitWith)
     const expenses = await Expense.find({
-      userId,
+      $or: [{ userId }, { splitWith: userId }],
       date: { $gte: startDate, $lte: endDate }
     }).sort({ date: -1 });
 
@@ -32,7 +32,7 @@ export const generateMonthlySummaryPDF = async (req: AuthRequest, res: Response)
     const categoryExpenses = await Expense.aggregate([
       {
         $match: {
-          userId,
+          $or: [{ userId }, { splitWith: userId }],
           date: { $gte: startDate, $lte: endDate }
         }
       },
@@ -52,7 +52,7 @@ export const generateMonthlySummaryPDF = async (req: AuthRequest, res: Response)
     const previousExpenses = await Expense.aggregate([
       {
         $match: {
-          userId,
+          $or: [{ userId }, { splitWith: userId }],
           date: { $gte: previousStartDate, $lte: previousEndDate }
         }
       },
@@ -96,7 +96,7 @@ export const generateMonthlySummaryPDF = async (req: AuthRequest, res: Response)
     const dailySpending = await Expense.aggregate([
       {
         $match: {
-          userId,
+          $or: [{ userId }, { splitWith: userId }],
           date: { $gte: startDate, $lte: endDate }
         }
       },
@@ -165,7 +165,7 @@ export const generateYearlySummary = async (req: AuthRequest, res: Response) => 
     const monthlyData = await Expense.aggregate([
       {
         $match: {
-          userId,
+          $or: [{ userId }, { splitWith: userId }],
           date: { $gte: startDate, $lte: endDate }
         }
       },
@@ -209,7 +209,7 @@ export const generateYearlySummary = async (req: AuthRequest, res: Response) => 
     const categoryTrends = await Expense.aggregate([
       {
         $match: {
-          userId,
+          $or: [{ userId }, { splitWith: userId }],
           date: { $gte: startDate, $lte: endDate }
         }
       },

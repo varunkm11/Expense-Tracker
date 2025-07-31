@@ -247,6 +247,26 @@ export default function Index() {
                   Monthly Summary
                 </Button>
               </Link>
+              <Link to="/budget">
+                <Button variant="outline" size="sm">
+                  <PieChart className="w-4 h-4 mr-2" />
+                  50/30/20 Budget
+                </Button>
+              </Link>
+              <Link to="/insights">
+                <Button variant="outline" size="sm">
+                  <TrendingUp className="w-4 h-4 mr-2" />
+                  Insights
+                </Button>
+              </Link>
+              {user?.isAdmin && (
+                <Link to="/admin">
+                  <Button variant="outline" size="sm">
+                    <Settings className="w-4 h-4 mr-2" />
+                    Admin Panel
+                  </Button>
+                </Link>
+              )}
               <Badge variant="outline" className="text-sm">
                 <Users className="w-3 h-3 mr-1" />
                 {roommates.length} Roommates
@@ -397,17 +417,26 @@ export default function Index() {
 
                           <div>
                             <Label>Split with roommates</Label>
-                            <div className="grid grid-cols-2 gap-2 mt-2">
+                            <div className="space-y-2 mt-2 max-h-32 overflow-y-auto">
                               {roommates.filter(r => r !== "You").map(roommate => (
-                                <div key={roommate} className="flex items-center space-x-2">
+                                <div key={roommate} className="flex items-center space-x-2 p-1">
                                   <Checkbox
                                     id={`split-${roommate}`}
                                     checked={newExpense.splitWith?.includes(roommate)}
                                     onCheckedChange={(checked) => handleSplitWithChange(roommate, checked as boolean)}
                                   />
-                                  <Label htmlFor={`split-${roommate}`}>{roommate}</Label>
+                                  <Label 
+                                    htmlFor={`split-${roommate}`} 
+                                    className="text-sm truncate flex-1"
+                                    title={roommate}
+                                  >
+                                    {roommate}
+                                  </Label>
                                 </div>
                               ))}
+                              {roommates.filter(r => r !== "You").length === 0 && (
+                                <p className="text-sm text-gray-500 italic">No roommates added yet</p>
+                              )}
                             </div>
                           </div>
 

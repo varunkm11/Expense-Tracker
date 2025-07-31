@@ -155,11 +155,11 @@ export class PDFGenerator {
       headStyles: { fillColor: [255, 147, 70] },
       styles: { fontSize: 9 },
       columnStyles: {
-        0: { cellWidth: 20 },
-        1: { cellWidth: 35 },
-        2: { cellWidth: 60 },
-        3: { halign: 'right', cellWidth: 25 },
-        4: { cellWidth: 25 }
+        0: { cellWidth: 18 },
+        1: { cellWidth: 25 },
+        2: { cellWidth: 50 },
+        3: { halign: 'right', cellWidth: 22 },
+        4: { cellWidth: 20 }
       }
     });
 
@@ -204,11 +204,11 @@ export class PDFGenerator {
       headStyles: { fillColor: [34, 197, 94] },
       styles: { fontSize: 9 },
       columnStyles: {
-        0: { cellWidth: 20 },
-        1: { cellWidth: 30 },
-        2: { cellWidth: 70 },
-        3: { halign: 'right', cellWidth: 25 },
-        4: { cellWidth: 20 }
+        0: { cellWidth: 18 },
+        1: { cellWidth: 25 },
+        2: { cellWidth: 55 },
+        3: { halign: 'right', cellWidth: 22 },
+        4: { cellWidth: 18 }
       }
     });
   }

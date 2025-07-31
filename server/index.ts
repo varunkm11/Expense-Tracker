@@ -46,6 +46,9 @@ import {
   toggleAdminStatus
 } from "./routes/admin";
 
+import { getBudget503020 } from "./routes/budget-503020";
+import { getFinancialInsights } from "./routes/gemini-insights";
+
 // Configure multer for file uploads
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
@@ -153,6 +156,12 @@ export function createServer() {
   app.get("/api/admin/stats", verifyToken, requireAdmin, getSystemStats);
   app.delete("/api/admin/users/:userId", verifyToken, requireAdmin, deleteUser);
   app.put("/api/admin/users/:userId/admin", verifyToken, requireAdmin, toggleAdminStatus);
+
+  // Budget 50/30/20 routes
+  app.get("/api/budget/503020", verifyToken, getBudget503020);
+
+  // Financial insights routes
+  app.get("/api/insights", verifyToken, getFinancialInsights);
 
   // File upload route
   app.post("/api/upload/receipt", verifyToken, upload.single('receipt'), (req, res) => {

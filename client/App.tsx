@@ -7,10 +7,13 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider, useAuth } from "@/contexts/AuthContext";
-import Index from "./pages/Index_old";
+import Index from "./pages/Index";
 import MonthlySummary from "./pages/MonthlySummary";
 import Auth from "./pages/Auth";
 import NotFound from "./pages/NotFound";
+import AdminPanel from "./pages/AdminPanel";
+import Budget503020 from "./pages/Budget503020";
+import FinancialInsights from "./pages/FinancialInsights";
 import { Loader2 } from "lucide-react";
 
 const queryClient = new QueryClient({
@@ -54,6 +57,30 @@ const AppRoutes = () => {
         element={
           <ProtectedRoute>
             <MonthlySummary />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/admin"
+        element={
+          <ProtectedRoute>
+            <AdminPanel />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/budget"
+        element={
+          <ProtectedRoute>
+            <Budget503020 />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/insights"
+        element={
+          <ProtectedRoute>
+            <FinancialInsights />
           </ProtectedRoute>
         }
       />

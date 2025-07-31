@@ -72,7 +72,15 @@ export const getExpenses = async (req: AuthRequest, res: Response) => {
       search 
     } = req.query;
 
-    const query: any = { userId };
+    // Base query to include expenses owned by user OR where user is in splitWith array
+    const baseQuery: any = {
+      $or: [
+        { userId },
+        { splitWith: userId }
+      ]
+    };
+
+    const query: any = { ...baseQuery };
 
     if (category) query.category = category;
     if (tags) query.tags = { $in: (tags as string).split(',') };
@@ -82,10 +90,18 @@ export const getExpenses = async (req: AuthRequest, res: Response) => {
       if (endDate) query.date.$lte = new Date(endDate as string);
     }
     if (search) {
-      query.$or = [
-        { description: { $regex: search, $options: 'i' } },
-        { category: { $regex: search, $options: 'i' } }
+      // Combine the search criteria with the base query using $and
+      query.$and = [
+        baseQuery,
+        {
+          $or: [
+            { description: { $regex: search, $options: 'i' } },
+            { category: { $regex: search, $options: 'i' } }
+          ]
+        }
       ];
+      // Remove the base $or since it's now in $and
+      delete query.$or;
     }
 
     const expenses = await Expense.find(query)

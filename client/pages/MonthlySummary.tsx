@@ -269,8 +269,17 @@ export default function MonthlySummary() {
                     <ResponsiveContainer width="100%" height="100%">
                       <LineChart data={data.dailySpending}>
                         <CartesianGrid strokeDasharray="3 3" />
-                        <XAxis dataKey="_id" />
-                        <YAxis />
+                        <XAxis 
+                          dataKey="_id" 
+                          tick={{ fontSize: 12 }}
+                          tickLine={{ stroke: '#e5e7eb' }}
+                          axisLine={{ stroke: '#e5e7eb' }}
+                        />
+                        <YAxis 
+                          tick={{ fontSize: 12 }}
+                          tickLine={{ stroke: '#e5e7eb' }}
+                          axisLine={{ stroke: '#e5e7eb' }}
+                        />
                         <Tooltip formatter={(value) => [`₹${Number(value).toLocaleString()}`, 'Amount']} />
                         <Line 
                           type="monotone" 
