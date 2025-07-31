@@ -7,7 +7,11 @@ A full-featured expense tracking application for managing your personal finances
 
 ## Live Demo
 
+<<<<<<< Updated upstream
 [https://expense-tracker-rk26.onrender.com/auth](https://expense-tracker-rk26.onrender.com/auth)
+=======
+[https://expense-tracker-self-mu.vercel.app/auth](https://expense-tracker-self-mu.vercel.app/auth)
+>>>>>>> Stashed changes
 
 ## Features
 
@@ -72,19 +76,8 @@ A full-featured expense tracking application for managing your personal finances
 
 6. **Open in browser**
    ```
-   http://localhost:8080
+   http://localhost:3000
    ```
-
-## Deployment
-
-The application is deployed on [Render](https://render.com). See `RENDER_SETUP.md` for deployment instructions.
-
-For deployment:
-1. Fork this repository
-2. Connect your GitHub repository to Render
-3. Create a new Web Service
-4. Use the configuration from `render.yaml` or `RENDER_SETUP.md`
-5. Add environment variables (MONGODB_URI, JWT_SECRET)
 
 ## API Overview
 
