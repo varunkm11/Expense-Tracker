@@ -15,7 +15,7 @@ import {
 
 const API_BASE_URL = typeof window !== 'undefined' && window.location.hostname === 'localhost'
   ? '/api'
-  : 'https://expense-tracker-self-mu.vercel.app/api';
+  : 'https://expense-tracker.onrender.com/api';
 
 class ApiClient {
   private token: string | null = null;
