@@ -701,13 +701,31 @@ export default function Index() {
                               <p className="font-medium">{expense.description}</p>
                               <p className="text-sm text-gray-600">{expense.category} • {new Date(expense.date).toLocaleDateString()}</p>
                               {expense.splitWith && expense.splitWith.length > 0 && (
-                                <p className="text-xs text-blue-600">Split with: {expense.splitWith.join(', ')}</p>
+                                <div className="text-xs space-y-1">
+                                  <p className="text-blue-600">Split with: {expense.splitWith.join(', ')}</p>
+                                  {expense.splitDetails && (
+                                    <p className="text-green-600">
+                                      ₹{expense.splitDetails.amountPerPerson.toFixed(2)} per person 
+                                      ({expense.splitDetails.totalParticipants} people)
+                                    </p>
+                                  )}
+                                </div>
+                              )}
+                              {expense.nonRoommateNotes && expense.nonRoommateNotes.length > 0 && (
+                                <p className="text-xs text-purple-600">
+                                  Includes non-roommate expenses: {expense.nonRoommateNotes.length} items
+                                </p>
                               )}
                             </div>
                           </div>
                           <div className="text-right">
                             <p className="font-semibold text-lg">₹{expense.amount.toLocaleString()}</p>
                             <p className="text-sm text-gray-600">by {expense.paidBy}</p>
+                            {expense.splitWith && expense.splitWith.length > 0 && expense.splitDetails && (
+                              <p className="text-xs text-blue-600">
+                                You owe: ₹{expense.splitDetails.amountPerPerson.toFixed(2)}
+                              </p>
+                            )}
                           </div>
                         </div>
                         <ExpenseSplitDetails expense={expense} />

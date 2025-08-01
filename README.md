@@ -7,11 +7,9 @@ A full-featured expense tracking application for managing your personal finances
 
 ## Live Demo
 
-<<<<<<< Updated upstream
-[https://expense-tracker-rk26.onrender.com/auth](https://expense-tracker-rk26.onrender.com/auth)
-=======
-[https://expense-tracker-self-mu.vercel.app/auth](https://expense-tracker-self-mu.vercel.app/auth)
->>>>>>> Stashed changes
+**Primary Deployment (Render):** [https://expense-tracker-rk26.onrender.com/auth](https://expense-tracker-rk26.onrender.com/auth)
+
+**Secondary Deployment (Vercel):** [https://expense-tracker-self-mu.vercel.app/auth](https://expense-tracker-self-mu.vercel.app/auth)
 
 ## Features
 

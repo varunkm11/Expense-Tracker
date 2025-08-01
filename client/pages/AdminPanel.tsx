@@ -11,6 +11,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { useAuth } from "@/contexts/AuthContext";
 import { Shield, Users, Plus, Trash2, Edit3, Settings, UserCheck, Crown } from 'lucide-react';
 import { useToast } from "@/hooks/use-toast";
+import { apiClient } from '@/lib/api-client';
 
 interface User {
   _id: string;
@@ -29,7 +30,7 @@ interface SystemStats {
 }
 
 export default function AdminPanel() {
-  const { user } = useAuth();
+  const { user, refreshUser } = useAuth();
   const { toast } = useToast();
   const [users, setUsers] = useState<User[]>([]);
   const [stats, setStats] = useState<SystemStats | null>(null);
@@ -48,7 +49,7 @@ export default function AdminPanel() {
     try {
       const response = await fetch('/api/admin/users', {
         headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
+          'Authorization': `Bearer ${localStorage.getItem('authToken')}`
         }
       });
       
@@ -70,7 +71,7 @@ export default function AdminPanel() {
     try {
       const response = await fetch('/api/admin/stats', {
         headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
+          'Authorization': `Bearer ${localStorage.getItem('authToken')}`
         }
       });
       
@@ -93,7 +94,7 @@ export default function AdminPanel() {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
+          'Authorization': `Bearer ${localStorage.getItem('authToken')}`
         },
         body: JSON.stringify({ name: newRoommate.trim() })
       });
@@ -105,6 +106,7 @@ export default function AdminPanel() {
         });
         setNewRoommate('');
         fetchUsers();
+        await refreshUser(); // Refresh user data to update roommates display
       } else {
         const error = await response.json();
         toast({
@@ -128,7 +130,7 @@ export default function AdminPanel() {
         method: 'DELETE',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
+          'Authorization': `Bearer ${localStorage.getItem('authToken')}`
         },
         body: JSON.stringify({ name: roommateName })
       });
@@ -139,6 +141,7 @@ export default function AdminPanel() {
           description: "Roommate removed successfully"
         });
         fetchUsers();
+        await refreshUser(); // Refresh user data to update roommates display
       } else {
         const error = await response.json();
         toast({
@@ -164,7 +167,7 @@ export default function AdminPanel() {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
+          'Authorization': `Bearer ${localStorage.getItem('authToken')}`
         },
         body: JSON.stringify({ 
           oldName: editingRoommate.old, 
@@ -179,6 +182,7 @@ export default function AdminPanel() {
         });
         setEditingRoommate(null);
         fetchUsers();
+        await refreshUser(); // Refresh user data to update roommates display
       } else {
         const error = await response.json();
         toast({

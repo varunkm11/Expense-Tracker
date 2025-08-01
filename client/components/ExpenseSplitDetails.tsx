@@ -89,6 +89,23 @@ export function ExpenseSplitDetails({ expense }: ExpenseSplitDetailsProps) {
               </Badge>
             </div>
             
+            {/* Summary of who paid */}
+            <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-blue-800">
+                    <strong>{expense.paidBy}</strong> paid ₹{expense.amount.toLocaleString()} total
+                  </p>
+                  <p className="text-xs text-blue-600">
+                    Split among {expense.splitDetails.totalParticipants} people: {expense.paidBy}, {expense.splitWith.join(', ')}
+                  </p>
+                </div>
+                <Badge variant="outline" className="bg-white">
+                  ₹{expense.splitDetails.amountPerPerson.toFixed(2)} each
+                </Badge>
+              </div>
+            </div>
+            
             <div className="space-y-3">
               {expense.splitDetails.payments.map((payment, index) => (
                 <div key={index} className="flex items-center justify-between p-3 border rounded-lg">
@@ -96,7 +113,7 @@ export function ExpenseSplitDetails({ expense }: ExpenseSplitDetailsProps) {
                     <div className="flex flex-col">
                       <span className="font-medium">{payment.participant}</span>
                       <span className="text-sm text-gray-500">
-                        ₹{expense.splitDetails!.amountPerPerson.toFixed(2)}
+                        Owes ₹{expense.splitDetails!.amountPerPerson.toFixed(2)} to {expense.paidBy}
                       </span>
                     </div>
                     {payment.isPaid ? (
