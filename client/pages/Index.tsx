@@ -62,6 +62,8 @@ export default function Index() {
   const [activeTab, setActiveTab] = useState("dashboard");
   const [isAddExpenseOpen, setIsAddExpenseOpen] = useState(false);
   const [isAddIncomeOpen, setIsAddIncomeOpen] = useState(false);
+  const [customSplitAmounts, setCustomSplitAmounts] = useState<{[roommate: string]: number}>({});
+  const [useCustomSplit, setUseCustomSplit] = useState(false);
   const [receiptFile, setReceiptFile] = useState<File | null>(null);
   
   // Roommate management state
@@ -142,6 +144,8 @@ export default function Index() {
       nonRoommateNotes: []
     });
     setReceiptFile(null);
+    setCustomSplitAmounts({});
+    setUseCustomSplit(false);
   };
 
   const resetIncomeForm = () => {
@@ -158,6 +162,18 @@ export default function Index() {
       return;
     }
 
+    // Validate custom split amounts if using custom split
+    if (useCustomSplit && newExpense.splitWith && newExpense.splitWith.length > 0) {
+      const totalAssigned = Object.entries(customSplitAmounts)
+        .filter(([roommate]) => newExpense.splitWith?.includes(roommate))
+        .reduce((sum, [, amount]) => sum + amount, 0);
+      
+      if (totalAssigned > newExpense.amount) {
+        toast.error('Split amounts cannot exceed total expense amount');
+        return;
+      }
+    }
+
     let receiptUrl = undefined;
     
     // Upload receipt if provided
@@ -171,9 +187,43 @@ export default function Index() {
       }
     }
 
+    // Prepare split details if split is enabled
+    let splitDetails = undefined;
+    if (newExpense.splitWith && newExpense.splitWith.length > 0) {
+      const totalParticipants = newExpense.splitWith.length + 1; // +1 for payer
+      
+      if (useCustomSplit) {
+        // Use custom amounts
+        splitDetails = {
+          totalParticipants,
+          amountPerPerson: 0, // Not applicable for custom split
+          payments: newExpense.splitWith.map(participant => ({
+            participant,
+            amount: customSplitAmounts[participant] || 0,
+            isPaid: false,
+            notes: ''
+          }))
+        };
+      } else {
+        // Use equal split
+        const amountPerPerson = newExpense.amount / totalParticipants;
+        splitDetails = {
+          totalParticipants,
+          amountPerPerson,
+          payments: newExpense.splitWith.map(participant => ({
+            participant,
+            amount: amountPerPerson,
+            isPaid: false,
+            notes: ''
+          }))
+        };
+      }
+    }
+
     createExpenseMutation.mutate({
       ...newExpense,
-      ...(receiptUrl && { receiptUrl })
+      ...(receiptUrl && { receiptUrl }),
+      ...(splitDetails && { splitDetails })
     });
   };
 
@@ -420,25 +470,67 @@ export default function Index() {
 
                           <div>
                             <Label>Split with roommates</Label>
-                            <div className="space-y-2 mt-2 max-h-32 overflow-y-auto">
-                              {roommates.filter(r => r !== "You").map(roommate => (
-                                <div key={roommate} className="flex items-center space-x-2 p-1">
-                                  <Checkbox
-                                    id={`split-${roommate}`}
-                                    checked={newExpense.splitWith?.includes(roommate)}
-                                    onCheckedChange={(checked) => handleSplitWithChange(roommate, checked as boolean)}
-                                  />
-                                  <Label 
-                                    htmlFor={`split-${roommate}`} 
-                                    className="text-sm truncate flex-1"
-                                    title={roommate}
-                                  >
-                                    {roommate}
-                                  </Label>
+                            <div className="space-y-3 mt-2">
+                              <div className="flex items-center space-x-2">
+                                <Checkbox
+                                  id="use-custom-split"
+                                  checked={useCustomSplit}
+                                  onCheckedChange={(checked) => setUseCustomSplit(checked as boolean)}
+                                />
+                                <Label htmlFor="use-custom-split" className="text-sm">
+                                  Use custom amounts
+                                </Label>
+                              </div>
+                              
+                              <div className="space-y-2 max-h-40 overflow-y-auto">
+                                {roommates.filter(r => r !== "You").map(roommate => (
+                                  <div key={roommate} className="flex items-center space-x-2 p-2 border rounded">
+                                    <Checkbox
+                                      id={`split-${roommate}`}
+                                      checked={newExpense.splitWith?.includes(roommate)}
+                                      onCheckedChange={(checked) => handleSplitWithChange(roommate, checked as boolean)}
+                                    />
+                                    <Label 
+                                      htmlFor={`split-${roommate}`} 
+                                      className="text-sm flex-1"
+                                      title={roommate}
+                                    >
+                                      {roommate}
+                                    </Label>
+                                    {useCustomSplit && newExpense.splitWith?.includes(roommate) && (
+                                      <div className="flex items-center space-x-1">
+                                        <span className="text-xs">₹</span>
+                                        <Input
+                                          type="number"
+                                          placeholder="Amount"
+                                          value={customSplitAmounts[roommate] || ''}
+                                          onChange={(e) => setCustomSplitAmounts(prev => ({
+                                            ...prev,
+                                            [roommate]: Number(e.target.value) || 0
+                                          }))}
+                                          className="w-20 h-8 text-xs"
+                                        />
+                                      </div>
+                                    )}
+                                    {!useCustomSplit && newExpense.splitWith?.includes(roommate) && newExpense.amount > 0 && (
+                                      <span className="text-xs text-gray-500">
+                                        ₹{(newExpense.amount / ((newExpense.splitWith?.length || 0) + 1)).toFixed(2)}
+                                      </span>
+                                    )}
+                                  </div>
+                                ))}
+                                {roommates.filter(r => r !== "You").length === 0 && (
+                                  <p className="text-sm text-gray-500 italic">No roommates added yet</p>
+                                )}
+                              </div>
+                              
+                              {useCustomSplit && newExpense.splitWith && newExpense.splitWith.length > 0 && (
+                                <div className="text-xs text-gray-600 p-2 bg-blue-50 rounded">
+                                  <strong>Split Summary:</strong><br/>
+                                  Total: ₹{newExpense.amount}<br/>
+                                  Assigned: ₹{Object.values(customSplitAmounts).reduce((sum, amount) => sum + amount, 0)}<br/>
+                                  Remaining: ₹{newExpense.amount - Object.values(customSplitAmounts).reduce((sum, amount) => sum + amount, 0)}
                                 </div>
-                              ))}
-                              {roommates.filter(r => r !== "You").length === 0 && (
-                                <p className="text-sm text-gray-500 italic">No roommates added yet</p>
                               )}
                             </div>
                           </div>

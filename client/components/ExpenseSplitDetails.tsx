@@ -113,7 +113,7 @@ export function ExpenseSplitDetails({ expense }: ExpenseSplitDetailsProps) {
                     <div className="flex flex-col">
                       <span className="font-medium">{payment.participant}</span>
                       <span className="text-sm text-gray-500">
-                        Owes ₹{expense.splitDetails!.amountPerPerson.toFixed(2)} to {expense.paidBy}
+                        Owes ₹{payment.amount ? payment.amount.toFixed(2) : expense.splitDetails!.amountPerPerson.toFixed(2)} to {expense.paidBy}
                       </span>
                     </div>
                     {payment.isPaid ? (

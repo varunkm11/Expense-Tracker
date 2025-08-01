@@ -31,6 +31,7 @@ const expenseSchema = z.object({
     amountPerPerson: z.number().min(0),
     payments: z.array(z.object({
       participant: z.string(),
+      amount: z.number().min(0), // Custom amount for each participant
       isPaid: z.boolean().default(false),
       paidAt: z.string().optional(),
       notes: z.string().optional()
@@ -61,6 +62,7 @@ export const createExpense = async (req: AuthRequest, res: Response) => {
         amountPerPerson,
         payments: validatedData.splitWith.map(participant => ({
           participant,
+          amount: amountPerPerson, // Default to equal split
           isPaid: false,
           notes: ''
         }))
@@ -79,6 +81,49 @@ export const createExpense = async (req: AuthRequest, res: Response) => {
     });
 
     await expense.save();
+
+    // Create linked expenses for each participant so they can see split expenses on their dashboard
+    if (splitDetails && splitDetails.payments.length > 0) {
+      for (const payment of splitDetails.payments) {
+        // Find the user by their name (roommate name)
+        const participantUser = await import('../models/User').then(({ User }) => 
+          User.findOne({ 
+            $or: [
+              { name: payment.participant },
+              { roommates: { $in: [payment.participant] } }
+            ]
+          })
+        );
+
+        if (participantUser) {
+          // Create a linked expense for the participant
+          const linkedExpense = new Expense({
+            userId: participantUser._id,
+            amount: payment.amount,
+            category: validatedData.category,
+            description: `${validatedData.description} (Split from ${validatedData.paidBy})`,
+            date: validatedData.date ? new Date(validatedData.date) : new Date(),
+            splitWith: [],
+            paidBy: validatedData.paidBy || 'You',
+            tags: [...(validatedData.tags || []), 'split-expense'],
+            isLinkedExpense: true,
+            originalExpenseId: expense._id,
+            splitDetails: {
+              totalParticipants: 1,
+              amountPerPerson: payment.amount,
+              payments: [{
+                participant: payment.participant,
+                amount: payment.amount,
+                isPaid: payment.isPaid,
+                notes: payment.notes || ''
+              }]
+            }
+          });
+          
+          await linkedExpense.save();
+        }
+      }
+    }
 
     // Update budget if exists
     await updateBudgetSpent(userId, validatedData.category, validatedData.amount);

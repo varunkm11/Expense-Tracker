@@ -65,6 +65,7 @@ export interface Expense {
     amountPerPerson: number;
     payments: Array<{
       participant: string;
+      amount: number; // Custom amount for this participant
       isPaid: boolean;
       paidAt?: string;
       notes?: string;
@@ -106,6 +107,7 @@ export interface CreateExpenseRequest {
     amountPerPerson: number;
     payments: Array<{
       participant: string;
+      amount: number; // Custom amount for this participant
       isPaid: boolean;
       paidAt?: string;
       notes?: string;

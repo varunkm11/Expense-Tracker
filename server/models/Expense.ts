@@ -12,6 +12,8 @@ export interface IExpense extends Document {
   receiptUrl?: string;
   tags: string[];
   isRecurring: boolean;
+  isLinkedExpense?: boolean; // Flag to indicate this is a linked split expense
+  originalExpenseId?: mongoose.Types.ObjectId; // Reference to original expense
   recurringPattern?: {
     frequency: 'daily' | 'weekly' | 'monthly' | 'yearly';
     interval: number;
@@ -27,6 +29,7 @@ export interface IExpense extends Document {
     amountPerPerson: number;
     payments: Array<{
       participant: string;
+      amount: number; // Custom amount for this participant
       isPaid: boolean;
       paidAt?: Date;
       notes?: string;
@@ -106,6 +109,14 @@ const expenseSchema = new Schema<IExpense>({
     type: Boolean,
     default: false
   },
+  isLinkedExpense: {
+    type: Boolean,
+    default: false
+  },
+  originalExpenseId: {
+    type: Schema.Types.ObjectId,
+    ref: 'Expense'
+  },
   recurringPattern: {
     frequency: {
       type: String,
@@ -135,6 +146,11 @@ const expenseSchema = new Schema<IExpense>({
       participant: {
         type: String,
         required: true
+      },
+      amount: {
+        type: Number,
+        required: true,
+        min: 0
       },
       isPaid: {
         type: Boolean,
