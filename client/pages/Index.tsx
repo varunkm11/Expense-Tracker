@@ -12,6 +12,8 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Separator } from "@/components/ui/separator";
 import { ExpenseChart } from "@/components/ExpenseChart";
 import { ExpenseSplitDetails } from "@/components/ExpenseSplitDetails";
+import { SplitExpensesSummary } from "@/components/SplitExpensesSummary";
+import { NavigationBar } from "@/components/NavigationBar";
 import { useAuth } from "@/contexts/AuthContext";
 import { apiClient } from "@/lib/api-client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -275,108 +277,55 @@ export default function Index() {
   const recentIncomes = incomes.slice(0, 3);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-orange-50 via-yellow-50 to-amber-50">
-      {/* Header */}
-      <motion.header 
-        initial={{ y: -50, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        className="bg-white/80 backdrop-blur-md border-b border-orange-200 sticky top-0 z-50"
-      >
-        <div className="container mx-auto px-4 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-3">
-              <div className="w-10 h-10 bg-gradient-to-br from-orange-400 to-amber-500 rounded-xl flex items-center justify-center">
-                <IndianRupee className="w-6 h-6 text-white" />
-              </div>
-              <div>
-                <h1 className="text-2xl font-bold text-gray-900">Mystic Zone</h1>
-                <p className="text-sm text-gray-600">Welcome back, {user?.name}!</p>
-              </div>
-            </div>
-            <div className="flex items-center space-x-2">
-              <Link to="/monthly-summary">
-                <Button variant="outline" size="sm">
-                  <BarChart3 className="w-4 h-4 mr-2" />
-                  Monthly Summary
-                </Button>
-              </Link>
-              <Link to="/budget">
-                <Button variant="outline" size="sm">
-                  <PieChart className="w-4 h-4 mr-2" />
-                  50/30/20 Budget
-                </Button>
-              </Link>
-              <Link to="/insights">
-                <Button variant="outline" size="sm">
-                  <TrendingUp className="w-4 h-4 mr-2" />
-                  Insights
-                </Button>
-              </Link>
-              {user?.isAdmin && (
-                <Link to="/admin">
-                  <Button variant="outline" size="sm">
-                    <Settings className="w-4 h-4 mr-2" />
-                    Admin Panel
-                  </Button>
-                </Link>
-              )}
-              <Badge variant="outline" className="text-sm">
-                <Users className="w-3 h-3 mr-1" />
-                {roommates.length} Roommates
-              </Badge>
-              <Button variant="ghost" size="sm" onClick={logout}>
-                <LogOut className="w-4 h-4" />
-              </Button>
-            </div>
-          </div>
-        </div>
-      </motion.header>
+    <div className="min-h-screen bg-gradient-to-br from-orange-50 via-yellow-50 to-amber-50 dark:from-slate-900 dark:via-slate-800 dark:to-gray-900">
+      {/* Navigation */}
+      <NavigationBar />
 
-      <div className="container mx-auto px-4 py-6">
+      <div className="container mx-auto px-4 py-6 pt-20">
         {/* Balance Cards */}
         <motion.div 
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8"
         >
-          <Card className="bg-gradient-to-br from-green-50 to-green-100 border-green-200">
+          <Card className="bg-gradient-to-br from-green-50 to-green-100 dark:from-green-900/20 dark:to-green-800/20 border-green-200 dark:border-green-800/30">
             <CardHeader className="pb-3">
-              <CardTitle className="flex items-center justify-between text-green-800">
+              <CardTitle className="flex items-center justify-between text-green-800 dark:text-green-400">
                 <span>Total Income</span>
                 <TrendingUp className="w-5 h-5" />
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-3xl font-bold text-green-900">₹{totalIncome.toLocaleString()}</div>
-              <p className="text-green-700 text-sm mt-1">This month</p>
+              <div className="text-3xl font-bold text-green-900 dark:text-green-300">₹{totalIncome.toLocaleString()}</div>
+              <p className="text-green-700 dark:text-green-400 text-sm mt-1">This month</p>
             </CardContent>
           </Card>
 
-          <Card className="bg-gradient-to-br from-red-50 to-red-100 border-red-200">
+          <Card className="bg-gradient-to-br from-red-50 to-red-100 dark:from-red-900/20 dark:to-red-800/20 border-red-200 dark:border-red-800/30">
             <CardHeader className="pb-3">
-              <CardTitle className="flex items-center justify-between text-red-800">
+              <CardTitle className="flex items-center justify-between text-red-800 dark:text-red-400">
                 <span>Total Expenses</span>
                 <TrendingDown className="w-5 h-5" />
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-3xl font-bold text-red-900">₹{totalExpenses.toLocaleString()}</div>
-              <p className="text-red-700 text-sm mt-1">This month</p>
+              <div className="text-3xl font-bold text-red-900 dark:text-red-300">₹{totalExpenses.toLocaleString()}</div>
+              <p className="text-red-700 dark:text-red-400 text-sm mt-1">This month</p>
             </CardContent>
           </Card>
 
-          <Card className={`bg-gradient-to-br ${balance >= 0 ? 'from-blue-50 to-blue-100 border-blue-200' : 'from-red-50 to-red-100 border-red-200'}`}>
+          <Card className={`bg-gradient-to-br ${balance >= 0 ? 'from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20 border-blue-200 dark:border-blue-800/30' : 'from-red-50 to-red-100 dark:from-red-900/20 dark:to-red-800/20 border-red-200 dark:border-red-800/30'}`}>
             <CardHeader className="pb-3">
-              <CardTitle className={`flex items-center justify-between ${balance >= 0 ? 'text-blue-800' : 'text-red-800'}`}>
+              <CardTitle className={`flex items-center justify-between ${balance >= 0 ? 'text-blue-800 dark:text-blue-400' : 'text-red-800 dark:text-red-400'}`}>
                 <span>Balance</span>
                 <Wallet className="w-5 h-5" />
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className={`text-3xl font-bold ${balance >= 0 ? 'text-blue-900' : 'text-red-900'}`}>
+              <div className={`text-3xl font-bold ${balance >= 0 ? 'text-blue-900 dark:text-blue-300' : 'text-red-900 dark:text-red-300'}`}>
                 ₹{Math.abs(balance).toLocaleString()}
               </div>
-              <p className={`text-sm mt-1 ${balance >= 0 ? 'text-blue-700' : 'text-red-700'}`}>
+              <p className={`text-sm mt-1 ${balance >= 0 ? 'text-blue-700 dark:text-blue-400' : 'text-red-700 dark:text-red-400'}`}>
                 {balance >= 0 ? 'Surplus' : 'Deficit'}
               </p>
             </CardContent>
@@ -384,7 +333,7 @@ export default function Index() {
         </motion.div>
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="grid w-full grid-cols-4 bg-white/60 backdrop-blur-md">
+          <TabsList className="grid w-full grid-cols-4 bg-white/80 dark:bg-slate-800/80 backdrop-blur-md border dark:border-slate-700">
             <TabsTrigger value="dashboard">Dashboard</TabsTrigger>
             <TabsTrigger value="expenses">Expenses</TabsTrigger>
             <TabsTrigger value="income">Income</TabsTrigger>
@@ -392,7 +341,7 @@ export default function Index() {
           </TabsList>
 
           <TabsContent value="dashboard" className="space-y-6">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
               {/* Quick Actions */}
               <motion.div
                 initial={{ opacity: 0, x: -20 }}
@@ -735,7 +684,7 @@ export default function Index() {
                       </div>
                     ) : (
                       <div className="text-center py-8 text-gray-500">
-                        <PieChart className="w-12 h-12 mx-auto mb-4 opacity-50" />
+                        <PieChart className="w-12 w-12 mx-auto mb-4 opacity-50" />
                         <p>No expenses yet</p>
                         <p className="text-sm">Add your first expense to get started</p>
                       </div>
@@ -743,13 +692,22 @@ export default function Index() {
                   </CardContent>
                 </Card>
               </motion.div>
+
+              {/* Split Expenses Summary */}
+              <motion.div
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.3 }}
+              >
+                <SplitExpensesSummary />
+              </motion.div>
             </div>
 
             {/* Category Overview */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.3 }}
+              transition={{ delay: 0.4 }}
             >
               <Card>
                 <CardHeader>

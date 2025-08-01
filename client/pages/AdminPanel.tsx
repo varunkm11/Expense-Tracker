@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { NavigationBar } from "@/components/NavigationBar";
 import { useAuth } from "@/contexts/AuthContext";
 import { Shield, Users, Plus, Trash2, Edit3, Settings, UserCheck, Crown } from 'lucide-react';
 import { useToast } from "@/hooks/use-toast";
@@ -223,15 +224,19 @@ export default function AdminPanel() {
   }
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-center gap-4">
-        <Crown className="h-8 w-8 text-yellow-500" />
-        <div>
-          <h1 className="text-3xl font-bold">Admin Panel</h1>
-          <p className="text-gray-600">Manage users, roommates, and system settings</p>
-        </div>
-      </div>
+    <div className="min-h-screen bg-gradient-to-br from-orange-50 via-yellow-50 to-amber-50 dark:from-slate-900 dark:via-slate-800 dark:to-gray-900">
+      <NavigationBar />
+      
+      <div className="container mx-auto px-4 py-6 pt-20">
+        <div className="space-y-6">
+          {/* Header */}
+          <div className="flex items-center gap-4">
+            <Crown className="h-8 w-8 text-yellow-500" />
+            <div>
+              <h1 className="text-3xl font-bold">Admin Panel</h1>
+              <p className="text-gray-600 dark:text-gray-300">Manage users, roommates, and system settings</p>
+            </div>
+          </div>
 
       {/* Stats Cards */}
       {stats && (
@@ -465,6 +470,8 @@ export default function AdminPanel() {
           </Card>
         </TabsContent>
       </Tabs>
+        </div>
+      </div>
     </div>
   );
 }

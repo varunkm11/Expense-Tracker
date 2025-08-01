@@ -58,50 +58,50 @@
   }
 
   .dark {
-    --background: 45 15% 6%;
-    --foreground: 45 25% 95%;
+    --background: 222 84% 4%;
+    --foreground: 210 40% 98%;
 
-    --card: 45 15% 8%;
-    --card-foreground: 45 25% 95%;
+    --card: 222 84% 6%;
+    --card-foreground: 210 40% 98%;
 
-    --popover: 45 15% 8%;
-    --popover-foreground: 45 25% 95%;
+    --popover: 222 84% 6%;
+    --popover-foreground: 210 40% 98%;
 
-    --primary: 35 84% 60%;
-    --primary-foreground: 45 15% 8%;
+    --primary: 35 84% 55%;
+    --primary-foreground: 222 84% 4%;
 
-    --secondary: 45 15% 12%;
-    --secondary-foreground: 45 25% 85%;
+    --secondary: 217 32% 15%;
+    --secondary-foreground: 210 40% 90%;
 
-    --muted: 45 15% 10%;
-    --muted-foreground: 45 8% 60%;
+    --muted: 217 32% 12%;
+    --muted-foreground: 215 20% 65%;
 
-    --accent: 22 84% 70%;
-    --accent-foreground: 45 15% 8%;
+    --accent: 35 84% 60%;
+    --accent-foreground: 222 84% 4%;
 
-    --destructive: 0 65% 55%;
-    --destructive-foreground: 45 25% 95%;
+    --destructive: 0 62% 50%;
+    --destructive-foreground: 210 40% 98%;
 
-    --border: 45 15% 15%;
-    --input: 45 15% 12%;
-    --ring: 35 84% 60%;
+    --border: 217 32% 20%;
+    --input: 217 32% 18%;
+    --ring: 35 84% 55%;
 
-    --sidebar-background: 45 15% 5%;
-    --sidebar-foreground: 45 25% 90%;
-    --sidebar-primary: 35 84% 60%;
-    --sidebar-primary-foreground: 45 15% 8%;
-    --sidebar-accent: 45 15% 10%;
-    --sidebar-accent-foreground: 45 25% 90%;
-    --sidebar-border: 45 15% 12%;
-    --sidebar-ring: 35 84% 60%;
+    --sidebar-background: 222 84% 3%;
+    --sidebar-foreground: 210 40% 95%;
+    --sidebar-primary: 35 84% 55%;
+    --sidebar-primary-foreground: 222 84% 4%;
+    --sidebar-accent: 217 32% 12%;
+    --sidebar-accent-foreground: 210 40% 95%;
+    --sidebar-border: 217 32% 20%;
+    --sidebar-ring: 35 84% 55%;
 
-    /* Dark mode Indian colors */
-    --saffron: 35 84% 60%;
-    --saffron-light: 35 84% 70%;
-    --green: 135 65% 50%;
-    --green-light: 135 65% 60%;
-    --expense-red: 0 65% 55%;
-    --income-green: 135 65% 50%;
+    /* Dark mode Indian colors - warmer and more pleasing */
+    --saffron: 35 84% 55%;
+    --saffron-light: 35 84% 65%;
+    --green: 135 65% 45%;
+    --green-light: 135 65% 55%;
+    --expense-red: 0 62% 50%;
+    --income-green: 135 65% 45%;
   }
 }
 
