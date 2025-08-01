@@ -160,6 +160,7 @@ export default function Auth() {
                         id="login-email"
                         type="email"
                         placeholder="Enter your email"
+                        autoComplete="email"
                         className={`pl-10 ${errors.email ? 'border-red-500' : ''}`}
                         value={formData.email}
                         onChange={handleInputChange('email')}
@@ -232,6 +233,7 @@ export default function Auth() {
                         id="register-name"
                         type="text"
                         placeholder="Enter your full name"
+                        autoComplete="name"
                         className={`pl-10 ${errors.name ? 'border-red-500' : ''}`}
                         value={formData.name}
                         onChange={handleInputChange('name')}
@@ -251,6 +253,7 @@ export default function Auth() {
                         id="register-email"
                         type="email"
                         placeholder="Enter your email"
+                        autoComplete="email"
                         className={`pl-10 ${errors.email ? 'border-red-500' : ''}`}
                         value={formData.email}
                         onChange={handleInputChange('email')}
@@ -324,6 +327,7 @@ export default function Auth() {
                         id="admin-code"
                         type="password"
                         placeholder="Enter admin code for admin access"
+                        autoComplete="off"
                         className="pl-10"
                         value={formData.adminCode}
                         onChange={handleInputChange('adminCode')}

@@ -7,6 +7,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from 'recharts';
 import { AlertTriangle, CheckCircle, TrendingDown, Target, DollarSign } from 'lucide-react';
+import { apiClient } from '@/lib/api-client';
 
 interface Budget503020Data {
   totalIncome: number;
@@ -46,16 +47,11 @@ export default function Budget503020() {
   const fetchBudgetData = async () => {
     try {
       setLoading(true);
-      const response = await fetch(`/api/budget/503020?month=${selectedMonth}&year=${selectedYear}`, {
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        }
-      });
-      
-      if (response.ok) {
-        const result = await response.json();
-        setBudgetData(result.data);
-      }
+      const response = await apiClient.getBudget503020(
+        parseInt(selectedMonth), 
+        parseInt(selectedYear)
+      );
+      setBudgetData(response.data);
     } catch (error) {
       console.error('Error fetching 50/30/20 budget data:', error);
     } finally {

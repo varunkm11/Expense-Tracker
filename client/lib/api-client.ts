@@ -360,6 +360,18 @@ class ApiClient {
 
     return response.json();
   }
+
+  // Budget 50/30/20 methods
+  async getBudget503020(month?: number, year?: number): Promise<any> {
+    const searchParams = new URLSearchParams();
+    if (month !== undefined) searchParams.append('month', month.toString());
+    if (year !== undefined) searchParams.append('year', year.toString());
+    
+    const queryString = searchParams.toString();
+    const endpoint = `/budget/503020${queryString ? `?${queryString}` : ''}`;
+    
+    return this.request(endpoint);
+  }
 }
 
 export const apiClient = new ApiClient();
