@@ -21,6 +21,10 @@ export interface User {
   avatar?: string;
   isAdmin?: boolean;
   roommates: string[];
+  friendRequests?: {
+    sent: string[];
+    received: string[];
+  };
   preferences: {
     currency: string;
     theme: string;

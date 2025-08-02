@@ -128,6 +128,42 @@ class ApiClient {
     });
   }
 
+  // Friend request API
+  async searchUsers(query: string): Promise<{ users: Array<{ name: string; email: string }> }> {
+    return this.request<{ users: Array<{ name: string; email: string }> }>(`/auth/users/search?query=${encodeURIComponent(query)}`);
+  }
+
+  async sendFriendRequest(targetEmail: string): Promise<{ message: string }> {
+    return this.request<{ message: string }>('/auth/friend-requests/send', {
+      method: 'POST',
+      body: JSON.stringify({ targetEmail })
+    });
+  }
+
+  async acceptFriendRequest(senderEmail: string): Promise<{ message: string }> {
+    return this.request<{ message: string }>('/auth/friend-requests/accept', {
+      method: 'POST',
+      body: JSON.stringify({ senderEmail })
+    });
+  }
+
+  async rejectFriendRequest(senderEmail: string): Promise<{ message: string }> {
+    return this.request<{ message: string }>('/auth/friend-requests/reject', {
+      method: 'POST',
+      body: JSON.stringify({ senderEmail })
+    });
+  }
+
+  async getFriendRequests(): Promise<{ 
+    received: Array<{ name: string; email: string }>;
+    sent: Array<{ name: string; email: string }>;
+  }> {
+    return this.request<{ 
+      received: Array<{ name: string; email: string }>;
+      sent: Array<{ name: string; email: string }>;
+    }>('/auth/friend-requests');
+  }
+
   // Expenses API
   async createExpense(expense: CreateExpenseRequest): Promise<{ expense: Expense }> {
     return this.request<{ expense: Expense }>('/expenses', {

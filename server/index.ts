@@ -7,7 +7,20 @@ import path from "path";
 import { verifyToken, optionalAuth } from "./middleware/auth";
 
 // Auth routes
-import { register, login, getProfile, updateProfile, addRoommate, removeRoommate, updateRoommateName } from "./routes/auth";
+import { 
+  register, 
+  login, 
+  getProfile, 
+  updateProfile, 
+  addRoommate, 
+  removeRoommate, 
+  updateRoommateName,
+  searchUsers,
+  sendFriendRequest,
+  acceptFriendRequest,
+  rejectFriendRequest,
+  getFriendRequests
+} from "./routes/auth";
 
 // Main feature routes
 import { 
@@ -128,6 +141,13 @@ export function createServer() {
   app.post("/api/auth/roommates", verifyToken, addRoommate);
   app.delete("/api/auth/roommates", verifyToken, removeRoommate);
   app.put("/api/auth/roommates", verifyToken, updateRoommateName);
+
+  // Friend request routes
+  app.get("/api/auth/users/search", verifyToken, searchUsers);
+  app.post("/api/auth/friend-requests/send", verifyToken, sendFriendRequest);
+  app.post("/api/auth/friend-requests/accept", verifyToken, acceptFriendRequest);
+  app.post("/api/auth/friend-requests/reject", verifyToken, rejectFriendRequest);
+  app.get("/api/auth/friend-requests", verifyToken, getFriendRequests);
 
   // Expense routes
   app.post("/api/expenses", verifyToken, createExpense);

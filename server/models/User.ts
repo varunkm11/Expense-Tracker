@@ -7,6 +7,10 @@ export interface IUser extends Document {
   name: string;
   avatar?: string;
   roommates: string[];
+  friendRequests: {
+    sent: string[];
+    received: string[];
+  };
   isAdmin: boolean;
   adminCode?: string;
   preferences: {
@@ -45,6 +49,16 @@ const userSchema = new Schema<IUser>({
     type: String,
     trim: true
   }],
+  friendRequests: {
+    sent: [{
+      type: String,
+      trim: true
+    }],
+    received: [{
+      type: String,
+      trim: true
+    }]
+  },
   isAdmin: {
     type: Boolean,
     default: false

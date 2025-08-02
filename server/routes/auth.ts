@@ -26,26 +26,17 @@ export const register = async (req: Request, res: Response) => {
       return res.status(400).json({ error: 'User already exists with this email' });
     }
 
-    // Find all existing users
-    const allUsers = await User.find({}, 'email');
-    const allEmails = allUsers.map(u => u.email);
-
     // Check if admin code is provided and valid
     const isAdmin = validatedData.adminCode === 'EXPENSE_ADMIN_2024';
 
-    // Create new user, add all existing users as roommates
+    // Create new user without automatic roommate addition
     const user = new User({
       ...validatedData,
       isAdmin,
-      roommates: allEmails.filter(email => email !== validatedData.email)
+      roommates: [], // Start with empty roommates list
+      friendRequests: { sent: [], received: [] } // Initialize friend requests
     });
     await user.save();
-
-    // Add this new user to all other users' roommates
-    await User.updateMany(
-      { email: { $ne: validatedData.email } },
-      { $addToSet: { roommates: validatedData.email } }
-    );
 
     // Generate token
     const token = generateToken(user._id.toString());
@@ -249,6 +240,176 @@ export const updateRoommateName = async (req: Request, res: Response) => {
     res.json({
       message: 'Roommate name updated successfully',
       roommates: updatedUser?.roommates || []
+    });
+  } catch (error) {
+    res.status(500).json({ error: 'Internal server error' });
+  }
+};
+
+// Search for users to send friend requests
+export const searchUsers = async (req: Request, res: Response) => {
+  try {
+    const user = (req as any).user;
+    const { query } = req.query;
+
+    if (!query || typeof query !== 'string') {
+      return res.status(400).json({ error: 'Search query is required' });
+    }
+
+    // Find users matching the search query (name or email)
+    const users = await User.find({
+      $and: [
+        { _id: { $ne: user._id } }, // Exclude current user
+        { email: { $nin: user.roommates } }, // Exclude existing roommates
+        {
+          $or: [
+            { name: { $regex: query, $options: 'i' } },
+            { email: { $regex: query, $options: 'i' } }
+          ]
+        }
+      ]
+    }).select('name email').limit(10);
+
+    res.json({ users });
+  } catch (error) {
+    res.status(500).json({ error: 'Internal server error' });
+  }
+};
+
+// Send friend request
+export const sendFriendRequest = async (req: Request, res: Response) => {
+  try {
+    const user = (req as any).user;
+    const { targetEmail } = req.body;
+
+    if (!targetEmail || typeof targetEmail !== 'string') {
+      return res.status(400).json({ error: 'Target user email is required' });
+    }
+
+    // Find target user
+    const targetUser = await User.findOne({ email: targetEmail });
+    if (!targetUser) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    // Check if already roommates
+    if (user.roommates.includes(targetEmail)) {
+      return res.status(400).json({ error: 'Already roommates with this user' });
+    }
+
+    // Check if request already sent
+    if (user.friendRequests?.sent?.includes(targetEmail)) {
+      return res.status(400).json({ error: 'Friend request already sent' });
+    }
+
+    // Check if request already received from this user
+    if (user.friendRequests?.received?.includes(targetEmail)) {
+      return res.status(400).json({ error: 'This user has already sent you a friend request' });
+    }
+
+    // Add to sender's sent list
+    await User.findByIdAndUpdate(user._id, {
+      $addToSet: { 'friendRequests.sent': targetEmail }
+    });
+
+    // Add to receiver's received list
+    await User.findByIdAndUpdate(targetUser._id, {
+      $addToSet: { 'friendRequests.received': user.email }
+    });
+
+    res.json({ message: 'Friend request sent successfully' });
+  } catch (error) {
+    res.status(500).json({ error: 'Internal server error' });
+  }
+};
+
+// Accept friend request
+export const acceptFriendRequest = async (req: Request, res: Response) => {
+  try {
+    const user = (req as any).user;
+    const { senderEmail } = req.body;
+
+    if (!senderEmail || typeof senderEmail !== 'string') {
+      return res.status(400).json({ error: 'Sender email is required' });
+    }
+
+    // Check if request exists
+    if (!user.friendRequests?.received?.includes(senderEmail)) {
+      return res.status(400).json({ error: 'Friend request not found' });
+    }
+
+    // Find sender user
+    const senderUser = await User.findOne({ email: senderEmail });
+    if (!senderUser) {
+      return res.status(404).json({ error: 'Sender user not found' });
+    }
+
+    // Add each other as roommates
+    await User.findByIdAndUpdate(user._id, {
+      $addToSet: { roommates: senderEmail },
+      $pull: { 'friendRequests.received': senderEmail }
+    });
+
+    await User.findByIdAndUpdate(senderUser._id, {
+      $addToSet: { roommates: user.email },
+      $pull: { 'friendRequests.sent': user.email }
+    });
+
+    res.json({ message: 'Friend request accepted successfully' });
+  } catch (error) {
+    res.status(500).json({ error: 'Internal server error' });
+  }
+};
+
+// Reject friend request
+export const rejectFriendRequest = async (req: Request, res: Response) => {
+  try {
+    const user = (req as any).user;
+    const { senderEmail } = req.body;
+
+    if (!senderEmail || typeof senderEmail !== 'string') {
+      return res.status(400).json({ error: 'Sender email is required' });
+    }
+
+    // Find sender user
+    const senderUser = await User.findOne({ email: senderEmail });
+    if (!senderUser) {
+      return res.status(404).json({ error: 'Sender user not found' });
+    }
+
+    // Remove from both users' friend request lists
+    await User.findByIdAndUpdate(user._id, {
+      $pull: { 'friendRequests.received': senderEmail }
+    });
+
+    await User.findByIdAndUpdate(senderUser._id, {
+      $pull: { 'friendRequests.sent': user.email }
+    });
+
+    res.json({ message: 'Friend request rejected successfully' });
+  } catch (error) {
+    res.status(500).json({ error: 'Internal server error' });
+  }
+};
+
+// Get friend requests
+export const getFriendRequests = async (req: Request, res: Response) => {
+  try {
+    const user = (req as any).user;
+    
+    // Get received friend requests with user details
+    const receivedRequests = await User.find({
+      email: { $in: user.friendRequests?.received || [] }
+    }).select('name email');
+
+    // Get sent friend requests with user details
+    const sentRequests = await User.find({
+      email: { $in: user.friendRequests?.sent || [] }
+    }).select('name email');
+
+    res.json({
+      received: receivedRequests,
+      sent: sentRequests
     });
   } catch (error) {
     res.status(500).json({ error: 'Internal server error' });

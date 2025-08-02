@@ -32,10 +32,6 @@ export function NavigationBar() {
     { path: '/insights', icon: Brain, label: 'AI Insights' },
   ];
 
-  if (user?.isAdmin) {
-    navItems.push({ path: '/admin', icon: Settings, label: 'Admin' });
-  }
-
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border-b border-orange-200 dark:border-slate-700">
       <div className="container mx-auto px-4 py-3">

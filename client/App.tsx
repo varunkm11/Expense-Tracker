@@ -68,14 +68,6 @@ const AppRoutes = () => {
         }
       />
       <Route
-        path="/admin"
-        element={
-          <ProtectedRoute>
-            <AdminPanel />
-          </ProtectedRoute>
-        }
-      />
-      <Route
         path="/budget"
         element={
           <ProtectedRoute>

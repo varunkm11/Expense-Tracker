@@ -13,6 +13,7 @@ import { Separator } from "@/components/ui/separator";
 import { ExpenseChart } from "@/components/ExpenseChart";
 import { ExpenseSplitDetails } from "@/components/ExpenseSplitDetails";
 import { SplitExpensesSummary } from "@/components/SplitExpensesSummary";
+import { FriendRequestsManager } from "@/components/FriendRequestsManager";
 import { NavigationBar } from "@/components/NavigationBar";
 import { useAuth } from "@/contexts/AuthContext";
 import { apiClient } from "@/lib/api-client";
@@ -333,10 +334,11 @@ export default function Index() {
         </motion.div>
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="grid w-full grid-cols-4 bg-white/80 dark:bg-slate-800/80 backdrop-blur-md border dark:border-slate-700">
+          <TabsList className="grid w-full grid-cols-5 bg-white/80 dark:bg-slate-800/80 backdrop-blur-md border dark:border-slate-700">
             <TabsTrigger value="dashboard">Dashboard</TabsTrigger>
             <TabsTrigger value="expenses">Expenses</TabsTrigger>
             <TabsTrigger value="income">Income</TabsTrigger>
+            <TabsTrigger value="friends">Friends</TabsTrigger>
             <TabsTrigger value="analytics">Analytics</TabsTrigger>
           </TabsList>
 
@@ -418,8 +420,8 @@ export default function Index() {
                           </div>
 
                           <div>
-                            <Label>Split with roommates</Label>
-                            <div className="space-y-3 mt-2">
+                            <Label>Split Expense</Label>
+                            <div className="space-y-4 mt-2">
                               <div className="flex items-center space-x-2">
                                 <Checkbox
                                   id="use-custom-split"
@@ -431,50 +433,74 @@ export default function Index() {
                                 </Label>
                               </div>
                               
-                              <div className="space-y-2 max-h-40 overflow-y-auto">
-                                {roommates.filter(r => r !== "You").map(roommate => (
-                                  <div key={roommate} className="flex items-center space-x-2 p-2 border rounded">
-                                    <Checkbox
-                                      id={`split-${roommate}`}
-                                      checked={newExpense.splitWith?.includes(roommate)}
-                                      onCheckedChange={(checked) => handleSplitWithChange(roommate, checked as boolean)}
-                                    />
-                                    <Label 
-                                      htmlFor={`split-${roommate}`} 
-                                      className="text-sm flex-1"
-                                      title={roommate}
-                                    >
-                                      {roommate}
-                                    </Label>
-                                    {useCustomSplit && newExpense.splitWith?.includes(roommate) && (
-                                      <div className="flex items-center space-x-1">
-                                        <span className="text-xs">₹</span>
-                                        <Input
-                                          type="number"
-                                          placeholder="Amount"
-                                          value={customSplitAmounts[roommate] || ''}
-                                          onChange={(e) => setCustomSplitAmounts(prev => ({
-                                            ...prev,
-                                            [roommate]: Number(e.target.value) || 0
-                                          }))}
-                                          className="w-20 h-8 text-xs"
-                                        />
-                                      </div>
-                                    )}
-                                    {!useCustomSplit && newExpense.splitWith?.includes(roommate) && newExpense.amount > 0 && (
-                                      <span className="text-xs text-gray-500">
-                                        ₹{(newExpense.amount / ((newExpense.splitWith?.length || 0) + 1)).toFixed(2)}
-                                      </span>
-                                    )}
-                                  </div>
-                                ))}
-                                {roommates.filter(r => r !== "You").length === 0 && (
-                                  <p className="text-sm text-gray-500 italic">No roommates added yet</p>
-                                )}
+                              {/* Roommates Section */}
+                              <div className="border rounded-lg p-3">
+                                <div className="flex items-center gap-2 mb-3">
+                                  <Users className="w-4 h-4 text-blue-600" />
+                                  <Label className="font-medium text-sm">Roommates</Label>
+                                </div>
+                                <div className="space-y-2 max-h-32 overflow-y-auto">
+                                  {roommates.filter(r => r !== "You").map(roommate => (
+                                    <div key={roommate} className="flex items-center space-x-2 p-2 bg-blue-50 dark:bg-blue-900/20 rounded">
+                                      <Checkbox
+                                        id={`split-${roommate}`}
+                                        checked={newExpense.splitWith?.includes(roommate)}
+                                        onCheckedChange={(checked) => handleSplitWithChange(roommate, checked as boolean)}
+                                      />
+                                      <Label 
+                                        htmlFor={`split-${roommate}`} 
+                                        className="text-sm flex-1"
+                                        title={roommate}
+                                      >
+                                        {roommate}
+                                      </Label>
+                                      {useCustomSplit && newExpense.splitWith?.includes(roommate) && (
+                                        <div className="flex items-center space-x-1">
+                                          <span className="text-xs">₹</span>
+                                          <Input
+                                            type="number"
+                                            placeholder="Amount"
+                                            value={customSplitAmounts[roommate] || ''}
+                                            onChange={(e) => setCustomSplitAmounts(prev => ({
+                                              ...prev,
+                                              [roommate]: Number(e.target.value) || 0
+                                            }))}
+                                            className="w-20 h-8 text-xs"
+                                          />
+                                        </div>
+                                      )}
+                                      {!useCustomSplit && newExpense.splitWith?.includes(roommate) && newExpense.amount > 0 && (
+                                        <span className="text-xs text-gray-500">
+                                          ₹{(newExpense.amount / ((newExpense.splitWith?.length || 0) + 1)).toFixed(2)}
+                                        </span>
+                                      )}
+                                    </div>
+                                  ))}
+                                  {roommates.filter(r => r !== "You").length === 0 && (
+                                    <div className="text-center py-4 text-sm text-gray-500">
+                                      <Users className="w-8 h-8 mx-auto mb-2 opacity-50" />
+                                      <p>No roommates added yet</p>
+                                      <p className="text-xs">Go to Friends tab to add roommates</p>
+                                    </div>
+                                  )}
+                                </div>
+                              </div>
+
+                              {/* Other Users Section - Coming Soon */}
+                              <div className="border rounded-lg p-3 opacity-60">
+                                <div className="flex items-center gap-2 mb-3">
+                                  <Users className="w-4 h-4 text-green-600" />
+                                  <Label className="font-medium text-sm">Other Users</Label>
+                                  <Badge variant="outline" className="text-xs">Coming Soon</Badge>
+                                </div>
+                                <div className="text-center py-4 text-sm text-gray-500">
+                                  <p>Split with non-roommate friends</p>
+                                  <p className="text-xs">Feature under development</p>
+                                </div>
                               </div>
                               
                               {useCustomSplit && newExpense.splitWith && newExpense.splitWith.length > 0 && (
-                                <div className="text-xs text-gray-600 p-2 bg-blue-50 rounded">
+                                <div className="text-xs text-gray-600 p-2 bg-blue-50 dark:bg-blue-900/20 rounded">
                                   <strong>Split Summary:</strong><br/>
                                   Total: ₹{newExpense.amount}<br/>
                                   Assigned: ₹{Object.values(customSplitAmounts).reduce((sum, amount) => sum + amount, 0)}<br/>
@@ -827,6 +853,10 @@ export default function Index() {
                 )}
               </CardContent>
             </Card>
+          </TabsContent>
+
+          <TabsContent value="friends" className="space-y-6">
+            <FriendRequestsManager />
           </TabsContent>
 
           <TabsContent value="analytics" className="space-y-6">
