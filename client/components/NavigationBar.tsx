@@ -51,41 +51,49 @@ export function NavigationBar() {
             </div>
           </Link>
 
-          {/* Navigation Items */}
-          <div className="hidden md:flex items-center space-x-2">
-            {navItems.map((item) => {
-              const Icon = item.icon;
-              return (
-                <Link key={item.path} to={item.path}>
-                  <Button 
-                    variant={isActive(item.path) ? "default" : "ghost"} 
-                    size="sm"
-                    className="h-9"
-                  >
-                    <Icon className="w-4 h-4 mr-2" />
-                    {item.label}
-                  </Button>
-                </Link>
-              );
-            })}
-          </div>
+          {/* Navigation Items - Only show if user is logged in */}
+          {user && (
+            <div className="hidden md:flex items-center space-x-2">
+              {navItems.map((item) => {
+                const Icon = item.icon;
+                return (
+                  <Link key={item.path} to={item.path}>
+                    <Button 
+                      variant={isActive(item.path) ? "default" : "ghost"} 
+                      size="sm"
+                      className="h-9"
+                    >
+                      <Icon className="w-4 h-4 mr-2" />
+                      {item.label}
+                    </Button>
+                  </Link>
+                );
+              })}
+            </div>
+          )}
 
           {/* Right Side */}
           <div className="flex items-center space-x-3">
-            <Badge variant="outline" className="text-xs hidden sm:flex">
-              <Users className="w-3 h-3 mr-1" />
-              {roommates.length} Roommates
-            </Badge>
-            
-            <div className="text-sm text-muted-foreground hidden sm:block">
-              Welcome, <span className="font-medium text-foreground">{user?.name}</span>
-            </div>
+            {user && (
+              <>
+                <Badge variant="outline" className="text-xs hidden sm:flex">
+                  <Users className="w-3 h-3 mr-1" />
+                  {roommates.length} Roommates
+                </Badge>
+                
+                <div className="text-sm text-muted-foreground hidden sm:block">
+                  Welcome, <span className="font-medium text-foreground">{user?.name}</span>
+                </div>
+              </>
+            )}
 
             <ThemeToggle />
             
-            <Button variant="ghost" size="sm" onClick={logout} className="h-9 w-9 px-0">
-              <LogOut className="w-4 h-4" />
-            </Button>
+            {user && (
+              <Button variant="ghost" size="sm" onClick={logout} className="h-9 w-9 px-0">
+                <LogOut className="w-4 h-4" />
+              </Button>
+            )}
           </div>
         </div>
 

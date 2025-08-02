@@ -5,6 +5,7 @@ import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { NavigationBar } from "@/components/NavigationBar";
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from 'recharts';
 import { AlertTriangle, CheckCircle, TrendingDown, Target, DollarSign } from 'lucide-react';
 import { apiClient } from '@/lib/api-client';
@@ -48,7 +49,7 @@ export default function Budget503020() {
     try {
       setLoading(true);
       const response = await apiClient.getBudget503020(
-        parseInt(selectedMonth), 
+        parseInt(selectedMonth),
         parseInt(selectedYear)
       );
       setBudgetData(response.data);
@@ -125,264 +126,269 @@ export default function Budget503020() {
   }
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-        <div>
-          <h1 className="text-3xl font-bold">50/30/20 Budget</h1>
-          <p className="text-gray-600">Track your spending according to the 50/30/20 rule</p>
-        </div>
-        
-        <div className="flex gap-2">
-          <Select value={selectedMonth} onValueChange={setSelectedMonth}>
-            <SelectTrigger className="w-32">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              {Array.from({ length: 12 }, (_, i) => (
-                <SelectItem key={`month-${i}`} value={i.toString()}>
-                  {new Date(0, i).toLocaleString('default', { month: 'long' })}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-          
-          <Select value={selectedYear} onValueChange={setSelectedYear}>
-            <SelectTrigger className="w-24">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              {Array.from({ length: 5 }, (_, i) => {
-                const year = new Date().getFullYear() - i;
-                return (
-                  <SelectItem key={`year-${year}`} value={year.toString()}>
-                    {year}
-                  </SelectItem>
-                );
-              })}
-            </SelectContent>
-          </Select>
-        </div>
-      </div>
+    <div className="min-h-screen bg-gradient-to-br from-orange-50 via-yellow-50 to-amber-50 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900">
+      <NavigationBar />
+      <div className="container mx-auto px-4 py-6 pt-20">
+        <div className="space-y-6">
+          {/* Header */}
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+            <div>
+              <h1 className="text-3xl font-bold">50/30/20 Budget</h1>
+              <p className="text-gray-600 dark:text-gray-300">Track your spending according to the 50/30/20 rule</p>
+            </div>
 
-      {/* Overview Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.1 }}
-        >
-          <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-gray-600">Total Income</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="flex items-center">
-                <DollarSign className="h-5 w-5 text-green-500 mr-2" />
-                <span className="text-2xl font-bold">₹{budgetData.totalIncome.toLocaleString()}</span>
-              </div>
-            </CardContent>
-          </Card>
-        </motion.div>
+            <div className="flex gap-2">
+              <Select value={selectedMonth} onValueChange={setSelectedMonth}>
+                <SelectTrigger className="w-32">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {Array.from({ length: 12 }, (_, i) => (
+                    <SelectItem key={`month-${i}`} value={i.toString()}>
+                      {new Date(0, i).toLocaleString('default', { month: 'long' })}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
 
-        {/* Needs Card */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2 }}
-        >
-          <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-gray-600 flex items-center justify-between">
-                Needs (50%)
-                {getStatusIcon(budgetData.needs.status)}
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-2">
-                <div className="flex justify-between text-sm">
-                  <span>₹{budgetData.needs.spentAmount.toLocaleString()}</span>
-                  <span className="text-gray-500">/ ₹{budgetData.needs.budgetAmount.toLocaleString()}</span>
-                </div>
-                <Progress value={(budgetData.needs.spentAmount / budgetData.needs.budgetAmount) * 100} className="h-2" />
-                <Badge className={getStatusColor(budgetData.needs.status)}>
-                  {budgetData.needs.percentage.toFixed(1)}% of income
-                </Badge>
-              </div>
-            </CardContent>
-          </Card>
-        </motion.div>
+              <Select value={selectedYear} onValueChange={setSelectedYear}>
+                <SelectTrigger className="w-24">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {Array.from({ length: 5 }, (_, i) => {
+                    const year = new Date().getFullYear() - i;
+                    return (
+                      <SelectItem key={`year-${year}`} value={year.toString()}>
+                        {year}
+                      </SelectItem>
+                    );
+                  })}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
 
-        {/* Wants Card */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.3 }}
-        >
-          <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-gray-600 flex items-center justify-between">
-                Wants (30%)
-                {getStatusIcon(budgetData.wants.status)}
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-2">
-                <div className="flex justify-between text-sm">
-                  <span>₹{budgetData.wants.spentAmount.toLocaleString()}</span>
-                  <span className="text-gray-500">/ ₹{budgetData.wants.budgetAmount.toLocaleString()}</span>
-                </div>
-                <Progress value={(budgetData.wants.spentAmount / budgetData.wants.budgetAmount) * 100} className="h-2" />
-                <Badge className={getStatusColor(budgetData.wants.status)}>
-                  {budgetData.wants.percentage.toFixed(1)}% of income
-                </Badge>
-              </div>
-            </CardContent>
-          </Card>
-        </motion.div>
-
-        {/* Savings Card */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.4 }}
-        >
-          <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-gray-600 flex items-center justify-between">
-                Savings (20%)
-                {getStatusIcon(budgetData.savings.status)}
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-2">
-                <div className="flex justify-between text-sm">
-                  <span>₹{budgetData.savings.actualSavings.toLocaleString()}</span>
-                  <span className="text-gray-500">/ ₹{budgetData.savings.budgetAmount.toLocaleString()}</span>
-                </div>
-                <Progress value={(budgetData.savings.actualSavings / budgetData.savings.budgetAmount) * 100} className="h-2" />
-                <Badge className={getStatusColor(budgetData.savings.status)}>
-                  {budgetData.savings.percentage.toFixed(1)}% of income
-                </Badge>
-              </div>
-            </CardContent>
-          </Card>
-        </motion.div>
-      </div>
-
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Chart */}
-        <motion.div
-          initial={{ opacity: 0, x: -20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ delay: 0.5 }}
-        >
-          <Card>
-            <CardHeader>
-              <CardTitle>Budget vs Actual</CardTitle>
-              <CardDescription>Visual breakdown of your 50/30/20 budget</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="h-80">
-                <ResponsiveContainer width="100%" height="100%">
-                  <PieChart>
-                    <Pie
-                      data={chartData}
-                      cx="50%"
-                      cy="50%"
-                      outerRadius={80}
-                      dataKey="value"
-                      label={({ name, value }) => `${name}: ₹${value.toLocaleString()}`}
-                    >
-                      {chartData.map((entry, index) => (
-                        <Cell key={`cell-${index}`} fill={entry.color} />
-                      ))}
-                    </Pie>
-                    <Tooltip formatter={(value) => [`₹${Number(value).toLocaleString()}`, 'Amount']} />
-                    <Legend />
-                  </PieChart>
-                </ResponsiveContainer>
-              </div>
-            </CardContent>
-          </Card>
-        </motion.div>
-
-        {/* Recommendations */}
-        <motion.div
-          initial={{ opacity: 0, x: 20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ delay: 0.6 }}
-        >
-          <Card>
-            <CardHeader>
-              <CardTitle>Recommendations</CardTitle>
-              <CardDescription>Tips to improve your budget</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-3">
-                {budgetData.recommendations.map((recommendation, index) => (
-                  <Alert key={`recommendation-${index}`}>
-                    <AlertDescription>
-                      {recommendation}
-                    </AlertDescription>
-                  </Alert>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-        </motion.div>
-      </div>
-
-      {/* Category Breakdowns */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Needs Categories */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.7 }}
-        >
-          <Card>
-            <CardHeader>
-              <CardTitle>Needs Categories</CardTitle>
-              <CardDescription>Essential expenses breakdown</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-3">
-                {budgetData.needs.categories.map((category, index) => (
-                  <div key={`needs-${index}`} className="flex items-center justify-between">
-                    <span className="text-sm font-medium">{category.category}</span>
-                    <span className="text-sm text-gray-600">₹{category.amount.toLocaleString()}</span>
+          {/* Overview Cards */}
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.1 }}
+            >
+              <Card>
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-sm font-medium text-gray-600">Total Income</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="flex items-center">
+                    <DollarSign className="h-5 w-5 text-green-500 mr-2" />
+                    <span className="text-2xl font-bold">₹{budgetData.totalIncome.toLocaleString()}</span>
                   </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-        </motion.div>
+                </CardContent>
+              </Card>
+            </motion.div>
 
-        {/* Wants Categories */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.8 }}
-        >
-          <Card>
-            <CardHeader>
-              <CardTitle>Wants Categories</CardTitle>
-              <CardDescription>Discretionary expenses breakdown</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-3">
-                {budgetData.wants.categories.map((category, index) => (
-                  <div key={`wants-${index}`} className="flex items-center justify-between">
-                    <span className="text-sm font-medium">{category.category}</span>
-                    <span className="text-sm text-gray-600">₹{category.amount.toLocaleString()}</span>
+            {/* Needs Card */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.2 }}
+            >
+              <Card>
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-sm font-medium text-gray-600 flex items-center justify-between">
+                    Needs (50%)
+                    {getStatusIcon(budgetData.needs.status)}
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-2">
+                    <div className="flex justify-between text-sm">
+                      <span>₹{budgetData.needs.spentAmount.toLocaleString()}</span>
+                      <span className="text-gray-500">/ ₹{budgetData.needs.budgetAmount.toLocaleString()}</span>
+                    </div>
+                    <Progress value={(budgetData.needs.spentAmount / budgetData.needs.budgetAmount) * 100} className="h-2" />
+                    <Badge className={getStatusColor(budgetData.needs.status)}>
+                      {budgetData.needs.percentage.toFixed(1)}% of income
+                    </Badge>
                   </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-        </motion.div>
+                </CardContent>
+              </Card>
+            </motion.div>
+
+            {/* Wants Card */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.3 }}
+            >
+              <Card>
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-sm font-medium text-gray-600 flex items-center justify-between">
+                    Wants (30%)
+                    {getStatusIcon(budgetData.wants.status)}
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-2">
+                    <div className="flex justify-between text-sm">
+                      <span>₹{budgetData.wants.spentAmount.toLocaleString()}</span>
+                      <span className="text-gray-500">/ ₹{budgetData.wants.budgetAmount.toLocaleString()}</span>
+                    </div>
+                    <Progress value={(budgetData.wants.spentAmount / budgetData.wants.budgetAmount) * 100} className="h-2" />
+                    <Badge className={getStatusColor(budgetData.wants.status)}>
+                      {budgetData.wants.percentage.toFixed(1)}% of income
+                    </Badge>
+                  </div>
+                </CardContent>
+              </Card>
+            </motion.div>
+
+            {/* Savings Card */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.4 }}
+            >
+              <Card>
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-sm font-medium text-gray-600 flex items-center justify-between">
+                    Savings (20%)
+                    {getStatusIcon(budgetData.savings.status)}
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-2">
+                    <div className="flex justify-between text-sm">
+                      <span>₹{budgetData.savings.actualSavings.toLocaleString()}</span>
+                      <span className="text-gray-500">/ ₹{budgetData.savings.budgetAmount.toLocaleString()}</span>
+                    </div>
+                    <Progress value={(budgetData.savings.actualSavings / budgetData.savings.budgetAmount) * 100} className="h-2" />
+                    <Badge className={getStatusColor(budgetData.savings.status)}>
+                      {budgetData.savings.percentage.toFixed(1)}% of income
+                    </Badge>
+                  </div>
+                </CardContent>
+              </Card>
+            </motion.div>
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {/* Chart */}
+            <motion.div
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.5 }}
+            >
+              <Card>
+                <CardHeader>
+                  <CardTitle>Budget vs Actual</CardTitle>
+                  <CardDescription>Visual breakdown of your 50/30/20 budget</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="h-80">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <PieChart>
+                        <Pie
+                          data={chartData}
+                          cx="50%"
+                          cy="50%"
+                          outerRadius={80}
+                          dataKey="value"
+                          label={({ name, value }) => `${name}: ₹${value.toLocaleString()}`}
+                        >
+                          {chartData.map((entry, index) => (
+                            <Cell key={`cell-${index}`} fill={entry.color} />
+                          ))}
+                        </Pie>
+                        <Tooltip formatter={(value) => [`₹${Number(value).toLocaleString()}`, 'Amount']} />
+                        <Legend />
+                      </PieChart>
+                    </ResponsiveContainer>
+                  </div>
+                </CardContent>
+              </Card>
+            </motion.div>
+
+            {/* Recommendations */}
+            <motion.div
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.6 }}
+            >
+              <Card>
+                <CardHeader>
+                  <CardTitle>Recommendations</CardTitle>
+                  <CardDescription>Tips to improve your budget</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-3">
+                    {budgetData.recommendations.map((recommendation, index) => (
+                      <Alert key={`recommendation-${index}`}>
+                        <AlertDescription>
+                          {recommendation}
+                        </AlertDescription>
+                      </Alert>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            </motion.div>
+          </div>
+
+          {/* Category Breakdowns */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {/* Needs Categories */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.7 }}
+            >
+              <Card>
+                <CardHeader>
+                  <CardTitle>Needs Categories</CardTitle>
+                  <CardDescription>Essential expenses breakdown</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-3">
+                    {budgetData.needs.categories.map((category, index) => (
+                      <div key={`needs-${index}`} className="flex items-center justify-between">
+                        <span className="text-sm font-medium">{category.category}</span>
+                        <span className="text-sm text-gray-600">₹{category.amount.toLocaleString()}</span>
+                      </div>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            </motion.div>
+
+            {/* Wants Categories */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.8 }}
+            >
+              <Card>
+                <CardHeader>
+                  <CardTitle>Wants Categories</CardTitle>
+                  <CardDescription>Discretionary expenses breakdown</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-3">
+                    {budgetData.wants.categories.map((category, index) => (
+                      <div key={`wants-${index}`} className="flex items-center justify-between">
+                        <span className="text-sm font-medium">{category.category}</span>
+                        <span className="text-sm text-gray-600">₹{category.amount.toLocaleString()}</span>
+                      </div>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            </motion.div>
+          </div>
+        </div>
       </div>
     </div>
   );
-}
+};

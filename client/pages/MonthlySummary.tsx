@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { NavigationBar } from "@/components/NavigationBar";
 import { LineChart, Line, AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar } from 'recharts';
 import { useQuery } from "@tanstack/react-query";
 import { apiClient } from "@/lib/api-client";
@@ -128,56 +129,47 @@ export default function MonthlySummary() {
     : 0;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-orange-50 via-yellow-50 to-amber-50">
-      {/* Header */}
-      <motion.header 
-        initial={{ y: -50, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        className="bg-white/80 backdrop-blur-md border-b border-orange-200 sticky top-0 z-50"
-      >
-        <div className="container mx-auto px-4 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-3">
-              <Button variant="ghost" size="sm" className="p-2" asChild>
-                <a href="/">
-                  <ChevronLeft className="w-4 h-4" />
-                </a>
-              </Button>
-              <div>
-                <h1 className="text-2xl font-bold text-gray-900">Monthly Summary</h1>
-                <p className="text-sm text-gray-600">Detailed insights for {currentMonthName}</p>
-              </div>
-            </div>
-            <div className="flex items-center space-x-2">
-              <Button variant="outline" size="sm" onClick={handlePreviousMonth}>
-                <ChevronLeft className="w-4 h-4" />
-              </Button>
-              <Badge variant="secondary" className="px-4 py-2">
-                <Calendar className="w-3 h-3 mr-1" />
-                {currentMonthName}
-              </Badge>
-              <Button variant="outline" size="sm" onClick={handleNextMonth}>
-                <ChevronRight className="w-4 h-4" />
-              </Button>
-              <Button 
-                size="sm" 
-                className="bg-gradient-to-r from-orange-400 to-amber-500"
-                onClick={handleDownloadPDF}
-                disabled={isGeneratingPDF}
-              >
-                {isGeneratingPDF ? (
-                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                ) : (
-                  <FileDown className="w-4 h-4 mr-2" />
-                )}
-                {isGeneratingPDF ? 'Generating...' : 'Download PDF'}
-              </Button>
-            </div>
+    <div className="min-h-screen bg-gradient-to-br from-orange-50 via-yellow-50 to-amber-50 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900">
+      <NavigationBar />
+      <div className="container mx-auto px-4 py-6 pt-20">
+        
+        {/* Header */}
+        <motion.div 
+          initial={{ y: -20, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          className="flex items-center justify-between mb-6"
+        >
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Monthly Summary</h1>
+            <p className="text-gray-600 dark:text-gray-300">Detailed insights for {currentMonthName}</p>
           </div>
-        </div>
-      </motion.header>
+          <div className="flex items-center space-x-2">
+            <Button variant="outline" size="sm" onClick={handlePreviousMonth}>
+              <ChevronLeft className="w-4 h-4" />
+            </Button>
+            <Badge variant="secondary" className="px-4 py-2">
+              <Calendar className="w-3 h-3 mr-1" />
+              {currentMonthName}
+            </Badge>
+            <Button variant="outline" size="sm" onClick={handleNextMonth}>
+              <ChevronRight className="w-4 h-4" />
+            </Button>
+            <Button 
+              size="sm" 
+              className="bg-gradient-to-r from-orange-400 to-amber-500"
+              onClick={handleDownloadPDF}
+              disabled={isGeneratingPDF}
+            >
+              {isGeneratingPDF ? (
+                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+              ) : (
+                <FileDown className="w-4 h-4 mr-2" />
+              )}
+              {isGeneratingPDF ? 'Generating...' : 'Download PDF'}
+            </Button>
+          </div>
+        </motion.div>
 
-      <div className="container mx-auto px-4 py-6">
         {/* Summary Cards */}
         <motion.div 
           initial={{ opacity: 0, y: 20 }}

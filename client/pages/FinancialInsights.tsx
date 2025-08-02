@@ -4,6 +4,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
+import { NavigationBar } from "@/components/NavigationBar";
 import { RefreshCw, TrendingUp, TrendingDown, Target, Star, AlertTriangle, Lightbulb, Trophy } from 'lucide-react';
 
 interface FinancialInsight {
@@ -121,17 +122,20 @@ export default function FinancialInsights() {
   }
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-        <div>
-          <h1 className="text-3xl font-bold">Financial Insights</h1>
-          <p className="text-gray-600">AI-powered analysis of your spending patterns</p>
-        </div>
-        
-        <Button 
-          onClick={fetchInsights} 
-          disabled={refreshing}
+    <div className="min-h-screen bg-gradient-to-br from-orange-50 via-yellow-50 to-amber-50 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900">
+      <NavigationBar />
+      <div className="container mx-auto px-4 py-6 pt-20">
+        <div className="space-y-6">
+          {/* Header */}
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+            <div>
+              <h1 className="text-3xl font-bold">Financial Insights</h1>
+              <p className="text-gray-600 dark:text-gray-300">AI-powered analysis of your spending patterns</p>
+            </div>
+            
+            <Button 
+              onClick={fetchInsights} 
+              disabled={refreshing}
           variant="outline"
         >
           <RefreshCw className={`h-4 w-4 mr-2 ${refreshing ? 'animate-spin' : ''}`} />
@@ -304,6 +308,8 @@ export default function FinancialInsights() {
           </CardContent>
         </Card>
       </motion.div>
+        </div>
+      </div>
     </div>
   );
 }
