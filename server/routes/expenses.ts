@@ -3,6 +3,7 @@ import { Expense } from '../models/Expense';
 import { Income } from '../models/Income';
 import { Budget } from '../models/Budget';
 import { AuthRequest } from '../middleware/auth';
+import { BalanceManager } from '../utils/BalanceManager';
 import { z } from 'zod';
 import { startOfMonth, endOfMonth, startOfYear, endOfYear, subMonths, format } from 'date-fns';
 
@@ -81,6 +82,21 @@ export const createExpense = async (req: AuthRequest, res: Response) => {
     });
 
     await expense.save();
+
+    // Update balances if this is a split expense
+    if (splitDetails && splitDetails.payments.length > 0) {
+      const payerUser = req.user!;
+      const splitDetailsForBalance = splitDetails.payments.map(payment => ({
+        email: payment.participant, // This should be email, not name
+        amount: payment.amount
+      }));
+
+      // Update balance system
+      await BalanceManager.updateBalancesForSplitExpense(
+        payerUser.email,
+        splitDetailsForBalance
+      );
+    }
 
     // Create linked expenses for each participant so they can see split expenses on their dashboard
     if (splitDetails && splitDetails.payments.length > 0) {

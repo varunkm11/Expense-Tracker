@@ -54,6 +54,13 @@ import {
 } from "./routes/reports";
 
 import { 
+  getUserBalances,
+  getBalanceBetweenUsers,
+  settlePayment,
+  markSplitPaymentPaid as markPaymentPaid
+} from "./routes/balances";
+
+import { 
   requireAdmin,
   getAllUsers,
   getSystemStats,
@@ -174,6 +181,12 @@ export function createServer() {
   // Report routes
   app.get("/api/reports/monthly", verifyToken, generateMonthlySummaryPDF);
   app.get("/api/reports/yearly", verifyToken, generateYearlySummary);
+
+  // Balance routes
+  app.get("/api/balances", verifyToken, getUserBalances);
+  app.get("/api/balances/:otherUserEmail", verifyToken, getBalanceBetweenUsers);
+  app.post("/api/balances/settle", verifyToken, settlePayment);
+  app.put("/api/balances/mark-paid", verifyToken, markPaymentPaid);
 
   // Admin routes
   app.get("/api/admin/users", verifyToken, requireAdmin, getAllUsers);

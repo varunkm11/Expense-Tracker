@@ -164,6 +164,57 @@ class ApiClient {
     }>('/auth/friend-requests');
   }
 
+  // Balance API
+  async getUserBalances(): Promise<{ 
+    balances: {
+      totalOwed: number;
+      totalOwing: number;
+      balances: {[email: string]: number};
+      netBalance: number;
+    }
+  }> {
+    return this.request<{ 
+      balances: {
+        totalOwed: number;
+        totalOwing: number;
+        balances: {[email: string]: number};
+        netBalance: number;
+      }
+    }>('/balances');
+  }
+
+  async getBalanceBetweenUsers(otherUserEmail: string): Promise<{
+    balance: {
+      user1OwesUser2: number;
+      user2OwesUser1: number;
+      netBalance: number;
+      summary: string;
+    }
+  }> {
+    return this.request<{
+      balance: {
+        user1OwesUser2: number;
+        user2OwesUser1: number;
+        netBalance: number;
+        summary: string;
+      }
+    }>(`/balances/${encodeURIComponent(otherUserEmail)}`);
+  }
+
+  async settlePayment(payerEmail: string, amount: number, expenseId?: string): Promise<{ message: string }> {
+    return this.request<{ message: string }>('/balances/settle', {
+      method: 'POST',
+      body: JSON.stringify({ payerEmail, amount, expenseId })
+    });
+  }
+
+  async markPaymentPaid(expenseId: string, participantEmail: string): Promise<{ message: string; expense: Expense }> {
+    return this.request<{ message: string; expense: Expense }>('/balances/mark-paid', {
+      method: 'PUT',
+      body: JSON.stringify({ expenseId, participantEmail })
+    });
+  }
+
   // Expenses API
   async createExpense(expense: CreateExpenseRequest): Promise<{ expense: Expense }> {
     return this.request<{ expense: Expense }>('/expenses', {

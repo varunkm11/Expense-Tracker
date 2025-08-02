@@ -1,11 +1,7 @@
-import { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
 import { apiClient } from "@/lib/api-client";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
@@ -18,15 +14,15 @@ interface ExpenseSplitDetailsProps {
 }
 
 export function ExpenseSplitDetails({ expense }: ExpenseSplitDetailsProps) {
-  const [notes, setNotes] = useState<{ [participant: string]: string }>({});
   const queryClient = useQueryClient();
 
   const markSplitPaidMutation = useMutation({
-    mutationFn: ({ participant, notes: noteText }: { participant: string; notes?: string }) =>
-      apiClient.markSplitPaymentPaid(expense.id, participant, noteText),
+    mutationFn: ({ participant }: { participant: string; notes?: string }) =>
+      apiClient.markPaymentPaid(expense.id, participant),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['expenses'] });
-      toast.success('Payment marked as paid');
+      queryClient.invalidateQueries({ queryKey: ['balances'] });
+      toast.success('Payment marked as paid and balances updated');
     },
     onError: () => {
       toast.error('Failed to mark payment as paid');
@@ -47,8 +43,7 @@ export function ExpenseSplitDetails({ expense }: ExpenseSplitDetailsProps) {
 
   const handleMarkSplitPaid = (participant: string) => {
     markSplitPaidMutation.mutate({ 
-      participant, 
-      notes: notes[participant] 
+      participant
     });
   };
 
@@ -130,24 +125,13 @@ export function ExpenseSplitDetails({ expense }: ExpenseSplitDetailsProps) {
                   </div>
                   
                   {!payment.isPaid && (
-                    <div className="flex items-center gap-2">
-                      <Input
-                        placeholder="Add note..."
-                        value={notes[payment.participant] || ''}
-                        onChange={(e) => setNotes(prev => ({
-                          ...prev,
-                          [payment.participant]: e.target.value
-                        }))}
-                        className="w-32"
-                      />
-                      <Button
-                        size="sm"
-                        onClick={() => handleMarkSplitPaid(payment.participant)}
-                        disabled={markSplitPaidMutation.isPending}
-                      >
-                        Mark Paid
-                      </Button>
-                    </div>
+                    <Button
+                      size="sm"
+                      onClick={() => handleMarkSplitPaid(payment.participant)}
+                      disabled={markSplitPaidMutation.isPending}
+                    >
+                      Mark Paid
+                    </Button>
                   )}
                   
                   {payment.isPaid && payment.paidAt && (

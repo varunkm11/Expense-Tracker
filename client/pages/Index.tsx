@@ -14,6 +14,7 @@ import { ExpenseChart } from "@/components/ExpenseChart";
 import { ExpenseSplitDetails } from "@/components/ExpenseSplitDetails";
 import { SplitExpensesSummary } from "@/components/SplitExpensesSummary";
 import { FriendRequestsManager } from "@/components/FriendRequestsManager";
+import { BalanceOverview } from "@/components/BalanceOverview";
 import { NavigationBar } from "@/components/NavigationBar";
 import { useAuth } from "@/contexts/AuthContext";
 import { apiClient } from "@/lib/api-client";
@@ -339,7 +340,7 @@ export default function Index() {
             <TabsTrigger value="expenses">Expenses</TabsTrigger>
             <TabsTrigger value="income">Income</TabsTrigger>
             <TabsTrigger value="friends">Friends</TabsTrigger>
-            <TabsTrigger value="analytics">Analytics</TabsTrigger>
+            <TabsTrigger value="balance">Balance</TabsTrigger>
           </TabsList>
 
           <TabsContent value="dashboard" className="space-y-6">
@@ -859,43 +860,8 @@ export default function Index() {
             <FriendRequestsManager />
           </TabsContent>
 
-          <TabsContent value="analytics" className="space-y-6">
-            <Card>
-              <CardHeader>
-                <CardTitle>Spending Analytics</CardTitle>
-                <CardDescription>Insights into your spending patterns</CardDescription>
-              </CardHeader>
-              <CardContent>
-                {analyticsData ? (
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                    <div className="p-4 bg-blue-50 rounded-lg">
-                      <p className="text-sm text-blue-600 font-medium">Total Spent</p>
-                      <p className="text-2xl font-bold text-blue-900">₹{analyticsData.summary.total.toLocaleString()}</p>
-                    </div>
-                    <div className="p-4 bg-green-50 rounded-lg">
-                      <p className="text-sm text-green-600 font-medium">Transactions</p>
-                      <p className="text-2xl font-bold text-green-900">{analyticsData.summary.count}</p>
-                    </div>
-                    <div className="p-4 bg-purple-50 rounded-lg">
-                      <p className="text-sm text-purple-600 font-medium">Average</p>
-                      <p className="text-2xl font-bold text-purple-900">₹{Math.round(analyticsData.summary.average).toLocaleString()}</p>
-                    </div>
-                    <div className="p-4 bg-orange-50 rounded-lg">
-                      <p className="text-sm text-orange-600 font-medium">Change</p>
-                      <p className={`text-2xl font-bold ${analyticsData.summary.change >= 0 ? 'text-red-900' : 'text-green-900'}`}>
-                        {analyticsData.summary.change >= 0 ? '+' : ''}{analyticsData.summary.change.toFixed(1)}%
-                      </p>
-                    </div>
-                  </div>
-                ) : (
-                  <div className="text-center py-8 text-gray-500">
-                    <BarChart3 className="w-12 h-12 mx-auto mb-4 opacity-50" />
-                    <p>No analytics data available</p>
-                    <p className="text-sm">Add some expenses to see insights</p>
-                  </div>
-                )}
-              </CardContent>
-            </Card>
+          <TabsContent value="balance" className="space-y-6">
+            <BalanceOverview />
           </TabsContent>
         </Tabs>
       </div>
