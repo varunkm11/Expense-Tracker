@@ -7,6 +7,10 @@ export interface IUser extends Document {
   name: string;
   avatar?: string;
   roommates: string[];
+  friends: Array<{
+    email: string;
+    name: string;
+  }>;
   friendRequests: {
     sent: string[];
     received: string[];
@@ -48,6 +52,18 @@ const userSchema = new Schema<IUser>({
   roommates: [{
     type: String,
     trim: true
+  }],
+  friends: [{
+    email: {
+      type: String,
+      required: true,
+      trim: true
+    },
+    name: {
+      type: String,
+      required: true,
+      trim: true
+    }
   }],
   friendRequests: {
     sent: [{

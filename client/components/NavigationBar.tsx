@@ -1,9 +1,11 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { useAuth } from "@/contexts/AuthContext";
 import { ThemeToggle } from "@/components/ThemeToggle";
+import { FriendRequestsManager } from "@/components/FriendRequestsManager";
 import { 
   IndianRupee, 
   BarChart3, 
@@ -15,13 +17,14 @@ import {
   Home,
   Brain,
   CalendarDays,
-  Target
+  Target,
+  UserPlus
 } from 'lucide-react';
 
 export function NavigationBar() {
   const { user, logout } = useAuth();
   const location = useLocation();
-  const roommates = user?.roommates || [];
+  const [isFriendDialogOpen, setIsFriendDialogOpen] = useState(false);
 
   const isActive = (path: string) => location.pathname === path;
 
@@ -72,10 +75,20 @@ export function NavigationBar() {
           <div className="flex items-center space-x-3">
             {user && (
               <>
-                <Badge variant="outline" className="text-xs hidden sm:flex">
-                  <Users className="w-3 h-3 mr-1" />
-                  {roommates.length} Roommates
-                </Badge>
+                <Dialog open={isFriendDialogOpen} onOpenChange={setIsFriendDialogOpen}>
+                  <DialogTrigger asChild>
+                    <Button variant="outline" size="sm" className="h-9">
+                      <UserPlus className="w-4 h-4 mr-2" />
+                      Add Friends
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
+                    <DialogHeader>
+                      <DialogTitle>Friend Requests & Management</DialogTitle>
+                    </DialogHeader>
+                    <FriendRequestsManager />
+                  </DialogContent>
+                </Dialog>
                 
                 <div className="text-sm text-muted-foreground hidden sm:block">
                   Welcome, <span className="font-medium text-foreground">{user?.name}</span>

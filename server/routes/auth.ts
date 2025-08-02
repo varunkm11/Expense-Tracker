@@ -50,6 +50,7 @@ export const register = async (req: Request, res: Response) => {
         name: user.name,
         isAdmin: user.isAdmin,
         roommates: user.roommates || [],
+        friends: user.friends || [],
         preferences: user.preferences
       }
     });
@@ -89,6 +90,7 @@ export const login = async (req: Request, res: Response) => {
         name: user.name,
         isAdmin: user.isAdmin,
         roommates: user.roommates || [],
+        friends: user.friends || [],
         preferences: user.preferences
       }
     });
@@ -111,6 +113,7 @@ export const getProfile = async (req: Request, res: Response) => {
         avatar: user.avatar,
         isAdmin: user.isAdmin,
         roommates: user.roommates || [],
+        friends: user.friends || [],
         preferences: user.preferences
       }
     });
@@ -344,14 +347,18 @@ export const acceptFriendRequest = async (req: Request, res: Response) => {
       return res.status(404).json({ error: 'Sender user not found' });
     }
 
-    // Add each other as roommates
+    // Add each other as friends
     await User.findByIdAndUpdate(user._id, {
-      $addToSet: { roommates: senderEmail },
+      $addToSet: { 
+        friends: { email: senderEmail, name: senderUser.name }
+      },
       $pull: { 'friendRequests.received': senderEmail }
     });
 
     await User.findByIdAndUpdate(senderUser._id, {
-      $addToSet: { roommates: user.email },
+      $addToSet: { 
+        friends: { email: user.email, name: user.name }
+      },
       $pull: { 'friendRequests.sent': user.email }
     });
 

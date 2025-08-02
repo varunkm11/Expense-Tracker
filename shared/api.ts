@@ -21,6 +21,10 @@ export interface User {
   avatar?: string;
   isAdmin?: boolean;
   roommates: string[];
+  friends: Array<{
+    email: string;
+    name: string;
+  }>;
   friendRequests?: {
     sent: string[];
     received: string[];

@@ -66,18 +66,9 @@ export default function Index() {
   const [activeTab, setActiveTab] = useState("dashboard");
   const [isAddExpenseOpen, setIsAddExpenseOpen] = useState(false);
   const [isAddIncomeOpen, setIsAddIncomeOpen] = useState(false);
-  const [customSplitAmounts, setCustomSplitAmounts] = useState<{[roommate: string]: number}>({});
+  const [customSplitAmounts, setCustomSplitAmounts] = useState<{[friendEmail: string]: number}>({});
   const [useCustomSplit, setUseCustomSplit] = useState(false);
   const [receiptFile, setReceiptFile] = useState<File | null>(null);
-  
-  // Roommate management state
-  const [isAddRoommateOpen, setIsAddRoommateOpen] = useState(false);
-  const [isEditRoommateOpen, setIsEditRoommateOpen] = useState(false);
-  const [newRoommateName, setNewRoommateName] = useState("");
-  const [editingRoommate, setEditingRoommate] = useState({ oldName: "", newName: "" });
-  
-  // Get roommates list including "You" as first option
-  const roommates = ["You", ...(user?.roommates || [])];
 
   // Fetch expenses
   const { data: expensesData, isLoading: expensesLoading } = useQuery({
@@ -169,7 +160,7 @@ export default function Index() {
     // Validate custom split amounts if using custom split
     if (useCustomSplit && newExpense.splitWith && newExpense.splitWith.length > 0) {
       const totalAssigned = Object.entries(customSplitAmounts)
-        .filter(([roommate]) => newExpense.splitWith?.includes(roommate))
+        .filter(([friendEmail]) => newExpense.splitWith?.includes(friendEmail))
         .reduce((sum, [, amount]) => sum + amount, 0);
       
       if (totalAssigned > newExpense.amount) {
@@ -240,12 +231,12 @@ export default function Index() {
     createIncomeMutation.mutate(newIncome);
   };
 
-  const handleSplitWithChange = (roommate: string, checked: boolean) => {
+  const handleSplitWithChange = (friendEmail: string, checked: boolean) => {
     setNewExpense(prev => ({
       ...prev,
       splitWith: checked 
-        ? [...(prev.splitWith || []), roommate]
-        : (prev.splitWith || []).filter(r => r !== roommate)
+        ? [...(prev.splitWith || []), friendEmail]
+        : (prev.splitWith || []).filter(r => r !== friendEmail)
     }));
   };
 
@@ -413,8 +404,9 @@ export default function Index() {
                                 <SelectValue />
                               </SelectTrigger>
                               <SelectContent>
-                                {roommates.map(roommate => (
-                                  <SelectItem key={roommate} value={roommate}>{roommate}</SelectItem>
+                                <SelectItem value="You">You</SelectItem>
+                                {user?.friends?.map(friend => (
+                                  <SelectItem key={friend.email} value={friend.email}>{friend.name}</SelectItem>
                                 ))}
                               </SelectContent>
                             </Select>
@@ -434,70 +426,71 @@ export default function Index() {
                                 </Label>
                               </div>
                               
-                              {/* Roommates Section */}
+                              {/* Friends Split Section */}
                               <div className="border rounded-lg p-3">
                                 <div className="flex items-center gap-2 mb-3">
                                   <Users className="w-4 h-4 text-blue-600" />
-                                  <Label className="font-medium text-sm">Roommates</Label>
+                                  <Label className="font-medium text-sm">Split with Friends</Label>
                                 </div>
-                                <div className="space-y-2 max-h-32 overflow-y-auto">
-                                  {roommates.filter(r => r !== "You").map(roommate => (
-                                    <div key={roommate} className="flex items-center space-x-2 p-2 bg-blue-50 dark:bg-blue-900/20 rounded">
-                                      <Checkbox
-                                        id={`split-${roommate}`}
-                                        checked={newExpense.splitWith?.includes(roommate)}
-                                        onCheckedChange={(checked) => handleSplitWithChange(roommate, checked as boolean)}
-                                      />
-                                      <Label 
-                                        htmlFor={`split-${roommate}`} 
-                                        className="text-sm flex-1"
-                                        title={roommate}
-                                      >
-                                        {roommate}
-                                      </Label>
-                                      {useCustomSplit && newExpense.splitWith?.includes(roommate) && (
-                                        <div className="flex items-center space-x-1">
-                                          <span className="text-xs">₹</span>
-                                          <Input
-                                            type="number"
-                                            placeholder="Amount"
-                                            value={customSplitAmounts[roommate] || ''}
-                                            onChange={(e) => setCustomSplitAmounts(prev => ({
-                                              ...prev,
-                                              [roommate]: Number(e.target.value) || 0
-                                            }))}
-                                            className="w-20 h-8 text-xs"
-                                          />
-                                        </div>
-                                      )}
-                                      {!useCustomSplit && newExpense.splitWith?.includes(roommate) && newExpense.amount > 0 && (
-                                        <span className="text-xs text-gray-500">
-                                          ₹{(newExpense.amount / ((newExpense.splitWith?.length || 0) + 1)).toFixed(2)}
-                                        </span>
-                                      )}
-                                    </div>
-                                  ))}
-                                  {roommates.filter(r => r !== "You").length === 0 && (
+                                <div className="space-y-2">
+                                  {user?.friends && user.friends.length > 0 ? (
+                                    user.friends.map(friend => (
+                                      <div key={friend.email} className="flex items-center space-x-2 p-2 bg-blue-50 dark:bg-blue-900/20 rounded">
+                                        <Checkbox
+                                          id={`split-${friend.email}`}
+                                          checked={newExpense.splitWith?.includes(friend.email)}
+                                          onCheckedChange={(checked) => handleSplitWithChange(friend.email, checked as boolean)}
+                                        />
+                                        <Label 
+                                          htmlFor={`split-${friend.email}`} 
+                                          className="text-sm flex-1"
+                                          title={friend.name}
+                                        >
+                                          {friend.name}
+                                        </Label>
+                                        {useCustomSplit && newExpense.splitWith?.includes(friend.email) && (
+                                          <div className="flex items-center space-x-1">
+                                            <span className="text-xs">₹</span>
+                                            <Input
+                                              type="number"
+                                              placeholder="Amount"
+                                              value={customSplitAmounts[friend.email] || ''}
+                                              onChange={(e) => setCustomSplitAmounts(prev => ({
+                                                ...prev,
+                                                [friend.email]: Number(e.target.value) || 0
+                                              }))}
+                                              className="w-20 h-8 text-xs"
+                                            />
+                                          </div>
+                                        )}
+                                        {!useCustomSplit && newExpense.splitWith?.includes(friend.email) && newExpense.amount > 0 && (
+                                          <span className="text-xs text-gray-500">
+                                            ₹{(newExpense.amount / ((newExpense.splitWith?.length || 0) + 1)).toFixed(2)}
+                                          </span>
+                                        )}
+                                      </div>
+                                    ))
+                                  ) : (
                                     <div className="text-center py-4 text-sm text-gray-500">
                                       <Users className="w-8 h-8 mx-auto mb-2 opacity-50" />
-                                      <p>No roommates added yet</p>
-                                      <p className="text-xs">Go to Friends tab to add roommates</p>
+                                      <p>No friends added yet</p>
+                                      <p className="text-xs">Add friends to split expenses with them</p>
                                     </div>
                                   )}
                                 </div>
-                              </div>
-
-                              {/* Other Users Section - Coming Soon */}
-                              <div className="border rounded-lg p-3 opacity-60">
-                                <div className="flex items-center gap-2 mb-3">
-                                  <Users className="w-4 h-4 text-green-600" />
-                                  <Label className="font-medium text-sm">Other Users</Label>
-                                  <Badge variant="outline" className="text-xs">Coming Soon</Badge>
-                                </div>
-                                <div className="text-center py-4 text-sm text-gray-500">
-                                  <p>Split with non-roommate friends</p>
-                                  <p className="text-xs">Feature under development</p>
-                                </div>
+                                
+                                {/* Split Amount Display */}
+                                {newExpense.splitWith && newExpense.splitWith.length > 0 && newExpense.amount > 0 && (
+                                  <div className="mt-3 p-3 bg-green-50 dark:bg-green-900/20 rounded border">
+                                    <div className="text-sm font-medium text-green-800 dark:text-green-200">Split Summary:</div>
+                                    <div className="text-xs text-green-700 dark:text-green-300 mt-1">
+                                      <div>Total Bill: ₹{newExpense.amount}</div>
+                                      <div>Friends Selected: {newExpense.splitWith.length}</div>
+                                      <div>Each Person Pays: ₹{(newExpense.amount / (newExpense.splitWith.length + 1)).toFixed(2)}</div>
+                                      <div className="font-medium mt-1">You'll receive: ₹{(newExpense.amount - (newExpense.amount / (newExpense.splitWith.length + 1))).toFixed(2)} when friends pay</div>
+                                    </div>
+                                  </div>
+                                )}
                               </div>
                               
                               {useCustomSplit && newExpense.splitWith && newExpense.splitWith.length > 0 && (
