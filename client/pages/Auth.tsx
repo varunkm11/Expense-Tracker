@@ -1,21 +1,3 @@
-  const handleLogin = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setErrors({});
-    setIsLoading(true);
-    try {
-      const validationErrors = validateForm(false);
-      if (Object.keys(validationErrors).length > 0) {
-        setErrors(validationErrors);
-        setIsLoading(false);
-        return;
-      }
-      await login(formData.email, formData.password);
-    } catch (error: any) {
-      setErrors({ form: error.message || 'Login failed' });
-    } finally {
-      setIsLoading(false);
-    }
-  };
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -109,6 +91,25 @@ export default function Auth() {
       await register(formData.email, formData.password, formData.name);
     } catch (error: any) {
       setErrors({ form: error.message || 'Registration failed' });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setErrors({});
+    setIsLoading(true);
+    try {
+      const validationErrors = validateForm(false);
+      if (Object.keys(validationErrors).length > 0) {
+        setErrors(validationErrors);
+        setIsLoading(false);
+        return;
+      }
+      await login(formData.email, formData.password);
+    } catch (error: any) {
+      setErrors({ form: error.message || 'Login failed' });
     } finally {
       setIsLoading(false);
     }
