@@ -194,7 +194,7 @@ export function SplitExpensesSummary() {
             <ScrollArea className="h-32">
               <div className="space-y-2">
                 {splitBalances.map((balance, index) => (
-                  <div key={index} className={`flex items-center justify-between p-2 rounded text-sm border ${
+                  <div key={`balance-${balance.participant}-${balance.amount}-${balance.isOwed}`} className={`flex items-center justify-between p-2 rounded text-sm border ${
                     balance.isOwed 
                       ? 'bg-green-50 dark:bg-green-900/20 dark:border-green-800/30' 
                       : 'bg-red-50 dark:bg-red-900/20 dark:border-red-800/30'

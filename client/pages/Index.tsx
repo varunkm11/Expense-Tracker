@@ -508,7 +508,7 @@ export default function Index() {
                             <Label>Non-Roommate Expenses</Label>
                             <div className="space-y-2 mt-2">
                               {(newExpense.nonRoommateNotes || []).map((note, index) => (
-                                <div key={index} className="flex items-center space-x-2 p-2 border rounded">
+                                <div key={`note-${index}-${note.person}-${note.amount}`} className="flex items-center space-x-2 p-2 border rounded">
                                   <div className="flex-1 grid grid-cols-3 gap-2">
                                     <Input
                                       placeholder="Person name"

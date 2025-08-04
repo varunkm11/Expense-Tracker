@@ -103,7 +103,7 @@ export function ExpenseSplitDetails({ expense }: ExpenseSplitDetailsProps) {
             
             <div className="space-y-3">
               {expense.splitDetails.payments.map((payment, index) => (
-                <div key={index} className="flex items-center justify-between p-3 border rounded-lg">
+                <div key={`payment-${payment.participant}-${payment.amount}`} className="flex items-center justify-between p-3 border rounded-lg">
                   <div className="flex items-center gap-3">
                     <div className="flex flex-col">
                       <span className="font-medium">{payment.participant}</span>
@@ -160,7 +160,7 @@ export function ExpenseSplitDetails({ expense }: ExpenseSplitDetailsProps) {
             
             <div className="space-y-3">
               {expense.nonRoommateNotes!.map((note, index) => (
-                <div key={index} className="flex items-center justify-between p-3 border rounded-lg">
+                <div key={`note-${note.person}-${note.amount}-${index}`} className="flex items-center justify-between p-3 border rounded-lg">
                   <div className="flex flex-col gap-1">
                     <div className="flex items-center gap-2">
                       <span className="font-medium">{note.person}</span>
