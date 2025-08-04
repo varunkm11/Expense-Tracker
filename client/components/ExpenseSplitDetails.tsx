@@ -85,17 +85,17 @@ export function ExpenseSplitDetails({ expense }: ExpenseSplitDetailsProps) {
             </div>
             
             {/* Summary of who paid */}
-            <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+            <div className="mb-4 p-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-blue-800">
+                  <p className="text-sm font-medium text-blue-800 dark:text-blue-200">
                     <strong>{expense.paidBy}</strong> paid ₹{expense.amount.toLocaleString()} total
                   </p>
-                  <p className="text-xs text-blue-600">
+                  <p className="text-xs text-blue-600 dark:text-blue-300">
                     Split among {expense.splitDetails.totalParticipants} people: {expense.paidBy}, {expense.splitWith.join(', ')}
                   </p>
                 </div>
-                <Badge variant="outline" className="bg-white">
+                <Badge variant="outline" className="bg-white dark:bg-gray-800">
                   ₹{expense.splitDetails.amountPerPerson.toFixed(2)} each
                 </Badge>
               </div>
@@ -106,18 +106,18 @@ export function ExpenseSplitDetails({ expense }: ExpenseSplitDetailsProps) {
                 <div key={`payment-${payment.participant}-${payment.amount}`} className="flex items-center justify-between p-3 border rounded-lg">
                   <div className="flex items-center gap-3">
                     <div className="flex flex-col">
-                      <span className="font-medium">{payment.participant}</span>
-                      <span className="text-sm text-gray-500">
+                      <span className="font-medium dark:text-gray-100">{payment.participant}</span>
+                      <span className="text-sm text-gray-500 dark:text-gray-400">
                         Owes ₹{payment.amount ? payment.amount.toFixed(2) : expense.splitDetails!.amountPerPerson.toFixed(2)} to {expense.paidBy}
                       </span>
                     </div>
                     {payment.isPaid ? (
-                      <Badge variant="default" className="bg-green-100 text-green-800">
+                      <Badge variant="default" className="bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-200">
                         <Check className="h-3 w-3 mr-1" />
                         Paid
                       </Badge>
                     ) : (
-                      <Badge variant="outline" className="bg-yellow-50 text-yellow-800">
+                      <Badge variant="outline" className="bg-yellow-50 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-200">
                         <Clock className="h-3 w-3 mr-1" />
                         Pending
                       </Badge>
@@ -135,10 +135,10 @@ export function ExpenseSplitDetails({ expense }: ExpenseSplitDetailsProps) {
                   )}
                   
                   {payment.isPaid && payment.paidAt && (
-                    <div className="text-xs text-gray-500">
+                    <div className="text-xs text-gray-500 dark:text-gray-400">
                       Paid on {new Date(payment.paidAt).toLocaleDateString()}
                       {payment.notes && (
-                        <div className="text-xs mt-1 italic">"{payment.notes}"</div>
+                        <div className="text-xs mt-1 italic dark:text-gray-300">"{payment.notes}"</div>
                       )}
                     </div>
                   )}
@@ -163,17 +163,17 @@ export function ExpenseSplitDetails({ expense }: ExpenseSplitDetailsProps) {
                 <div key={`note-${note.person}-${note.amount}-${index}`} className="flex items-center justify-between p-3 border rounded-lg">
                   <div className="flex flex-col gap-1">
                     <div className="flex items-center gap-2">
-                      <span className="font-medium">{note.person}</span>
+                      <span className="font-medium dark:text-gray-100">{note.person}</span>
                       <Badge variant="secondary">₹{note.amount}</Badge>
                     </div>
-                    <span className="text-sm text-gray-600">{note.description}</span>
+                    <span className="text-sm text-gray-600 dark:text-gray-300">{note.description}</span>
                     {note.isPaid ? (
-                      <Badge variant="default" className="bg-green-100 text-green-800 w-fit">
+                      <Badge variant="default" className="bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-200 w-fit">
                         <Check className="h-3 w-3 mr-1" />
                         Paid
                       </Badge>
                     ) : (
-                      <Badge variant="outline" className="bg-yellow-50 text-yellow-800 w-fit">
+                      <Badge variant="outline" className="bg-yellow-50 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-200 w-fit">
                         <Clock className="h-3 w-3 mr-1" />
                         Pending
                       </Badge>
@@ -191,7 +191,7 @@ export function ExpenseSplitDetails({ expense }: ExpenseSplitDetailsProps) {
                   )}
                   
                   {note.isPaid && note.paidAt && (
-                    <div className="text-xs text-gray-500">
+                    <div className="text-xs text-gray-500 dark:text-gray-400">
                       Paid on {new Date(note.paidAt).toLocaleDateString()}
                     </div>
                   )}
