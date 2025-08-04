@@ -163,12 +163,18 @@ export default function Auth() {
 
               <TabsContent value="login" className="space-y-4">
                 <form onSubmit={handleLogin} className="space-y-4">
+                  {errors.form && (
+                    <div className="p-3 bg-red-50 border border-red-200 rounded-lg">
+                      <p className="text-sm text-red-600">{errors.form}</p>
+                    </div>
+                  )}
                   <div className="space-y-2">
                     <Label htmlFor="login-email">Email</Label>
                     <div className="relative">
                       <Mail className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
                       <Input
                         id="login-email"
+                        name="email"
                         type="email"
                         placeholder="Enter your email"
                         autoComplete="email"
@@ -176,6 +182,7 @@ export default function Auth() {
                         value={formData.email}
                         onChange={handleInputChange('email')}
                         disabled={isLoading}
+                        required
                       />
                     </div>
                     {errors.email && (
@@ -189,6 +196,7 @@ export default function Auth() {
                       <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                       <Input
                         id="login-password"
+                        name="password"
                         type={showPassword ? "text" : "password"}
                         placeholder="Enter your password"
                         autoComplete="current-password"
@@ -196,6 +204,7 @@ export default function Auth() {
                         value={formData.password}
                         onChange={handleInputChange('password')}
                         disabled={isLoading}
+                        required
                       />
                       <Button
                         type="button"
@@ -204,6 +213,7 @@ export default function Auth() {
                         className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
                         onClick={() => setShowPassword(!showPassword)}
                         disabled={isLoading}
+                        aria-label={showPassword ? "Hide password" : "Show password"}
                       >
                         {showPassword ? (
                           <EyeOff className="h-4 w-4 text-muted-foreground" />
@@ -236,12 +246,18 @@ export default function Auth() {
 
               <TabsContent value="register" className="space-y-4">
                 <form onSubmit={handleRegister} className="space-y-4">
+                  {errors.form && (
+                    <div className="p-3 bg-red-50 border border-red-200 rounded-lg">
+                      <p className="text-sm text-red-600">{errors.form}</p>
+                    </div>
+                  )}
                   <div className="space-y-2">
                     <Label htmlFor="register-name">Full Name</Label>
                     <div className="relative">
                       <User className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
                       <Input
                         id="register-name"
+                        name="name"
                         type="text"
                         placeholder="Enter your full name"
                         autoComplete="name"
@@ -249,6 +265,7 @@ export default function Auth() {
                         value={formData.name}
                         onChange={handleInputChange('name')}
                         disabled={isLoading}
+                        required
                       />
                     </div>
                     {errors.name && (
@@ -262,6 +279,7 @@ export default function Auth() {
                       <Mail className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
                       <Input
                         id="register-email"
+                        name="email"
                         type="email"
                         placeholder="Enter your email"
                         autoComplete="email"
@@ -269,6 +287,7 @@ export default function Auth() {
                         value={formData.email}
                         onChange={handleInputChange('email')}
                         disabled={isLoading}
+                        required
                       />
                     </div>
                     {errors.email && (
@@ -282,6 +301,7 @@ export default function Auth() {
                       <Lock className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
                       <Input
                         id="register-password"
+                        name="password"
                         type={showPassword ? "text" : "password"}
                         placeholder="Create a password"
                         autoComplete="new-password"
@@ -289,6 +309,7 @@ export default function Auth() {
                         value={formData.password}
                         onChange={handleInputChange('password')}
                         disabled={isLoading}
+                        required
                       />
                       <Button
                         type="button"
@@ -297,6 +318,7 @@ export default function Auth() {
                         className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
                         onClick={() => setShowPassword(!showPassword)}
                         disabled={isLoading}
+                        aria-label={showPassword ? "Hide password" : "Show password"}
                       >
                         {showPassword ? (
                           <EyeOff className="h-4 w-4 text-muted-foreground" />
@@ -316,6 +338,7 @@ export default function Auth() {
                       <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                       <Input
                         id="register-confirm-password"
+                        name="confirmPassword"
                         type={showPassword ? "text" : "password"}
                         placeholder="Confirm your password"
                         autoComplete="new-password"
@@ -323,6 +346,7 @@ export default function Auth() {
                         value={formData.confirmPassword}
                         onChange={handleInputChange('confirmPassword')}
                         disabled={isLoading}
+                        required
                       />
                     </div>
                     {errors.confirmPassword && (
