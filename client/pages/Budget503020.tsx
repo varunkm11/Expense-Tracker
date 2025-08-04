@@ -134,7 +134,7 @@ export default function Budget503020() {
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
             <div>
               <h1 className="text-3xl font-bold">50/30/20 Budget</h1>
-              <p className="text-gray-600 dark:text-gray-300">Track your spending according to the 50/30/20 rule</p>
+              <p className="text-muted-foreground">Track your spending according to the 50/30/20 rule</p>
             </div>
 
             <div className="flex gap-2">
@@ -178,7 +178,7 @@ export default function Budget503020() {
             >
               <Card>
                 <CardHeader className="pb-2">
-                  <CardTitle className="text-sm font-medium text-gray-600">Total Income</CardTitle>
+                  <CardTitle className="text-sm font-medium text-muted-foreground">Total Income</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className="flex items-center">
@@ -197,7 +197,7 @@ export default function Budget503020() {
             >
               <Card>
                 <CardHeader className="pb-2">
-                  <CardTitle className="text-sm font-medium text-gray-600 flex items-center justify-between">
+                  <CardTitle className="text-sm font-medium text-muted-foreground flex items-center justify-between">
                     Needs (50%)
                     {getStatusIcon(budgetData.needs.status)}
                   </CardTitle>
@@ -206,7 +206,7 @@ export default function Budget503020() {
                   <div className="space-y-2">
                     <div className="flex justify-between text-sm">
                       <span>₹{budgetData.needs.spentAmount.toLocaleString()}</span>
-                      <span className="text-gray-500">/ ₹{budgetData.needs.budgetAmount.toLocaleString()}</span>
+                      <span className="text-muted-foreground">/ ₹{budgetData.needs.budgetAmount.toLocaleString()}</span>
                     </div>
                     <Progress value={(budgetData.needs.spentAmount / budgetData.needs.budgetAmount) * 100} className="h-2" />
                     <Badge className={getStatusColor(budgetData.needs.status)}>
@@ -253,7 +253,7 @@ export default function Budget503020() {
             >
               <Card>
                 <CardHeader className="pb-2">
-                  <CardTitle className="text-sm font-medium text-gray-600 flex items-center justify-between">
+                  <CardTitle className="text-sm font-medium text-muted-foreground flex items-center justify-between">
                     Savings (20%)
                     {getStatusIcon(budgetData.savings.status)}
                   </CardTitle>
@@ -262,7 +262,7 @@ export default function Budget503020() {
                   <div className="space-y-2">
                     <div className="flex justify-between text-sm">
                       <span>₹{budgetData.savings.actualSavings.toLocaleString()}</span>
-                      <span className="text-gray-500">/ ₹{budgetData.savings.budgetAmount.toLocaleString()}</span>
+                      <span className="text-muted-foreground">/ ₹{budgetData.savings.budgetAmount.toLocaleString()}</span>
                     </div>
                     <Progress value={(budgetData.savings.actualSavings / budgetData.savings.budgetAmount) * 100} className="h-2" />
                     <Badge className={getStatusColor(budgetData.savings.status)}>
@@ -355,7 +355,7 @@ export default function Budget503020() {
                     {budgetData.needs.categories.map((category, index) => (
                       <div key={`needs-${index}`} className="flex items-center justify-between">
                         <span className="text-sm font-medium">{category.category}</span>
-                        <span className="text-sm text-gray-600">₹{category.amount.toLocaleString()}</span>
+                        <span className="text-sm text-muted-foreground">₹{category.amount.toLocaleString()}</span>
                       </div>
                     ))}
                   </div>

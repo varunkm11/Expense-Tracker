@@ -157,7 +157,7 @@ export default function FinancialInsights() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-lg font-medium text-gray-800">{insightsData.dailyMotivation}</p>
+            <p className="text-lg font-medium text-foreground">{insightsData.dailyMotivation}</p>
           </CardContent>
         </Card>
       </motion.div>

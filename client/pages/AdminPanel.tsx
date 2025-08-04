@@ -208,7 +208,7 @@ export default function AdminPanel() {
           <CardContent className="p-6 text-center">
             <Shield className="h-12 w-12 text-red-500 mx-auto mb-4" />
             <h2 className="text-xl font-bold mb-2">Access Denied</h2>
-            <p className="text-gray-600">You don't have admin privileges to access this panel.</p>
+            <p className="text-muted-foreground">You don't have admin privileges to access this panel.</p>
           </CardContent>
         </Card>
       </div>

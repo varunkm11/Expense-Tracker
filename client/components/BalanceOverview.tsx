@@ -62,7 +62,7 @@ export function BalanceOverview() {
     return (
       <Card>
         <CardContent className="p-6">
-          <div className="text-center text-gray-500">No balance data available</div>
+          <div className="text-center text-muted-foreground">No balance data available</div>
         </CardContent>
       </Card>
     );
@@ -79,19 +79,19 @@ export function BalanceOverview() {
         >
           <Card>
             <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-gray-600 flex items-center gap-2">
-                <TrendingUp className="w-4 h-4 text-green-500" />
+              <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
+                <TrendingUp className="w-4 h-4 text-emerald-500" />
                 You Are Owed
               </CardTitle>
             </CardHeader>
             <CardContent>
               <div className="flex items-center gap-1">
-                <IndianRupee className="w-5 h-5 text-green-500" />
-                <span className="text-2xl font-bold text-green-600">
+                <IndianRupee className="w-5 h-5 text-emerald-500" />
+                <span className="text-2xl font-bold text-emerald-600 dark:text-emerald-400">
                   {balances.totalOwed.toLocaleString()}
                 </span>
               </div>
-              <p className="text-xs text-gray-500 mt-1">Money others owe you</p>
+              <p className="text-xs text-muted-foreground mt-1">Money others owe you</p>
             </CardContent>
           </Card>
         </motion.div>
@@ -103,19 +103,19 @@ export function BalanceOverview() {
         >
           <Card>
             <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-gray-600 flex items-center gap-2">
-                <TrendingDown className="w-4 h-4 text-red-500" />
+              <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
+                <TrendingDown className="w-4 h-4 text-rose-500" />
                 You Owe
               </CardTitle>
             </CardHeader>
             <CardContent>
               <div className="flex items-center gap-1">
-                <IndianRupee className="w-5 h-5 text-red-500" />
-                <span className="text-2xl font-bold text-red-600">
+                <IndianRupee className="w-5 h-5 text-rose-500" />
+                <span className="text-2xl font-bold text-rose-600 dark:text-rose-400">
                   {balances.totalOwing.toLocaleString()}
                 </span>
               </div>
-              <p className="text-xs text-gray-500 mt-1">Money you owe others</p>
+              <p className="text-xs text-muted-foreground mt-1">Money you owe others</p>
             </CardContent>
           </Card>
         </motion.div>
@@ -177,13 +177,13 @@ export function BalanceOverview() {
                 >
                   <div className="flex items-center gap-3">
                     <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
-                      amount > 0 ? 'bg-green-100 text-green-600' : 'bg-red-100 text-red-600'
+                      amount > 0 ? 'bg-emerald-100 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400' : 'bg-rose-100 dark:bg-rose-900/20 text-rose-600 dark:text-rose-400'
                     }`}>
                       {amount > 0 ? <TrendingUp className="w-5 h-5" /> : <TrendingDown className="w-5 h-5" />}
                     </div>
                     <div>
                       <p className="font-medium">{email}</p>
-                      <p className="text-sm text-gray-500">
+                      <p className="text-sm text-muted-foreground">
                         {amount > 0 ? 'Owes you' : 'You owe'}
                       </p>
                     </div>

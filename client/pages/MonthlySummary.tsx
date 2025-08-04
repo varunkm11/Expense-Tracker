@@ -89,7 +89,7 @@ export default function MonthlySummary() {
       <div className="min-h-screen bg-gradient-to-br from-orange-50 via-yellow-50 to-amber-50 flex items-center justify-center">
         <div className="text-center">
           <Loader2 className="w-8 h-8 animate-spin mx-auto mb-4" />
-          <p className="text-gray-600">Loading monthly summary...</p>
+          <p className="text-muted-foreground">Loading monthly summary...</p>
         </div>
       </div>
     );
@@ -99,9 +99,9 @@ export default function MonthlySummary() {
     return (
       <div className="min-h-screen bg-gradient-to-br from-orange-50 via-yellow-50 to-amber-50 flex items-center justify-center">
         <div className="text-center">
-          <AlertTriangle className="w-8 h-8 text-red-500 mx-auto mb-4" />
-          <p className="text-red-600">Failed to load monthly summary</p>
-          <p className="text-gray-600 text-sm mt-2">{error instanceof Error ? error.message : 'Unknown error'}</p>
+          <AlertTriangle className="w-8 h-8 text-destructive mx-auto mb-4" />
+          <p className="text-destructive">Failed to load monthly summary</p>
+          <p className="text-muted-foreground text-sm mt-2">{error instanceof Error ? error.message : 'Unknown error'}</p>
         </div>
       </div>
     );
@@ -112,7 +112,7 @@ export default function MonthlySummary() {
     return (
       <div className="min-h-screen bg-gradient-to-br from-orange-50 via-yellow-50 to-amber-50 flex items-center justify-center">
         <div className="text-center">
-          <p className="text-gray-600">No data available for the selected month</p>
+          <p className="text-muted-foreground">No data available for the selected month</p>
         </div>
       </div>
     );
@@ -140,8 +140,8 @@ export default function MonthlySummary() {
           className="flex items-center justify-between mb-6"
         >
           <div>
-            <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Monthly Summary</h1>
-            <p className="text-gray-600 dark:text-gray-300">Detailed insights for {currentMonthName}</p>
+            <h1 className="text-3xl font-bold text-foreground">Monthly Summary</h1>
+            <p className="text-muted-foreground">Detailed insights for {currentMonthName}</p>
           </div>
           <div className="flex items-center space-x-2">
             <Button variant="outline" size="sm" onClick={handlePreviousMonth}>
@@ -176,16 +176,16 @@ export default function MonthlySummary() {
           animate={{ opacity: 1, y: 0 }}
           className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8"
         >
-          <Card className="bg-gradient-to-br from-green-50 to-green-100 border-green-200">
+          <Card className="bg-gradient-to-br from-emerald-50 to-emerald-100 dark:from-emerald-950/20 dark:to-emerald-900/20 border-emerald-200 dark:border-emerald-800">
             <CardHeader className="pb-3">
-              <CardTitle className="flex items-center justify-between text-green-800">
+              <CardTitle className="flex items-center justify-between text-emerald-700 dark:text-emerald-300">
                 <span>Total Income</span>
                 <TrendingUp className="w-5 h-5" />
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-3xl font-bold text-green-900">₹{data.totals.income.toLocaleString()}</div>
-              <p className="text-green-700 text-sm mt-1">
+              <div className="text-3xl font-bold text-emerald-800 dark:text-emerald-200">₹{data.totals.income.toLocaleString()}</div>
+              <p className="text-emerald-600 dark:text-emerald-400 text-sm mt-1">
                 {data.previousMonth.income > 0 
                   ? `${((data.totals.income - data.previousMonth.income) / data.previousMonth.income * 100).toFixed(1)}% from last month`
                   : 'No previous data'
@@ -194,44 +194,44 @@ export default function MonthlySummary() {
             </CardContent>
           </Card>
 
-          <Card className="bg-gradient-to-br from-red-50 to-red-100 border-red-200">
+          <Card className="bg-gradient-to-br from-rose-50 to-rose-100 dark:from-rose-950/20 dark:to-rose-900/20 border-rose-200 dark:border-rose-800">
             <CardHeader className="pb-3">
-              <CardTitle className="flex items-center justify-between text-red-800">
+              <CardTitle className="flex items-center justify-between text-rose-700 dark:text-rose-300">
                 <span>Total Expenses</span>
                 <TrendingDown className="w-5 h-5" />
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-3xl font-bold text-red-900">₹{data.totals.expenses.toLocaleString()}</div>
-              <p className={`text-sm mt-1 ${expenseChange > 0 ? 'text-red-700' : 'text-green-700'}`}>
+              <div className="text-3xl font-bold text-rose-800 dark:text-rose-200">₹{data.totals.expenses.toLocaleString()}</div>
+              <p className={`text-sm mt-1 ${expenseChange > 0 ? 'text-rose-600 dark:text-rose-400' : 'text-emerald-600 dark:text-emerald-400'}`}>
                 {expenseChange > 0 ? '+' : ''}{expenseChange.toFixed(1)}% from last month
               </p>
             </CardContent>
           </Card>
 
-          <Card className="bg-gradient-to-br from-blue-50 to-blue-100 border-blue-200">
+          <Card className="bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-950/20 dark:to-blue-900/20 border-blue-200 dark:border-blue-800">
             <CardHeader className="pb-3">
-              <CardTitle className="flex items-center justify-between text-blue-800">
+              <CardTitle className="flex items-center justify-between text-blue-700 dark:text-blue-300">
                 <span>Savings</span>
                 <Target className="w-5 h-5" />
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-3xl font-bold text-blue-900">₹{data.totals.savings.toLocaleString()}</div>
-              <p className="text-blue-700 text-sm mt-1">{data.totals.savingsRate.toFixed(1)}% savings rate</p>
+              <div className="text-3xl font-bold text-blue-800 dark:text-blue-200">₹{data.totals.savings.toLocaleString()}</div>
+              <p className="text-blue-600 dark:text-blue-400 text-sm mt-1">{data.totals.savingsRate.toFixed(1)}% savings rate</p>
             </CardContent>
           </Card>
 
-          <Card className="bg-gradient-to-br from-purple-50 to-purple-100 border-purple-200">
+          <Card className="bg-gradient-to-br from-purple-50 to-purple-100 dark:from-purple-950/20 dark:to-purple-900/20 border-purple-200 dark:border-purple-800">
             <CardHeader className="pb-3">
-              <CardTitle className="flex items-center justify-between text-purple-800">
+              <CardTitle className="flex items-center justify-between text-purple-700 dark:text-purple-300">
                 <span>Avg. Daily Spend</span>
                 <Award className="w-5 h-5" />
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-3xl font-bold text-purple-900">₹{Math.round(data.totals.expenses / 30).toLocaleString()}</div>
-              <p className="text-purple-700 text-sm mt-1">Daily average</p>
+              <div className="text-3xl font-bold text-purple-800 dark:text-purple-200">₹{Math.round(data.totals.expenses / 30).toLocaleString()}</div>
+              <p className="text-purple-600 dark:text-purple-400 text-sm mt-1">Daily average</p>
             </CardContent>
           </Card>
         </motion.div>
@@ -314,7 +314,7 @@ export default function MonthlySummary() {
                             <div className="w-32">
                               <Progress value={percentage} className="h-2" />
                             </div>
-                            <span className="text-sm text-gray-600 w-12 text-right">
+                            <span className="text-sm text-muted-foreground w-12 text-right">
                               {percentage.toFixed(1)}%
                             </span>
                             <span className="font-semibold w-24 text-right">
@@ -349,10 +349,10 @@ export default function MonthlySummary() {
                         const progress = budget.progress || 0;
                         const status = budget.status || 'safe';
                         const statusColors = {
-                          safe: 'text-green-600',
-                          caution: 'text-yellow-600',
-                          warning: 'text-orange-600',
-                          exceeded: 'text-red-600'
+                          safe: 'text-emerald-600 dark:text-emerald-400',
+                          caution: 'text-yellow-600 dark:text-yellow-400',
+                          warning: 'text-orange-600 dark:text-orange-400',
+                          exceeded: 'text-rose-600 dark:text-rose-400'
                         };
 
                         return (
@@ -381,9 +381,9 @@ export default function MonthlySummary() {
                     </div>
                   ) : (
                     <div className="text-center py-8">
-                      <Target className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-                      <p className="text-gray-600">No budgets set for this month</p>
-                      <p className="text-sm text-gray-500">Create budgets to track your spending goals</p>
+                      <Target className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
+                      <p className="text-muted-foreground">No budgets set for this month</p>
+                      <p className="text-sm text-muted-foreground/80">Create budgets to track your spending goals</p>
                     </div>
                   )}
                 </CardContent>

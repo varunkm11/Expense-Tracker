@@ -136,7 +136,7 @@ export default function Auth() {
             <Wallet className="w-8 h-8 text-white" />
           </motion.div>
           <h1 className="text-3xl font-bold text-gray-900 mb-2">Mystic Zone</h1>
-          <p className="text-gray-600">Your smart expense tracking companion</p>
+          <p className="text-muted-foreground">Your smart expense tracking companion</p>
         </div>
 
         <Card className="border-0 shadow-xl bg-white/80 backdrop-blur-md">
@@ -178,7 +178,7 @@ export default function Auth() {
                   <div className="space-y-2">
                     <Label htmlFor="login-password">Password</Label>
                     <div className="relative">
-                      <Lock className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                      <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                       <Input
                         id="login-password"
                         type={showPassword ? "text" : "password"}
@@ -198,14 +198,14 @@ export default function Auth() {
                         disabled={isLoading}
                       >
                         {showPassword ? (
-                          <EyeOff className="h-4 w-4 text-gray-400" />
+                          <EyeOff className="h-4 w-4 text-muted-foreground" />
                         ) : (
-                          <Eye className="h-4 w-4 text-gray-400" />
+                          <Eye className="h-4 w-4 text-muted-foreground" />
                         )}
                       </Button>
                     </div>
                     {errors.password && (
-                      <p className="text-sm text-red-500">{errors.password}</p>
+                      <p className="text-sm text-destructive">{errors.password}</p>
                     )}
                   </div>
 
@@ -291,21 +291,21 @@ export default function Auth() {
                         disabled={isLoading}
                       >
                         {showPassword ? (
-                          <EyeOff className="h-4 w-4 text-gray-400" />
+                          <EyeOff className="h-4 w-4 text-muted-foreground" />
                         ) : (
-                          <Eye className="h-4 w-4 text-gray-400" />
+                          <Eye className="h-4 w-4 text-muted-foreground" />
                         )}
                       </Button>
                     </div>
                     {errors.password && (
-                      <p className="text-sm text-red-500">{errors.password}</p>
+                      <p className="text-sm text-destructive">{errors.password}</p>
                     )}
                   </div>
 
                   <div className="space-y-2">
                     <Label htmlFor="register-confirm-password">Confirm Password</Label>
                     <div className="relative">
-                      <Lock className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                      <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                       <Input
                         id="register-confirm-password"
                         type={showPassword ? "text" : "password"}
@@ -318,7 +318,7 @@ export default function Auth() {
                       />
                     </div>
                     {errors.confirmPassword && (
-                      <p className="text-sm text-red-500">{errors.confirmPassword}</p>
+                      <p className="text-sm text-destructive">{errors.confirmPassword}</p>
                     )}
                   </div>
 
