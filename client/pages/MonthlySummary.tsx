@@ -140,8 +140,8 @@ export default function MonthlySummary() {
           className="flex items-center justify-between mb-6"
         >
           <div>
-            <h1 className="text-3xl font-bold text-foreground">Monthly Summary</h1>
-            <p className="text-muted-foreground">Detailed insights for {currentMonthName}</p>
+            <h1 className="text-3xl font-bold text-foreground dark:text-white">Monthly Summary</h1>
+            <p className="text-muted-foreground dark:text-gray-300">Detailed insights for {currentMonthName}</p>
           </div>
           <div className="flex items-center space-x-2">
             <Button variant="outline" size="sm" onClick={handlePreviousMonth}>
@@ -238,10 +238,10 @@ export default function MonthlySummary() {
 
         <Tabs defaultValue="trends" className="space-y-6">
           <TabsList className="grid w-full grid-cols-4 bg-white/60 backdrop-blur-md">
-            <TabsTrigger value="trends">Trends</TabsTrigger>
-            <TabsTrigger value="categories">Categories</TabsTrigger>
-            <TabsTrigger value="budgets">Budgets</TabsTrigger>
-            <TabsTrigger value="insights">Insights</TabsTrigger>
+          <TabsTrigger value="trends" className="dark:text-gray-200">Trends</TabsTrigger>
+          <TabsTrigger value="categories" className="dark:text-gray-200">Categories</TabsTrigger>
+          <TabsTrigger value="budgets" className="dark:text-gray-200">Budgets</TabsTrigger>
+          <TabsTrigger value="insights" className="dark:text-gray-200">Insights</TabsTrigger>
           </TabsList>
 
           <TabsContent value="trends" className="space-y-6">
@@ -308,16 +308,16 @@ export default function MonthlySummary() {
                         <div key={category._id} className="flex items-center justify-between">
                           <div className="flex items-center space-x-3">
                             <div className="w-4 h-4 rounded-full bg-orange-500" />
-                            <span className="font-medium">{category._id}</span>
+                            <span className="font-medium text-gray-900 dark:text-gray-100">{category._id}</span>
                           </div>
                           <div className="flex items-center space-x-4">
                             <div className="w-32">
                               <Progress value={percentage} className="h-2" />
                             </div>
-                            <span className="text-sm text-muted-foreground w-12 text-right">
+                            <span className="text-sm text-muted-foreground dark:text-gray-300 w-12 text-right">
                               {percentage.toFixed(1)}%
                             </span>
-                            <span className="font-semibold w-24 text-right">
+                            <span className="font-semibold w-24 text-right text-gray-900 dark:text-gray-100">
                               ₹{category.total.toLocaleString()}
                             </span>
                           </div>
@@ -356,16 +356,16 @@ export default function MonthlySummary() {
                         };
 
                         return (
-                          <div key={budget.id} className="p-4 border rounded-lg">
+                          <div key={budget.id} className="p-4 border rounded-lg dark:border-gray-700 bg-white dark:bg-gray-900/60">
                             <div className="flex items-center justify-between mb-2">
-                              <span className="font-medium">{budget.category}</span>
+                              <span className="font-medium text-gray-900 dark:text-gray-100">{budget.category}</span>
                               <Badge variant={status === 'exceeded' ? 'destructive' : 'secondary'}>
                                 {status.charAt(0).toUpperCase() + status.slice(1)}
                               </Badge>
                             </div>
                             <div className="space-y-2">
                               <div className="flex justify-between text-sm">
-                                <span>₹{budget.spent.toLocaleString()} of ₹{budget.limit.toLocaleString()}</span>
+                                <span className="text-gray-900 dark:text-gray-200">₹{budget.spent.toLocaleString()} of ₹{budget.limit.toLocaleString()}</span>
                                 <span className={statusColors[status as keyof typeof statusColors]}>
                                   {progress.toFixed(1)}%
                                 </span>
@@ -406,9 +406,9 @@ export default function MonthlySummary() {
                 <CardContent>
                   <div className="space-y-4">
                     {data.insights.map((insight, index) => (
-                      <div key={`insight-${index}-${insight.substring(0, 20)}`} className="flex items-start space-x-3 p-3 bg-blue-50 rounded-lg">
+                      <div key={`insight-${index}-${insight.substring(0, 20)}`} className="flex items-start space-x-3 p-3 bg-blue-50 dark:bg-blue-900/30 rounded-lg">
                         <div className="w-2 h-2 bg-blue-500 rounded-full mt-2 flex-shrink-0" />
-                        <p className="text-sm text-blue-800">{insight}</p>
+                        <p className="text-sm text-blue-800 dark:text-blue-200">{insight}</p>
                       </div>
                     ))}
                   </div>

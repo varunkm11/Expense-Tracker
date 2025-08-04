@@ -232,8 +232,8 @@ export function SplitExpensesSummary() {
                 {recentSplitExpenses.map((expense) => (
                   <div key={expense.id} className="flex items-center justify-between p-2 bg-muted/50 rounded text-sm">
                     <div className="flex-1">
-                      <div className="font-medium text-gray-900 dark:text-gray-100">{expense.description}</div>
-                      <div className="text-xs text-muted-foreground">
+                      <div className="font-medium text-gray-900 dark:text-white">{expense.description}</div>
+                      <div className="text-xs text-muted-foreground dark:text-gray-300">
                         Paid by <span className="font-semibold text-gray-800 dark:text-gray-200">{expense.paidBy}</span> • {expense.splitDetails?.totalParticipants} people • {new Date(expense.date).toLocaleDateString()}
                         {expense.splitDetails?.payments.map((p, idx) => (
                           <span key={p.participant} className="ml-2">

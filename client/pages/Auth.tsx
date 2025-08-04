@@ -1,3 +1,21 @@
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setErrors({});
+    setIsLoading(true);
+    try {
+      const validationErrors = validateForm(false);
+      if (Object.keys(validationErrors).length > 0) {
+        setErrors(validationErrors);
+        setIsLoading(false);
+        return;
+      }
+      await login(formData.email, formData.password);
+    } catch (error: any) {
+      setErrors({ form: error.message || 'Login failed' });
+    } finally {
+      setIsLoading(false);
+    }
+  };
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -28,7 +46,7 @@ export default function Auth() {
     password: '',
     name: '',
     confirmPassword: '',
-    adminCode: ''
+    // adminCode removed
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
 
@@ -74,34 +92,23 @@ export default function Auth() {
     }
 
     setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
-
-  const handleLogin = async (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    if (!validateForm(false)) return;
-
-    setIsLoading(true);
-    try {
-      await login(formData.email, formData.password);
-    } catch (error) {
-      // Error is handled in the auth context
-    } finally {
-      setIsLoading(false);
-    }
+    return newErrors;
   };
 
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
-    
-    if (!validateForm(true)) return;
-
+    setErrors({});
     setIsLoading(true);
     try {
-      await register(formData.email, formData.password, formData.name, formData.adminCode);
-    } catch (error) {
-      // Error is handled in the auth context
+      const validationErrors = validateForm(true);
+      if (Object.keys(validationErrors).length > 0) {
+        setErrors(validationErrors);
+        setIsLoading(false);
+        return;
+      }
+      await register(formData.email, formData.password, formData.name);
+    } catch (error: any) {
+      setErrors({ form: error.message || 'Registration failed' });
     } finally {
       setIsLoading(false);
     }
@@ -322,23 +329,7 @@ export default function Auth() {
                     )}
                   </div>
 
-                  <div className="space-y-2">
-                    <Label htmlFor="admin-code">Admin Code (Optional)</Label>
-                    <div className="relative">
-                      <Shield className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
-                      <Input
-                        id="admin-code"
-                        type="password"
-                        placeholder="Enter admin code for admin access"
-                        autoComplete="off"
-                        className="pl-10"
-                        value={formData.adminCode}
-                        onChange={handleInputChange('adminCode')}
-                        disabled={isLoading}
-                      />
-                    </div>
-                    <p className="text-xs text-gray-500">Leave blank for regular user account</p>
-                  </div>
+
 
                   <Button
                     type="submit"
