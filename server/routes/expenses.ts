@@ -35,7 +35,8 @@ const expenseSchema = z.object({
       amount: z.number().min(0), // Custom amount for each participant
       isPaid: z.boolean().default(false),
       paidAt: z.string().optional(),
-      notes: z.string().optional()
+      notes: z.string().optional(),
+      markedPaidBy: z.string().optional()
     }))
   }).optional(),
   nonRoommateNotes: z.array(z.object({
@@ -480,6 +481,14 @@ export const markSplitPaymentPaid = async (req: AuthRequest, res: Response) => {
       return res.status(404).json({ error: 'Participant not found in split' });
     }
 
+    // Check if already paid
+    if (expense.splitDetails.payments[paymentIndex].isPaid) {
+      return res.status(400).json({ error: 'Payment already marked as paid' });
+    }
+
+    const paymentAmount = expense.splitDetails.payments[paymentIndex].amount;
+    
+    // Mark payment as paid
     expense.splitDetails.payments[paymentIndex].isPaid = true;
     expense.splitDetails.payments[paymentIndex].paidAt = new Date();
     expense.splitDetails.payments[paymentIndex].markedPaidBy = req.user!.email;
@@ -487,13 +496,50 @@ export const markSplitPaymentPaid = async (req: AuthRequest, res: Response) => {
       expense.splitDetails.payments[paymentIndex].notes = notes;
     }
 
+    // Get the payer's email (person who originally paid the expense)
+    const payerUser = await import('../models/User').then(({ User }) => 
+      User.findOne({ name: expense.paidBy })
+    );
+    
+    if (payerUser) {
+      // Settle the payment in the balance system
+      await BalanceManager.settlePayment(payerUser.email, participant, paymentAmount);
+      
+      // Find the participant user to update their balance record
+      const participantUser = await import('../models/User').then(({ User }) => 
+        User.findOne({ email: participant })
+      );
+      
+      if (participantUser) {
+        // Create an income record for the participant (they received money back)
+        const { Income } = await import('../models/Income');
+        const incomeRecord = new Income({
+          userId: participantUser._id,
+          amount: paymentAmount,
+          source: 'Split Expense Settlement',
+          description: `Payment for split expense: ${expense.description}`,
+          date: new Date(),
+          isRecurring: false,
+          taxable: false,
+          tags: ['split-expense', 'settlement']
+        });
+        await incomeRecord.save();
+        
+        // Reduce the original expense amount to reflect the payment received
+        expense.amount = Math.max(0, expense.amount - paymentAmount);
+      }
+    }
+
     await expense.save();
 
     res.json({
-      message: 'Split payment marked as paid',
-      expense
+      message: 'Split payment marked as paid, balances updated, and expense amount adjusted',
+      expense,
+      updatedAmount: expense.amount,
+      settledAmount: paymentAmount
     });
   } catch (error) {
+    console.error('Error marking split payment as paid:', error);
     res.status(500).json({ error: 'Internal server error' });
   }
 };

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { toast } from "sonner";
 import { 
   Users, 
   ArrowUpRight, 
@@ -44,6 +45,7 @@ export function SplitExpensesSummary() {
       setExpenses(response.data);
     } catch (error) {
       console.error('Error fetching expenses:', error);
+      toast.error('Failed to fetch expenses');
     } finally {
       setLoading(false);
     }
@@ -65,15 +67,19 @@ export function SplitExpensesSummary() {
 
         // If current user paid the expense
         if (expense.paidBy === user.name) {
-          // Others owe the current user
-          const amountOwed = payment.amount;
-          balanceMap.set(payment.participant, (balanceMap.get(payment.participant) || 0) + amountOwed);
+          // Others owe the current user, but only if not paid yet
+          if (!payment.isPaid) {
+            const amountOwed = payment.amount;
+            balanceMap.set(payment.participant, (balanceMap.get(payment.participant) || 0) + amountOwed);
+          }
         } 
         // If someone else paid the expense and current user has a payment
         else if (expense.paidBy === payment.participant && currentUserPayment) {
-          // Current user owes this participant
-          const amountOwing = currentUserPayment.amount;
-          balanceMap.set(payment.participant, (balanceMap.get(payment.participant) || 0) - amountOwing);
+          // Current user owes this participant, but only if not paid yet
+          if (!currentUserPayment.isPaid) {
+            const amountOwing = currentUserPayment.amount;
+            balanceMap.set(payment.participant, (balanceMap.get(payment.participant) || 0) - amountOwing);
+          }
         }
       });
     });
@@ -104,7 +110,7 @@ export function SplitExpensesSummary() {
     .filter(expense => 
       expense.splitDetails && 
       expense.splitDetails.totalParticipants > 1 &&
-      expense.splitDetails.payments.some(p => p.participant === user?.name)
+      (expense.splitDetails.payments.some(p => p.participant === user?.email) || expense.paidBy === user?.name)
     )
     .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
     .slice(0, 5);
@@ -235,19 +241,31 @@ export function SplitExpensesSummary() {
                       <div className="font-medium text-gray-900 dark:text-white">{expense.description}</div>
                       <div className="text-xs text-muted-foreground dark:text-gray-300">
                         Paid by <span className="font-semibold text-gray-800 dark:text-gray-200">{expense.paidBy}</span> • {expense.splitDetails?.totalParticipants} people • {new Date(expense.date).toLocaleDateString()}
-                        {expense.splitDetails?.payments.map((p, idx) => (
-                          <span key={p.participant} className="ml-2">
-                            <span className="font-semibold text-blue-700 dark:text-blue-300">{p.participant}</span>
-                            {idx < (expense.splitDetails?.payments.length || 0) - 1 ? ',' : ''}
-                          </span>
-                        ))}
+                        {expense.splitDetails?.payments.map((p, idx) => {
+                          const isPaid = p.isPaid;
+                          return (
+                            <span key={p.participant} className="ml-2">
+                              <span className={`font-semibold ${isPaid ? 'text-green-700 dark:text-green-300' : 'text-blue-700 dark:text-blue-300'}`}>
+                                {p.participant}
+                                {isPaid && ' ✓'}
+                              </span>
+                              {idx < (expense.splitDetails?.payments.length || 0) - 1 ? ',' : ''}
+                            </span>
+                          );
+                        })}
                       </div>
+                      {expense.splitDetails?.payments.some(p => p.isPaid) && (
+                        <div className="text-xs text-green-600 dark:text-green-400 mt-1">
+                          <CheckCircle className="h-3 w-3 inline mr-1" />
+                          {expense.splitDetails.payments.filter(p => p.isPaid).length} of {expense.splitDetails.payments.length} payments settled
+                        </div>
+                      )}
                     </div>
                     <div className="text-right">
                       <div className="font-medium text-gray-900 dark:text-gray-100">₹{expense.amount.toLocaleString()}</div>
                       <div className="text-xs text-muted-foreground">
                         Your share: <span className="font-semibold text-gray-800 dark:text-gray-200">₹{(
-                          expense.splitDetails?.payments.find(p => p.participant === user?.name)?.amount || 
+                          expense.splitDetails?.payments.find(p => p.participant === user?.email)?.amount || 
                           expense.splitDetails?.amountPerPerson || 0
                         ).toLocaleString()}</span>
                       </div>

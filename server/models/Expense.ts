@@ -164,7 +164,7 @@ const expenseSchema = new Schema<IExpense>({
         type: String
       },
       markedPaidBy: {
-        type: String // Email of who marked this as paid
+        type: String
       }
     }]
   },

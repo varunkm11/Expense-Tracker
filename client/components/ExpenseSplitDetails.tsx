@@ -21,13 +21,17 @@ export function ExpenseSplitDetails({ expense }: ExpenseSplitDetailsProps) {
   const markSplitPaidMutation = useMutation({
     mutationFn: ({ participant }: { participant: string; notes?: string }) =>
       apiClient.markSplitPaymentPaid(expense.id, participant),
-    onSuccess: () => {
+    onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ['expenses'] });
       queryClient.invalidateQueries({ queryKey: ['balances'] });
-      toast.success('Payment marked as paid and balances updated');
+      queryClient.invalidateQueries({ queryKey: ['income'] }); // Refresh income as well
+      queryClient.invalidateQueries({ queryKey: ['expense-analytics'] });
+      
+      // Show success message
+      toast.success('Payment marked as paid! Balance updated.');
     },
-    onError: () => {
-      toast.error('Failed to mark payment as paid');
+    onError: (error) => {
+      toast.error(error instanceof Error ? error.message : 'Failed to mark payment as paid');
     }
   });
 
