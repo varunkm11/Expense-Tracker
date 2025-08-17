@@ -39,8 +39,8 @@ const userBalanceSchema = new Schema<IUserBalance>({
   timestamps: true
 });
 
-// Index for faster queries
-userBalanceSchema.index({ userEmail: 1 });
-userBalanceSchema.index({ userId: 1 });
+// Remove duplicate indexes since unique: true already creates them
+// userBalanceSchema.index({ userEmail: 1 }); // Removed - already unique
+// userBalanceSchema.index({ userId: 1 }); // Removed - already unique
 
 export const UserBalance = mongoose.model<IUserBalance>('UserBalance', userBalanceSchema);

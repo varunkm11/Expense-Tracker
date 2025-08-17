@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { useAuth } from "@/contexts/AuthContext";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { FriendRequestsManager } from "@/components/FriendRequestsManager";
@@ -85,6 +85,9 @@ export function NavigationBar() {
                   <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
                     <DialogHeader>
                       <DialogTitle>Friend Requests & Management</DialogTitle>
+                      <DialogDescription>
+                        Manage your friend requests and connections for split expenses
+                      </DialogDescription>
                     </DialogHeader>
                     <FriendRequestsManager />
                   </DialogContent>

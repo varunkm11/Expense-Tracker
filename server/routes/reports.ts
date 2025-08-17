@@ -5,7 +5,7 @@ import { Budget } from '../models/Budget';
 import { AuthRequest } from '../middleware/auth';
 import { startOfMonth, endOfMonth, format, subMonths, startOfYear, endOfYear } from 'date-fns';
 
-export const generateMonthlySummaryPDF = async (req: AuthRequest, res: Response) => {
+export const getMonthlySummary = async (req: AuthRequest, res: Response) => {
   try {
     const userId = req.user!._id;
     const { month, year } = req.query;

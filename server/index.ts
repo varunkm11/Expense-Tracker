@@ -49,7 +49,7 @@ import {
 } from "./routes/budgets";
 
 import { 
-  generateMonthlySummaryPDF, 
+  getMonthlySummary, 
   generateYearlySummary 
 } from "./routes/reports";
 
@@ -180,7 +180,7 @@ export function createServer() {
   app.get("/api/budgets/analytics", verifyToken, getBudgetAnalytics);
 
   // Report routes
-  app.get("/api/reports/monthly", verifyToken, generateMonthlySummaryPDF);
+  app.get("/api/reports/monthly", verifyToken, getMonthlySummary);
   app.get("/api/reports/yearly", verifyToken, generateYearlySummary);
 
   // Balance routes

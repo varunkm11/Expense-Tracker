@@ -266,11 +266,15 @@ export default function MonthlySummary() {
                           tick={{ fontSize: 12 }}
                           tickLine={{ stroke: '#e5e7eb' }}
                           axisLine={{ stroke: '#e5e7eb' }}
+                          type="category"
+                          allowDuplicatedCategory={false}
                         />
                         <YAxis 
                           tick={{ fontSize: 12 }}
                           tickLine={{ stroke: '#e5e7eb' }}
                           axisLine={{ stroke: '#e5e7eb' }}
+                          type="number"
+                          domain={['dataMin', 'dataMax']}
                         />
                         <Tooltip formatter={(value) => [`₹${Number(value).toLocaleString()}`, 'Amount']} />
                         <Line 
