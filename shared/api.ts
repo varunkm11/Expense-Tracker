@@ -79,6 +79,7 @@ export interface Expense {
       isPaid: boolean;
       paidAt?: string;
       notes?: string;
+      markedPaidBy?: string; // Who marked this payment as paid (email)
     }>;
   };
   nonRoommateNotes?: Array<{
@@ -121,6 +122,7 @@ export interface CreateExpenseRequest {
       isPaid: boolean;
       paidAt?: string;
       notes?: string;
+      markedPaidBy?: string; // Who marked this payment as paid (email)
     }>;
   };
   nonRoommateNotes?: Array<{

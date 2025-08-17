@@ -33,6 +33,7 @@ export interface IExpense extends Document {
       isPaid: boolean;
       paidAt?: Date;
       notes?: string;
+      markedPaidBy?: string; // Who marked this payment as paid (email)
     }>;
   };
   nonRoommateNotes?: Array<{
@@ -161,6 +162,9 @@ const expenseSchema = new Schema<IExpense>({
       },
       notes: {
         type: String
+      },
+      markedPaidBy: {
+        type: String // Email of who marked this as paid
       }
     }]
   },

@@ -7,6 +7,7 @@ import { apiClient } from "@/lib/api-client";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { Check, Clock, DollarSign, Users } from "lucide-react";
+import { useAuth } from "@/contexts/AuthContext";
 import type { Expense } from "@shared/api";
 
 interface ExpenseSplitDetailsProps {
@@ -15,10 +16,11 @@ interface ExpenseSplitDetailsProps {
 
 export function ExpenseSplitDetails({ expense }: ExpenseSplitDetailsProps) {
   const queryClient = useQueryClient();
+  const { user } = useAuth();
 
   const markSplitPaidMutation = useMutation({
     mutationFn: ({ participant }: { participant: string; notes?: string }) =>
-      apiClient.markPaymentPaid(expense.id, participant),
+      apiClient.markSplitPaymentPaid(expense.id, participant),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['expenses'] });
       queryClient.invalidateQueries({ queryKey: ['balances'] });
@@ -49,6 +51,13 @@ export function ExpenseSplitDetails({ expense }: ExpenseSplitDetailsProps) {
 
   const handleMarkNonRoommatePaid = (noteIndex: number) => {
     markNonRoommatePaidMutation.mutate(noteIndex);
+  };
+
+  // Helper function to get participant display name from email
+  const getParticipantName = (email: string): string => {
+    if (!user?.friends) return email;
+    const friend = user.friends.find(f => f.email === email);
+    return friend ? friend.name : email;
   };
 
   const hasValidSplit = expense.splitWith && expense.splitWith.length > 0;
@@ -106,7 +115,7 @@ export function ExpenseSplitDetails({ expense }: ExpenseSplitDetailsProps) {
                 <div key={`payment-${payment.participant}-${payment.amount}`} className="flex items-center justify-between p-3 border rounded-lg">
                   <div className="flex items-center gap-3">
                     <div className="flex flex-col">
-                      <span className="font-medium dark:text-gray-100">{payment.participant}</span>
+                      <span className="font-medium dark:text-gray-100">{getParticipantName(payment.participant)}</span>
                       <span className="text-sm text-gray-500 dark:text-gray-400">
                         Owes ₹{payment.amount ? payment.amount.toFixed(2) : expense.splitDetails!.amountPerPerson.toFixed(2)} to {expense.paidBy}
                       </span>
@@ -137,6 +146,11 @@ export function ExpenseSplitDetails({ expense }: ExpenseSplitDetailsProps) {
                   {payment.isPaid && payment.paidAt && (
                     <div className="text-xs text-gray-500 dark:text-gray-400">
                       Paid on {new Date(payment.paidAt).toLocaleDateString()}
+                      {payment.markedPaidBy && (
+                        <div className="text-xs mt-1">
+                          Confirmed by {getParticipantName(payment.markedPaidBy)}
+                        </div>
+                      )}
                       {payment.notes && (
                         <div className="text-xs mt-1 italic dark:text-gray-300">"{payment.notes}"</div>
                       )}

@@ -482,6 +482,7 @@ export const markSplitPaymentPaid = async (req: AuthRequest, res: Response) => {
 
     expense.splitDetails.payments[paymentIndex].isPaid = true;
     expense.splitDetails.payments[paymentIndex].paidAt = new Date();
+    expense.splitDetails.payments[paymentIndex].markedPaidBy = req.user!.email;
     if (notes) {
       expense.splitDetails.payments[paymentIndex].notes = notes;
     }
