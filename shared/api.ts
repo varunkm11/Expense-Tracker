@@ -58,6 +58,8 @@ export interface Expense {
   receiptUrl?: string;
   tags: string[];
   isRecurring: boolean;
+  isLinkedExpense?: boolean; // Flag to indicate this is a linked split expense
+  originalExpenseId?: string; // Reference to original expense
   recurringPattern?: {
     frequency: 'daily' | 'weekly' | 'monthly' | 'yearly';
     interval: number;

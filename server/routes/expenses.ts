@@ -100,15 +100,12 @@ export const createExpense = async (req: AuthRequest, res: Response) => {
 
     // Create linked expenses for each participant so they can see split expenses on their dashboard
     if (splitDetails && splitDetails.payments.length > 0) {
+      const payerUser = req.user!;
+      
       for (const payment of splitDetails.payments) {
-        // Find the user by their name (roommate name)
+        // Find the user by their email (since payment.participant is email)
         const participantUser = await import('../models/User').then(({ User }) => 
-          User.findOne({ 
-            $or: [
-              { name: payment.participant },
-              { roommates: { $in: [payment.participant] } }
-            ]
-          })
+          User.findOne({ email: payment.participant })
         );
 
         if (participantUser) {
@@ -117,15 +114,15 @@ export const createExpense = async (req: AuthRequest, res: Response) => {
             userId: participantUser._id,
             amount: payment.amount,
             category: validatedData.category,
-            description: `${validatedData.description} (Split from ${validatedData.paidBy})`,
+            description: `${validatedData.description} (Split by ${payerUser.name})`,
             date: validatedData.date ? new Date(validatedData.date) : new Date(),
             splitWith: [],
-            paidBy: validatedData.paidBy || 'You',
+            paidBy: payerUser.name, // Show who actually created/paid for the expense
             tags: [...(validatedData.tags || []), 'split-expense'],
             isLinkedExpense: true,
             originalExpenseId: expense._id,
             splitDetails: {
-              totalParticipants: 1,
+              totalParticipants: splitDetails.totalParticipants,
               amountPerPerson: payment.amount,
               payments: [{
                 participant: payment.participant,
@@ -149,10 +146,14 @@ export const createExpense = async (req: AuthRequest, res: Response) => {
       expense
     });
   } catch (error) {
+    console.error('Error creating expense:', error);
     if (error instanceof z.ZodError) {
       return res.status(400).json({ error: 'Invalid input data', details: error.errors });
     }
-    res.status(500).json({ error: 'Internal server error' });
+    res.status(500).json({ 
+      error: 'Internal server error',
+      details: process.env.NODE_ENV === 'development' ? error.message : undefined
+    });
   }
 };
 
@@ -218,7 +219,11 @@ export const getExpenses = async (req: AuthRequest, res: Response) => {
       }
     });
   } catch (error) {
-    res.status(500).json({ error: 'Internal server error' });
+    console.error('Error fetching expenses:', error);
+    res.status(500).json({ 
+      error: 'Internal server error',
+      details: process.env.NODE_ENV === 'development' ? error.message : undefined
+    });
   }
 };
 
@@ -232,6 +237,13 @@ export const updateExpense = async (req: AuthRequest, res: Response) => {
       return res.status(404).json({ error: 'Expense not found' });
     }
 
+    // Prevent editing linked expenses directly
+    if (expense.isLinkedExpense) {
+      return res.status(400).json({ 
+        error: 'Cannot edit split expense directly. Please edit the original expense.' 
+      });
+    }
+
     const validatedData = expenseSchema.partial().parse(req.body);
     
     // Calculate difference for budget update
@@ -242,6 +254,24 @@ export const updateExpense = async (req: AuthRequest, res: Response) => {
     if (validatedData.date) expense.date = new Date(validatedData.date);
     
     await expense.save();
+
+    // Update linked expenses if this is a split expense
+    if (expense.splitDetails && expense.splitDetails.payments.length > 0) {
+      const payerUser = req.user!;
+      
+      // Update all linked expenses
+      await Expense.updateMany(
+        { originalExpenseId: expense._id },
+        {
+          $set: {
+            category: expense.category,
+            description: `${expense.description} (Split by ${payerUser.name})`,
+            date: expense.date,
+            paidBy: payerUser.name
+          }
+        }
+      );
+    }
 
     // Update budgets
     if (oldCategory === validatedData.category) {
@@ -280,7 +310,19 @@ export const deleteExpense = async (req: AuthRequest, res: Response) => {
       return res.status(404).json({ error: 'Expense not found' });
     }
 
+    // Prevent deleting linked expenses directly
+    if (expense.isLinkedExpense) {
+      return res.status(400).json({ 
+        error: 'Cannot delete split expense directly. Please delete the original expense.' 
+      });
+    }
+
     await Expense.findByIdAndDelete(id);
+    
+    // Delete linked expenses if this was a split expense
+    if (!expense.isLinkedExpense && expense.splitDetails && expense.splitDetails.payments.length > 0) {
+      await Expense.deleteMany({ originalExpenseId: expense._id });
+    }
     
     // Update budget
     await updateBudgetSpent(userId, expense.category, -expense.amount);

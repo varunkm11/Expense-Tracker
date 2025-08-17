@@ -451,9 +451,9 @@ export default function Index() {
                               </div>
                               
                               {/* Friends Split Section */}
-                              <div className="border rounded-lg p-3">
+                              <div className="border rounded-lg p-3 dark:border-gray-600">
                                 <div className="flex items-center gap-2 mb-3">
-                                  <Users className="w-4 h-4 text-blue-600" />
+                                  <Users className="w-4 h-4 text-blue-600 dark:text-blue-400" />
                                   <Label className="font-medium text-sm">Split with Friends</Label>
                                 </div>
                                 <div className="space-y-2">
@@ -488,14 +488,14 @@ export default function Index() {
                                           </div>
                                         )}
                                         {!useCustomSplit && newExpense.splitWith?.includes(friend.email) && newExpense.amount > 0 && (
-                                          <span className="text-xs text-gray-500">
+                                          <span className="text-xs text-gray-500 dark:text-gray-400">
                                             ₹{(newExpense.amount / ((newExpense.splitWith?.length || 0) + 1)).toFixed(2)}
                                           </span>
                                         )}
                                       </div>
                                     ))
                                   ) : (
-                                    <div className="text-center py-4 text-sm text-gray-500">
+                                    <div className="text-center py-4 text-sm text-gray-500 dark:text-gray-400">
                                       <Users className="w-8 h-8 mx-auto mb-2 opacity-50" />
                                       <p>No friends added yet</p>
                                       <p className="text-xs">Add friends to split expenses with them</p>
@@ -518,7 +518,7 @@ export default function Index() {
                               </div>
                               
                               {useCustomSplit && newExpense.splitWith && newExpense.splitWith.length > 0 && (
-                                <div className="text-xs text-gray-600 p-2 bg-blue-50 dark:bg-blue-900/20 rounded">
+                                <div className="text-xs text-gray-600 dark:text-gray-400 p-2 bg-blue-50 dark:bg-blue-900/20 rounded">
                                   <strong>Split Summary:</strong><br/>
                                   Total: ₹{newExpense.amount}<br/>
                                   Assigned: ₹{Object.values(customSplitAmounts).reduce((sum, amount) => sum + amount, 0)}<br/>
@@ -714,25 +714,33 @@ export default function Index() {
                     ) : recentExpenses.length > 0 ? (
                       <div className="space-y-3">
                         {recentExpenses.map(expense => (
-                          <div key={expense.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                          <div key={expense.id} className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
                             <div className="flex items-center space-x-3">
                               <div className={`w-3 h-3 rounded-full ${CATEGORY_COLORS[expense.category as keyof typeof CATEGORY_COLORS] || 'bg-gray-500'}`} />
                               <div>
-                                <p className="font-medium text-sm">{expense.description}</p>
-                                <p className="text-xs text-gray-600">{expense.category}</p>
+                                <div className="flex items-center gap-2">
+                                  <p className="font-medium text-sm text-gray-900 dark:text-gray-100">{expense.description}</p>
+                                  {expense.isLinkedExpense && (
+                                    <Badge variant="secondary" className="text-xs px-2 py-0">
+                                      Split
+                                    </Badge>
+                                  )}
+                                </div>
+                                <p className="text-xs text-gray-600 dark:text-gray-400">{expense.category}</p>
                               </div>
                             </div>
                             <div className="flex items-center gap-2">
                               <div className="text-right">
-                                <p className="font-semibold">₹{expense.amount.toLocaleString()}</p>
-                                <p className="text-xs text-gray-600">{expense.paidBy}</p>
+                                <p className="font-semibold text-gray-900 dark:text-gray-100">₹{expense.amount.toLocaleString()}</p>
+                                <p className="text-xs text-gray-600 dark:text-gray-400">{expense.paidBy}</p>
                               </div>
                               <Button
                                 variant="ghost"
                                 size="sm"
                                 onClick={() => deleteExpenseMutation.mutate(expense.id)}
-                                disabled={deleteExpenseMutation.isPending}
-                                className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                                disabled={deleteExpenseMutation.isPending || expense.isLinkedExpense}
+                                className="text-red-600 hover:text-red-700 hover:bg-red-50 dark:text-red-400 dark:hover:text-red-300 dark:hover:bg-red-950/20 disabled:opacity-50 disabled:cursor-not-allowed"
+                                title={expense.isLinkedExpense ? "Cannot delete split expense directly" : "Delete expense"}
                               >
                                 <Trash2 className="w-4 h-4" />
                               </Button>
@@ -741,8 +749,8 @@ export default function Index() {
                         ))}
                       </div>
                     ) : (
-                      <div className="text-center py-8 text-gray-500">
-                        <PieChart className="w-12 w-12 mx-auto mb-4 opacity-50" />
+                      <div className="text-center py-8 text-gray-500 dark:text-gray-400">
+                        <PieChart className="w-12 h-12 mx-auto mb-4 opacity-50" />
                         <p>No expenses yet</p>
                         <p className="text-sm">Add your first expense to get started</p>
                       </div>
@@ -776,7 +784,7 @@ export default function Index() {
                   {totalExpenses > 0 ? (
                     <ExpenseChart data={getCategoryExpenses()} totalExpenses={totalExpenses} />
                   ) : (
-                    <div className="text-center py-8 text-gray-500">
+                    <div className="text-center py-8 text-gray-500 dark:text-gray-400">
                       <BarChart3 className="w-12 h-12 mx-auto mb-4 opacity-50" />
                       <p>No spending data available</p>
                       <p className="text-sm">Add some expenses to see the breakdown</p>
@@ -802,17 +810,24 @@ export default function Index() {
                   <div className="space-y-3">
                     {expenses.map(expense => (
                       <div key={expense.id} className="space-y-2">
-                        <div className="flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50 transition-colors">
+                        <div className="flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors dark:border-gray-700">
                           <div className="flex items-center space-x-4">
                             <div className={`w-4 h-4 rounded-full ${CATEGORY_COLORS[expense.category as keyof typeof CATEGORY_COLORS] || 'bg-gray-500'}`} />
                             <div>
-                              <p className="font-medium">{expense.description}</p>
-                              <p className="text-sm text-gray-600">{expense.category} • {new Date(expense.date).toLocaleDateString()}</p>
+                              <div className="flex items-center gap-2">
+                                <p className="font-medium text-gray-900 dark:text-gray-100">{expense.description}</p>
+                                {expense.isLinkedExpense && (
+                                  <Badge variant="secondary" className="text-xs px-2 py-0">
+                                    Split
+                                  </Badge>
+                                )}
+                              </div>
+                              <p className="text-sm text-gray-600 dark:text-gray-400">{expense.category} • {new Date(expense.date).toLocaleDateString()}</p>
                               {expense.splitWith && expense.splitWith.length > 0 && (
                                 <div className="text-xs space-y-1">
-                                  <p className="text-blue-600">Split with: {expense.splitWith.join(', ')}</p>
+                                  <p className="text-blue-600 dark:text-blue-400">Split with: {expense.splitWith.join(', ')}</p>
                                   {expense.splitDetails && (
-                                    <p className="text-green-600">
+                                    <p className="text-green-600 dark:text-green-400">
                                       ₹{expense.splitDetails.amountPerPerson.toFixed(2)} per person 
                                       ({expense.splitDetails.totalParticipants} people)
                                     </p>
@@ -828,10 +843,10 @@ export default function Index() {
                           </div>
                           <div className="flex items-center gap-3">
                             <div className="text-right">
-                              <p className="font-semibold text-lg">₹{expense.amount.toLocaleString()}</p>
-                              <p className="text-sm text-gray-600">by {expense.paidBy}</p>
+                              <p className="font-semibold text-lg text-gray-900 dark:text-gray-100">₹{expense.amount.toLocaleString()}</p>
+                              <p className="text-sm text-gray-600 dark:text-gray-400">by {expense.paidBy}</p>
                               {expense.splitWith && expense.splitWith.length > 0 && expense.splitDetails && (
-                                <p className="text-xs text-blue-600">
+                                <p className="text-xs text-blue-600 dark:text-blue-400">
                                   You owe: ₹{expense.splitDetails.amountPerPerson.toFixed(2)}
                                 </p>
                               )}
@@ -840,8 +855,9 @@ export default function Index() {
                               variant="ghost"
                               size="sm"
                               onClick={() => deleteExpenseMutation.mutate(expense.id)}
-                              disabled={deleteExpenseMutation.isPending}
-                              className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                              disabled={deleteExpenseMutation.isPending || expense.isLinkedExpense}
+                              className="text-red-600 hover:text-red-700 hover:bg-red-50 dark:text-red-400 dark:hover:text-red-300 dark:hover:bg-red-950/20 disabled:opacity-50 disabled:cursor-not-allowed"
+                              title={expense.isLinkedExpense ? "Cannot delete split expense directly" : "Delete expense"}
                             >
                               <Trash2 className="w-4 h-4" />
                             </Button>
@@ -852,7 +868,7 @@ export default function Index() {
                     ))}
                   </div>
                 ) : (
-                  <div className="text-center py-12 text-gray-500">
+                  <div className="text-center py-12 text-gray-500 dark:text-gray-400">
                     <PieChart className="w-16 h-16 mx-auto mb-4 opacity-50" />
                     <p className="text-lg font-medium">No expenses found</p>
                     <p className="text-sm">Start tracking your expenses by adding your first one</p>
@@ -876,21 +892,21 @@ export default function Index() {
                 ) : incomes.length > 0 ? (
                   <div className="space-y-3">
                     {incomes.map(income => (
-                      <div key={income.id} className="flex items-center justify-between p-4 border rounded-lg hover:bg-green-50 transition-colors">
+                      <div key={income.id} className="flex items-center justify-between p-4 border rounded-lg hover:bg-green-50 dark:hover:bg-green-950/20 transition-colors dark:border-gray-700">
                         <div>
-                          <p className="font-medium">{income.description}</p>
-                          <p className="text-sm text-gray-600">{income.source} • {new Date(income.date).toLocaleDateString()}</p>
+                          <p className="font-medium text-gray-900 dark:text-gray-100">{income.description}</p>
+                          <p className="text-sm text-gray-600 dark:text-gray-400">{income.source} • {new Date(income.date).toLocaleDateString()}</p>
                         </div>
                         <div className="flex items-center gap-3">
                           <div className="text-right">
-                            <p className="font-semibold text-lg text-green-600">+₹{income.amount.toLocaleString()}</p>
+                            <p className="font-semibold text-lg text-green-600 dark:text-green-400">+₹{income.amount.toLocaleString()}</p>
                           </div>
                           <Button
                             variant="ghost"
                             size="sm"
                             onClick={() => deleteIncomeMutation.mutate(income.id)}
                             disabled={deleteIncomeMutation.isPending}
-                            className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                            className="text-red-600 hover:text-red-700 hover:bg-red-50 dark:text-red-400 dark:hover:text-red-300 dark:hover:bg-red-950/20"
                           >
                             <Trash2 className="w-4 h-4" />
                           </Button>
@@ -899,7 +915,7 @@ export default function Index() {
                     ))}
                   </div>
                 ) : (
-                  <div className="text-center py-12 text-gray-500">
+                  <div className="text-center py-12 text-gray-500 dark:text-gray-400">
                     <TrendingUp className="w-16 h-16 mx-auto mb-4 opacity-50" />
                     <p className="text-lg font-medium">No income recorded</p>
                     <p className="text-sm">Add your income sources to track your earnings</p>
