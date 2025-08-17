@@ -18,6 +18,25 @@ const API_BASE_URL = typeof window !== 'undefined' && window.location.hostname =
   : 'https://expense-tracker-rk26.onrender.com/api';
 
 class ApiClient {
+  // Clear all expenses, income, and balances for the user
+  async clearAll(): Promise<{ message: string }> {
+    return this.request<{ message: string }>("/clear/clear-all", { method: "POST" });
+  }
+
+  // Clear only expenses for the user
+  async clearExpenses(): Promise<{ message: string }> {
+    return this.request<{ message: string }>("/clear/clear-expenses", { method: "POST" });
+  }
+
+  // Clear only income for the user
+  async clearIncome(): Promise<{ message: string }> {
+    return this.request<{ message: string }>("/clear/clear-income", { method: "POST" });
+  }
+
+  // Clear only balances for the user
+  async clearBalances(): Promise<{ message: string }> {
+    return this.request<{ message: string }>("/clear/clear-balances", { method: "POST" });
+  }
   private token: string | null = null;
 
   constructor() {

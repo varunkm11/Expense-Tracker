@@ -190,6 +190,16 @@ const expenseSchema = new Schema<IExpense>({
   timestamps: true
 });
 
+// Transform _id to id when converting to JSON
+expenseSchema.set('toJSON', {
+  transform: function(doc, ret) {
+    ret.id = ret._id;
+    delete ret._id;
+    delete ret.__v;
+    return ret;
+  }
+});
+
 // Index for better query performance
 expenseSchema.index({ userId: 1, date: -1 });
 expenseSchema.index({ userId: 1, category: 1 });

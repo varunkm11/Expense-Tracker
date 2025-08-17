@@ -1,3 +1,4 @@
+import { ClearDataButtons } from "@/components/ClearAllButton";
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -126,6 +127,29 @@ export default function Index() {
     },
     onError: (error) => {
       toast.error(error instanceof Error ? error.message : 'Failed to upload receipt');
+    }
+  });
+
+  const deleteExpenseMutation = useMutation({
+    mutationFn: (expenseId: string) => apiClient.deleteExpense(expenseId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['expenses'] });
+      queryClient.invalidateQueries({ queryKey: ['expense-analytics'] });
+      toast.success('Expense deleted successfully!');
+    },
+    onError: (error) => {
+      toast.error(error instanceof Error ? error.message : 'Failed to delete expense');
+    }
+  });
+
+  const deleteIncomeMutation = useMutation({
+    mutationFn: (incomeId: string) => apiClient.deleteIncome(incomeId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['income'] });
+      toast.success('Income deleted successfully!');
+    },
+    onError: (error) => {
+      toast.error(error instanceof Error ? error.message : 'Failed to delete income');
     }
   });
 
@@ -508,7 +532,7 @@ export default function Index() {
                             <Label>Non-Roommate Expenses</Label>
                             <div className="space-y-2 mt-2">
                               {(newExpense.nonRoommateNotes || []).map((note, index) => (
-                                <div key={`note-${index}-${note.person}-${note.amount}`} className="flex items-center space-x-2 p-2 border rounded">
+                                <div key={`note-${index}`} className="flex items-center space-x-2 p-2 border rounded">
                                   <div className="flex-1 grid grid-cols-3 gap-2">
                                     <Input
                                       placeholder="Person name"
@@ -664,6 +688,9 @@ export default function Index() {
                         </div>
                       </DialogContent>
                     </Dialog>
+
+                    {/* Clear Data Buttons */}
+                    <ClearDataButtons />
                   </CardContent>
                 </Card>
               </motion.div>
@@ -695,9 +722,20 @@ export default function Index() {
                                 <p className="text-xs text-gray-600">{expense.category}</p>
                               </div>
                             </div>
-                            <div className="text-right">
-                              <p className="font-semibold">₹{expense.amount.toLocaleString()}</p>
-                              <p className="text-xs text-gray-600">{expense.paidBy}</p>
+                            <div className="flex items-center gap-2">
+                              <div className="text-right">
+                                <p className="font-semibold">₹{expense.amount.toLocaleString()}</p>
+                                <p className="text-xs text-gray-600">{expense.paidBy}</p>
+                              </div>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => deleteExpenseMutation.mutate(expense.id)}
+                                disabled={deleteExpenseMutation.isPending}
+                                className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                              >
+                                <Trash2 className="w-4 h-4" />
+                              </Button>
                             </div>
                           </div>
                         ))}
@@ -788,14 +826,25 @@ export default function Index() {
                               )}
                             </div>
                           </div>
-                          <div className="text-right">
-                            <p className="font-semibold text-lg">₹{expense.amount.toLocaleString()}</p>
-                            <p className="text-sm text-gray-600">by {expense.paidBy}</p>
-                            {expense.splitWith && expense.splitWith.length > 0 && expense.splitDetails && (
-                              <p className="text-xs text-blue-600">
-                                You owe: ₹{expense.splitDetails.amountPerPerson.toFixed(2)}
-                              </p>
-                            )}
+                          <div className="flex items-center gap-3">
+                            <div className="text-right">
+                              <p className="font-semibold text-lg">₹{expense.amount.toLocaleString()}</p>
+                              <p className="text-sm text-gray-600">by {expense.paidBy}</p>
+                              {expense.splitWith && expense.splitWith.length > 0 && expense.splitDetails && (
+                                <p className="text-xs text-blue-600">
+                                  You owe: ₹{expense.splitDetails.amountPerPerson.toFixed(2)}
+                                </p>
+                              )}
+                            </div>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => deleteExpenseMutation.mutate(expense.id)}
+                              disabled={deleteExpenseMutation.isPending}
+                              className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </Button>
                           </div>
                         </div>
                         <ExpenseSplitDetails expense={expense} />
@@ -832,8 +881,19 @@ export default function Index() {
                           <p className="font-medium">{income.description}</p>
                           <p className="text-sm text-gray-600">{income.source} • {new Date(income.date).toLocaleDateString()}</p>
                         </div>
-                        <div className="text-right">
-                          <p className="font-semibold text-lg text-green-600">+₹{income.amount.toLocaleString()}</p>
+                        <div className="flex items-center gap-3">
+                          <div className="text-right">
+                            <p className="font-semibold text-lg text-green-600">+₹{income.amount.toLocaleString()}</p>
+                          </div>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => deleteIncomeMutation.mutate(income.id)}
+                            disabled={deleteIncomeMutation.isPending}
+                            className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </Button>
                         </div>
                       </div>
                     ))}

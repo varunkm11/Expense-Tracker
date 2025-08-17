@@ -72,6 +72,16 @@ const incomeSchema = new Schema<IIncome>({
   timestamps: true
 });
 
+// Transform _id to id when converting to JSON
+incomeSchema.set('toJSON', {
+  transform: function(doc, ret) {
+    ret.id = ret._id;
+    delete ret._id;
+    delete ret.__v;
+    return ret;
+  }
+});
+
 // Index for better query performance
 incomeSchema.index({ userId: 1, date: -1 });
 incomeSchema.index({ userId: 1, source: 1 });

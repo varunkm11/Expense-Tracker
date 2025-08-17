@@ -69,6 +69,7 @@ import {
 } from "./routes/admin";
 
 import { getBudget503020 } from "./routes/budget-503020";
+import clearRouter from "./routes/clear";
 import { getFinancialInsights } from "./routes/gemini-insights";
 
 // Configure multer for file uploads
@@ -199,6 +200,9 @@ export function createServer() {
 
   // Financial insights routes
   app.get("/api/insights", verifyToken, getFinancialInsights);
+
+  // Clear all expenses, income, and balances for user
+  app.use("/api/clear", verifyToken, clearRouter);
 
   // File upload route
   app.post("/api/upload/receipt", verifyToken, upload.single('receipt'), (req, res) => {
