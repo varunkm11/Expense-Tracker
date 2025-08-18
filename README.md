@@ -5,10 +5,10 @@ A full-featured expense tracking application for managing your personal finances
 
 [View on GitHub](https://github.com/varunkm11/Expense-Tracker)
 
+
 ## Live Demo
 
-**Primary Deployment (Render):** [https://expense-tracker-rk26.onrender.com/auth](https://expense-trackebhai sun project mein sbse pehle dark mode daalde or kisi bhi tab pr naviagte hoou app ke logo pr clcik krke honme pr aa jaye jes ebudget vale section mein se vapas aane ke liye back krna pdta h or jo amount hum split krte h jiske saath krte h us user ke dashboard pr automatically visible yho jayte ki itna amount dena h jisne payment kri h is project ko fully functional or daily use ke liye expoense tracker bnade faang comapnies mein shortlisted hone ke liye apne dimag se bhi features daalde ache ache tujhe kuch chciaye ho toh bta sb de diya h vese mongo db gemini and other things
-r-rk26.onrender.com/auth)
+**Primary Deployment (Render):** [https://expense-tracker-rk26.onrender.com/auth](https://expense-tracker-rk26.onrender.com/auth)
 
 **Secondary Deployment (Vercel):** [https://expense-tracker-self-mu.vercel.app/auth](https://expense-tracker-self-mu.vercel.app/auth)
 
@@ -116,9 +116,10 @@ This project is licensed under the MIT License.
 
 ---
 
+
 ## Collaboration
 
-This is a collaboration project by:
+This project is made in collaboration with:
 
 - [Varun Kumar Singh](https://github.com/varunkm11)
-- [Pushkar Kumar Saini](https://github.com/pushkarkumarsaini2006)
+- [Pushkar Kumar Singh](https://github.com/pushkarkumarsaini2006)
