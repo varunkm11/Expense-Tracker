@@ -10,8 +10,6 @@ A full-featured expense tracking application for managing your personal finances
 
 **Primary Deployment (Render):** [https://expense-tracker-rk26.onrender.com/auth](https://expense-tracker-rk26.onrender.com/auth)
 
-**Secondary Deployment (Vercel):** [https://expense-tracker-self-mu.vercel.app/auth](https://expense-tracker-self-mu.vercel.app/auth)
-
 ## Features
 
 - **Expense Tracking:** Add, update, and delete expenses with detailed information like amount, category, subcategory, description, date, tags, receipts, and location.
@@ -121,5 +119,5 @@ This project is licensed under the MIT License.
 
 This project is made in collaboration with:
 
+- [Pushkar Kumar Saini](https://github.com/pushkarkumarsaini2006)
 - [Varun Kumar Singh](https://github.com/varunkm11)
-- [Pushkar Kumar Singh](https://github.com/pushkarkumarsaini2006)
