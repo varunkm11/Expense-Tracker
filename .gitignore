@@ -26,3 +26,7 @@ dist-ssr
 .config/
 !.env
 .vercel
+
+# Test files
+test-*.js
+*.test.temp.js
