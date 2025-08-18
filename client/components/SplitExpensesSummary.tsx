@@ -51,12 +51,14 @@ export function SplitExpensesSummary() {
       else {
         const myPayment = expense.splitDetails.payments.find(p => p.participant === user.email);
         if (myPayment && !myPayment.isPaid) {
+          // If payer is an email, use as is; if payer is a name, try to map to email if possible
           balanceMap.set(expense.paidBy, (balanceMap.get(expense.paidBy) || 0) - myPayment.amount);
         }
       }
     });
+    // Remove zero balances
     return Array.from(balanceMap.entries())
-      .filter(([_, amount]) => Math.abs(amount) > 0)
+      .filter(([_, amount]) => Math.abs(amount) > 0.01)
       .map(([participant, amount]) => ({
         participant,
         amount: Math.abs(amount),
@@ -155,64 +157,7 @@ export function SplitExpensesSummary() {
           </div>
         </div>
 
-        {/* Minimalist Split Balances Bar Chart */}
-        {splitBalances.length > 0 && (
-          <div className="w-full h-32 mt-2">
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart
-                data={splitBalances}
-                layout="vertical"
-                margin={{ top: 8, right: 16, left: 16, bottom: 8 }}
-                barCategoryGap={12}
-              >
-                <XAxis type="number" hide domain={[0, 'dataMax']} />
-                <YAxis type="category" dataKey="participant" width={80} tick={{ fontSize: 12 }} />
-                <Tooltip formatter={v => `₹${v}`} />
-                <Bar dataKey="amount" radius={[4, 4, 4, 4]}>
-                  {splitBalances.map((entry, idx) => (
-                    <Cell key={`cell-${entry.participant}`} fill={entry.isOwed ? '#22c55e' : '#ef4444'} />
-                  ))}
-                </Bar>
-              </BarChart>
-            </ResponsiveContainer>
-          </div>
-        )}
 
-        {/* Split Balances */}
-        {splitBalances.length > 0 && (
-          <div>
-            <h4 className="font-medium text-sm mb-3 flex items-center gap-2">
-              <IndianRupee className="h-4 w-4" />
-              Outstanding Balances
-            </h4>
-            <ScrollArea className="h-32">
-              <div className="space-y-2">
-                {splitBalances.map((balance, index) => (
-                  <div key={`balance-${balance.participant}-${balance.amount}-${balance.isOwed}`} className={`flex items-center justify-between p-2 rounded text-sm border ${
-                    balance.isOwed 
-                      ? 'bg-green-50 border-green-200'
-                      : 'bg-red-50 border-red-200'
-                  }`}>
-                    <div className="flex items-center gap-2">
-                      {balance.isOwed ? (
-                        <ArrowDownLeft className="h-3 w-3 text-green-600" />
-                      ) : (
-                        <ArrowUpRight className="h-3 w-3 text-red-600" />
-                      )}
-                      <span className="font-medium">{balance.participant}</span>
-                    </div>
-                    <Badge 
-                      variant={balance.isOwed ? "secondary" : "destructive"} 
-                      className="text-xs"
-                    >
-                      ₹{balance.amount.toLocaleString()}
-                    </Badge>
-                  </div>
-                ))}
-              </div>
-            </ScrollArea>
-          </div>
-        )}
 
         {/* Minimalist Recent Split Expenses */}
         {recentSplitExpenses.length > 0 && (
