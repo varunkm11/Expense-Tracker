@@ -34,41 +34,50 @@ export function SplitExpensesSummary() {
   const expenses = data?.data || [];
 
   // Calculate split balances using useMemo for performance
-  const splitBalances = useMemo(() => {
+
+  // Calculate 'You'll Receive' (totalOwed) robustly
+
+  // List of unpaid amounts owed to you, per split expense
+  const youWillReceiveList = useMemo(() => {
     if (!user) return [];
-    const balanceMap = new Map<string, number>();
+    const result: { description: string; amount: number; from: string }[] = [];
+    const userIdentifiers = [user.email, user.name, 'you'].map(v => v.trim().toLowerCase());
     expenses.forEach(expense => {
       if (!expense.splitDetails || expense.splitDetails.totalParticipants <= 1) return;
-      // If you are the payer, others owe you (only unpaid)
-      if (expense.paidBy === user.email) {
+      // Consider user as payer if paidBy matches email, name, or 'you' (case-insensitive)
+      const paidByNormalized = (expense.paidBy || '').trim().toLowerCase();
+      const isUserPayer = userIdentifiers.includes(paidByNormalized);
+      if (isUserPayer) {
         expense.splitDetails.payments.forEach(payment => {
-          if (payment.participant !== user.email && !payment.isPaid) {
-            balanceMap.set(payment.participant, (balanceMap.get(payment.participant) || 0) + payment.amount);
+          const participantNormalized = (payment.participant || '').trim().toLowerCase();
+          const isNotUser = !userIdentifiers.includes(participantNormalized);
+          if (isNotUser && !payment.isPaid) {
+            result.push({ description: expense.description, amount: payment.amount, from: payment.participant });
           }
         });
       }
-      // If you are a participant (not payer), you owe the payer (only unpaid)
-      else {
-        const myPayment = expense.splitDetails.payments.find(p => p.participant === user.email);
+    });
+    return result;
+  }, [expenses, user]);
+
+  const totalOwed = youWillReceiveList.reduce((sum, item) => sum + item.amount, 0);
+
+  // Calculate 'You Owe' (totalOwing) robustly
+  const totalOwing = useMemo(() => {
+    if (!user) return 0;
+    let sum = 0;
+    expenses.forEach(expense => {
+      if (!expense.splitDetails || expense.splitDetails.totalParticipants <= 1) return;
+      if (expense.paidBy !== user.email && expense.paidBy !== user.name) {
+        const myPayment = expense.splitDetails.payments.find(p => p.participant === user.email || p.participant === user.name);
         if (myPayment && !myPayment.isPaid) {
-          // If payer is an email, use as is; if payer is a name, try to map to email if possible
-          balanceMap.set(expense.paidBy, (balanceMap.get(expense.paidBy) || 0) - myPayment.amount);
+          sum += myPayment.amount;
         }
       }
     });
-    // Remove zero balances
-    return Array.from(balanceMap.entries())
-      .filter(([_, amount]) => Math.abs(amount) > 0.01)
-      .map(([participant, amount]) => ({
-        participant,
-        amount: Math.abs(amount),
-        isOwed: amount > 0
-      }))
-      .sort((a, b) => b.amount - a.amount);
+    return sum;
   }, [expenses, user]);
 
-  const totalOwed = splitBalances.filter(b => b.isOwed).reduce((sum, b) => sum + b.amount, 0);
-  const totalOwing = splitBalances.filter(b => !b.isOwed).reduce((sum, b) => sum + b.amount, 0);
   const netBalance = totalOwed - totalOwing;
 
   const recentSplitExpenses = useMemo(() => {
@@ -114,6 +123,7 @@ export function SplitExpensesSummary() {
       <CardContent className="space-y-4">
   {/* Balance Summary */}
         <div className="grid grid-cols-3 gap-3">
+
           <div className="text-center p-3 bg-green-50 rounded-lg border">
             <div className="flex items-center justify-center mb-1">
               <ArrowDownLeft className="h-4 w-4 text-green-600" />
@@ -122,6 +132,7 @@ export function SplitExpensesSummary() {
               ₹{totalOwed.toLocaleString()}
             </div>
             <div className="text-xs text-green-600/80">You'll Receive</div>
+            {/* No breakdown, only total shown */}
           </div>
           
           <div className="text-center p-3 bg-red-50 rounded-lg border">
@@ -192,7 +203,7 @@ export function SplitExpensesSummary() {
           </div>
         )}
 
-        {splitBalances.length === 0 && recentSplitExpenses.length === 0 && (
+  {totalOwed === 0 && totalOwing === 0 && recentSplitExpenses.length === 0 && (
           <div className="text-center py-8 text-muted-foreground">
             <Users className="h-12 w-12 mx-auto mb-2 opacity-50" />
             <p className="text-sm">No split expenses found</p>

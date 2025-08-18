@@ -363,14 +363,15 @@ export default function Index() {
           </TabsList>
 
           <TabsContent value="dashboard" className="space-y-6">
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-stretch">
               {/* Quick Actions */}
               <motion.div
                 initial={{ opacity: 0, x: -20 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: 0.1 }}
+                className="flex flex-col h-full"
               >
-                <Card>
+                <Card className="h-full min-h-[420px] flex flex-col">
                   <CardHeader>
                     <CardTitle>Quick Actions</CardTitle>
                     <CardDescription>Add your expenses and income quickly</CardDescription>
@@ -704,8 +705,9 @@ export default function Index() {
                 initial={{ opacity: 0, x: 20 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: 0.2 }}
+                className="flex flex-col h-full"
               >
-                <Card>
+                <Card className="h-full min-h-[420px] flex flex-col">
                   <CardHeader>
                     <CardTitle>Recent Expenses</CardTitle>
                     <CardDescription>Your latest spending activity</CardDescription>
@@ -768,8 +770,11 @@ export default function Index() {
                 initial={{ opacity: 0, x: 20 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: 0.3 }}
+                className="flex flex-col h-full"
               >
-                <SplitExpensesSummary />
+                <div className="h-full min-h-[420px] flex flex-col">
+                  <SplitExpensesSummary />
+                </div>
               </motion.div>
             </div>
 
