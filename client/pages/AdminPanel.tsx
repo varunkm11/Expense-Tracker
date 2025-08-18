@@ -224,7 +224,7 @@ export default function AdminPanel() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-orange-50 via-yellow-50 to-amber-50 dark:from-slate-900 dark:via-slate-800 dark:to-gray-900">
+    <div className="min-h-screen bg-gradient-to-br from-orange-50 via-yellow-50 to-amber-50">
       <NavigationBar />
       
       <div className="container mx-auto px-4 py-6 pt-20">
@@ -234,7 +234,7 @@ export default function AdminPanel() {
             <Crown className="h-8 w-8 text-yellow-500" />
             <div>
               <h1 className="text-3xl font-bold">Admin Panel</h1>
-              <p className="text-gray-600 dark:text-gray-300">Manage users, roommates, and system settings</p>
+              <p className="text-gray-600">Manage users, roommates, and system settings</p>
             </div>
           </div>
 

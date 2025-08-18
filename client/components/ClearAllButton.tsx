@@ -144,7 +144,7 @@ export function ClearDataButtons() {
                 </Button>
               </div>
               <div className="flex items-center gap-2">
-                <div className="bg-gray-100 dark:bg-gray-800 p-2 rounded font-mono text-center min-w-[80px]">
+                <div className="bg-gray-100 p-2 rounded font-mono text-center min-w-[80px]">
                   {captchaQuestion} = ?
                 </div>
                 <Input

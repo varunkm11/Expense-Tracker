@@ -19,7 +19,6 @@ export interface IUser extends Document {
   adminCode?: string;
   preferences: {
     currency: string;
-    theme: string;
     notifications: boolean;
   };
   createdAt: Date;
@@ -87,10 +86,6 @@ const userSchema = new Schema<IUser>({
     currency: {
       type: String,
       default: 'INR'
-    },
-    theme: {
-      type: String,
-      default: 'light'
     },
     notifications: {
       type: Boolean,

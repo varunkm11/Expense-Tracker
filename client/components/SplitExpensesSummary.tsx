@@ -147,43 +147,43 @@ export function SplitExpensesSummary() {
       <CardContent className="space-y-4">
         {/* Balance Summary */}
         <div className="grid grid-cols-3 gap-3">
-          <div className="text-center p-3 bg-green-50 dark:bg-green-900/20 rounded-lg border dark:border-green-800/30">
+          <div className="text-center p-3 bg-green-50 rounded-lg border">
             <div className="flex items-center justify-center mb-1">
-              <ArrowDownLeft className="h-4 w-4 text-green-600 dark:text-green-400" />
+              <ArrowDownLeft className="h-4 w-4 text-green-600" />
             </div>
-            <div className="text-lg font-bold text-green-600 dark:text-green-400">
+            <div className="text-lg font-bold text-green-600">
               ₹{totalOwed.toLocaleString()}
             </div>
-            <div className="text-xs text-green-600/80 dark:text-green-400/80">You'll Receive</div>
+            <div className="text-xs text-green-600/80">You'll Receive</div>
           </div>
           
-          <div className="text-center p-3 bg-red-50 dark:bg-red-900/20 rounded-lg border dark:border-red-800/30">
+          <div className="text-center p-3 bg-red-50 rounded-lg border">
             <div className="flex items-center justify-center mb-1">
-              <ArrowUpRight className="h-4 w-4 text-red-600 dark:text-red-400" />
+              <ArrowUpRight className="h-4 w-4 text-red-600" />
             </div>
-            <div className="text-lg font-bold text-red-600 dark:text-red-400">
+            <div className="text-lg font-bold text-red-600">
               ₹{totalOwing.toLocaleString()}
             </div>
-            <div className="text-xs text-red-600/80 dark:text-red-400/80">You Owe</div>
+            <div className="text-xs text-red-600/80">You Owe</div>
           </div>
           
           <div className={`text-center p-3 rounded-lg border ${
             netBalance >= 0 
-              ? 'bg-blue-50 dark:bg-blue-900/20 dark:border-blue-800/30' 
-              : 'bg-orange-50 dark:bg-orange-900/20 dark:border-orange-800/30'
+              ? 'bg-blue-50 border-blue-200'
+              : 'bg-orange-50 border-orange-200'
           }`}>
             <div className="flex items-center justify-center mb-1">
               <TrendingUp className={`h-4 w-4 ${
-                netBalance >= 0 ? 'text-blue-600 dark:text-blue-400' : 'text-orange-600 dark:text-orange-400'
+                netBalance >= 0 ? 'text-blue-600' : 'text-orange-600'
               }`} />
             </div>
             <div className={`text-lg font-bold ${
-              netBalance >= 0 ? 'text-blue-600 dark:text-blue-400' : 'text-orange-600 dark:text-orange-400'
+              netBalance >= 0 ? 'text-blue-600' : 'text-orange-600'
             }`}>
               ₹{Math.abs(netBalance).toLocaleString()}
             </div>
             <div className={`text-xs ${
-              netBalance >= 0 ? 'text-blue-600/80 dark:text-blue-400/80' : 'text-orange-600/80 dark:text-orange-400/80'
+              netBalance >= 0 ? 'text-blue-600/80' : 'text-orange-600/80'
             }`}>
               Net {netBalance >= 0 ? 'Gain' : 'Loss'}
             </div>
@@ -202,14 +202,14 @@ export function SplitExpensesSummary() {
                 {splitBalances.map((balance, index) => (
                   <div key={`balance-${balance.participant}-${balance.amount}-${balance.isOwed}`} className={`flex items-center justify-between p-2 rounded text-sm border ${
                     balance.isOwed 
-                      ? 'bg-green-50 dark:bg-green-900/20 dark:border-green-800/30' 
-                      : 'bg-red-50 dark:bg-red-900/20 dark:border-red-800/30'
+                      ? 'bg-green-50 border-green-200'
+                      : 'bg-red-50 border-red-200'
                   }`}>
                     <div className="flex items-center gap-2">
                       {balance.isOwed ? (
-                        <ArrowDownLeft className="h-3 w-3 text-green-600 dark:text-green-400" />
+                        <ArrowDownLeft className="h-3 w-3 text-green-600" />
                       ) : (
-                        <ArrowUpRight className="h-3 w-3 text-red-600 dark:text-red-400" />
+                        <ArrowUpRight className="h-3 w-3 text-red-600" />
                       )}
                       <span className="font-medium">{balance.participant}</span>
                     </div>
@@ -238,14 +238,14 @@ export function SplitExpensesSummary() {
                 {recentSplitExpenses.map((expense) => (
                   <div key={expense.id} className="flex items-center justify-between p-2 bg-muted/50 rounded text-sm">
                     <div className="flex-1">
-                      <div className="font-medium text-gray-900 dark:text-white">{expense.description}</div>
-                      <div className="text-xs text-muted-foreground dark:text-gray-300">
-                        Paid by <span className="font-semibold text-gray-800 dark:text-gray-200">{expense.paidBy}</span> • {expense.splitDetails?.totalParticipants} people • {new Date(expense.date).toLocaleDateString()}
+                      <div className="font-medium text-gray-900">{expense.description}</div>
+                      <div className="text-xs text-muted-foreground">
+                        Paid by <span className="font-semibold text-gray-800">{expense.paidBy}</span> • {expense.splitDetails?.totalParticipants} people • {new Date(expense.date).toLocaleDateString()}
                         {expense.splitDetails?.payments.map((p, idx) => {
                           const isPaid = p.isPaid;
                           return (
                             <span key={p.participant} className="ml-2">
-                              <span className={`font-semibold ${isPaid ? 'text-green-700 dark:text-green-300' : 'text-blue-700 dark:text-blue-300'}`}>
+                              <span className={`font-semibold ${isPaid ? 'text-green-700' : 'text-blue-700'}`}>
                                 {p.participant}
                                 {isPaid && ' ✓'}
                               </span>
@@ -255,16 +255,16 @@ export function SplitExpensesSummary() {
                         })}
                       </div>
                       {expense.splitDetails?.payments.some(p => p.isPaid) && (
-                        <div className="text-xs text-green-600 dark:text-green-400 mt-1">
+                        <div className="text-xs text-green-600 mt-1">
                           <CheckCircle className="h-3 w-3 inline mr-1" />
                           {expense.splitDetails.payments.filter(p => p.isPaid).length} of {expense.splitDetails.payments.length} payments settled
                         </div>
                       )}
                     </div>
                     <div className="text-right">
-                      <div className="font-medium text-gray-900 dark:text-gray-100">₹{expense.amount.toLocaleString()}</div>
+                      <div className="font-medium text-gray-900">₹{expense.amount.toLocaleString()}</div>
                       <div className="text-xs text-muted-foreground">
-                        Your share: <span className="font-semibold text-gray-800 dark:text-gray-200">₹{(
+                        Your share: <span className="font-semibold text-gray-800">₹{(
                           expense.splitDetails?.payments.find(p => p.participant === user?.email)?.amount || 
                           expense.splitDetails?.amountPerPerson || 0
                         ).toLocaleString()}</span>

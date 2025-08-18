@@ -4,7 +4,6 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { useAuth } from "@/contexts/AuthContext";
-import { ThemeToggle } from "@/components/ThemeToggle";
 import { FriendRequestsManager } from "@/components/FriendRequestsManager";
 import { 
   IndianRupee, 
@@ -36,7 +35,7 @@ export function NavigationBar() {
   ];
 
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border-b border-orange-200 dark:border-slate-700">
+    <nav className="fixed top-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-md border-b border-orange-200">
       <div className="container mx-auto px-4 py-3">
         <div className="flex items-center justify-between">
           {/* Logo */}
@@ -45,8 +44,8 @@ export function NavigationBar() {
               <IndianRupee className="w-6 h-6 text-white" />
             </div>
             <div>
-              <h1 className="text-xl font-bold text-gray-900 dark:text-white">Mystic Zone</h1>
-              <p className="text-xs text-gray-600 dark:text-gray-400">Smart Expense Tracker</p>
+              <h1 className="text-xl font-bold text-gray-900">Mystic Zone</h1>
+              <p className="text-xs text-gray-600">Smart Expense Tracker</p>
             </div>
           </Link>
 
@@ -98,8 +97,6 @@ export function NavigationBar() {
                 </div>
               </>
             )}
-
-            <ThemeToggle />
             
             {user && (
               <Button variant="ghost" size="sm" onClick={logout} className="h-9 w-9 px-0">

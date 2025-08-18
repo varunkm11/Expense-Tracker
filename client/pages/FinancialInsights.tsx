@@ -122,7 +122,7 @@ export default function FinancialInsights() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-orange-50 via-yellow-50 to-amber-50 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900">
+    <div className="min-h-screen bg-gradient-to-br from-orange-50 via-yellow-50 to-amber-50">
       <NavigationBar />
       <div className="container mx-auto px-4 py-6 pt-20">
         <div className="space-y-6">
@@ -130,7 +130,7 @@ export default function FinancialInsights() {
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
             <div>
               <h1 className="text-3xl font-bold">Financial Insights</h1>
-              <p className="text-gray-600 dark:text-gray-300">AI-powered analysis of your spending patterns</p>
+              <p className="text-gray-600">AI-powered analysis of your spending patterns</p>
             </div>
             
             <Button 

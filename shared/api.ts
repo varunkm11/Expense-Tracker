@@ -31,7 +31,6 @@ export interface User {
   };
   preferences: {
     currency: string;
-    theme: string;
     notifications: boolean;
   };
 }

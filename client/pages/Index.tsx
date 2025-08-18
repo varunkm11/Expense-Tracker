@@ -294,7 +294,7 @@ export default function Index() {
   const recentIncomes = incomes.slice(0, 3);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-orange-50 via-yellow-50 to-amber-50 dark:from-slate-900 dark:via-slate-800 dark:to-gray-900">
+    <div className="min-h-screen bg-gradient-to-br from-orange-50 via-yellow-50 to-amber-50">
       {/* Navigation */}
       <NavigationBar />
 
@@ -305,44 +305,44 @@ export default function Index() {
           animate={{ opacity: 1, y: 0 }}
           className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8"
         >
-          <Card className="bg-gradient-to-br from-green-50 to-green-100 dark:from-green-900/20 dark:to-green-800/20 border-green-200 dark:border-green-800/30">
+          <Card className="bg-gradient-to-br from-green-50 to-green-100 border-green-200">
             <CardHeader className="pb-3">
-              <CardTitle className="flex items-center justify-between text-green-800 dark:text-green-400">
+              <CardTitle className="flex items-center justify-between text-green-800">
                 <span>Total Income</span>
                 <TrendingUp className="w-5 h-5" />
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-3xl font-bold text-green-900 dark:text-green-300">₹{totalIncome.toLocaleString()}</div>
-              <p className="text-green-700 dark:text-green-400 text-sm mt-1">This month</p>
+              <div className="text-3xl font-bold text-green-900">₹{totalIncome.toLocaleString()}</div>
+              <p className="text-green-700 text-sm mt-1">This month</p>
             </CardContent>
           </Card>
 
-          <Card className="bg-gradient-to-br from-red-50 to-red-100 dark:from-red-900/20 dark:to-red-800/20 border-red-200 dark:border-red-800/30">
+          <Card className="bg-gradient-to-br from-red-50 to-red-100 border-red-200">
             <CardHeader className="pb-3">
-              <CardTitle className="flex items-center justify-between text-red-800 dark:text-red-400">
+              <CardTitle className="flex items-center justify-between text-red-800">
                 <span>Total Expenses</span>
                 <TrendingDown className="w-5 h-5" />
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-3xl font-bold text-red-900 dark:text-red-300">₹{totalExpenses.toLocaleString()}</div>
-              <p className="text-red-700 dark:text-red-400 text-sm mt-1">This month</p>
+              <div className="text-3xl font-bold text-red-900">₹{totalExpenses.toLocaleString()}</div>
+              <p className="text-red-700 text-sm mt-1">This month</p>
             </CardContent>
           </Card>
 
-          <Card className={`bg-gradient-to-br ${balance >= 0 ? 'from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20 border-blue-200 dark:border-blue-800/30' : 'from-red-50 to-red-100 dark:from-red-900/20 dark:to-red-800/20 border-red-200 dark:border-red-800/30'}`}>
+          <Card className={`bg-gradient-to-br ${balance >= 0 ? 'from-blue-50 to-blue-100 border-blue-200' : 'from-red-50 to-red-100 border-red-200'}`}>
             <CardHeader className="pb-3">
-              <CardTitle className={`flex items-center justify-between ${balance >= 0 ? 'text-blue-800 dark:text-blue-400' : 'text-red-800 dark:text-red-400'}`}>
+              <CardTitle className={`flex items-center justify-between ${balance >= 0 ? 'text-blue-800' : 'text-red-800'}`}>
                 <span>Balance</span>
                 <Wallet className="w-5 h-5" />
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className={`text-3xl font-bold ${balance >= 0 ? 'text-blue-900 dark:text-blue-300' : 'text-red-900 dark:text-red-300'}`}>
+              <div className={`text-3xl font-bold ${balance >= 0 ? 'text-blue-900' : 'text-red-900'}`}>
                 ₹{Math.abs(balance).toLocaleString()}
               </div>
-              <p className={`text-sm mt-1 ${balance >= 0 ? 'text-blue-700 dark:text-blue-400' : 'text-red-700 dark:text-red-400'}`}>
+              <p className={`text-sm mt-1 ${balance >= 0 ? 'text-blue-700' : 'text-red-700'}`}>
                 {balance >= 0 ? 'Surplus' : 'Deficit'}
               </p>
             </CardContent>
@@ -350,7 +350,7 @@ export default function Index() {
         </motion.div>
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="grid w-full grid-cols-5 bg-white/80 dark:bg-slate-800/80 backdrop-blur-md border dark:border-slate-700">
+          <TabsList className="grid w-full grid-cols-5 bg-white/80 backdrop-blur-md border">
             <TabsTrigger value="dashboard">Dashboard</TabsTrigger>
             <TabsTrigger value="expenses">Expenses</TabsTrigger>
             <TabsTrigger value="income">Income</TabsTrigger>
@@ -451,15 +451,15 @@ export default function Index() {
                               </div>
                               
                               {/* Friends Split Section */}
-                              <div className="border rounded-lg p-3 dark:border-gray-600">
+                              <div className="border rounded-lg p-3">
                                 <div className="flex items-center gap-2 mb-3">
-                                  <Users className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+                                  <Users className="w-4 h-4 text-blue-600" />
                                   <Label className="font-medium text-sm">Split with Friends</Label>
                                 </div>
                                 <div className="space-y-2">
                                   {user?.friends && user.friends.length > 0 ? (
                                     user.friends.map(friend => (
-                                      <div key={friend.email} className="flex items-center space-x-2 p-2 bg-blue-50 dark:bg-blue-900/20 rounded">
+                                      <div key={friend.email} className="flex items-center space-x-2 p-2 bg-blue-50 rounded">
                                         <Checkbox
                                           id={`split-${friend.email}`}
                                           checked={newExpense.splitWith?.includes(friend.email)}
@@ -488,14 +488,14 @@ export default function Index() {
                                           </div>
                                         )}
                                         {!useCustomSplit && newExpense.splitWith?.includes(friend.email) && newExpense.amount > 0 && (
-                                          <span className="text-xs text-gray-500 dark:text-gray-400">
+                                          <span className="text-xs text-gray-500">
                                             ₹{(newExpense.amount / ((newExpense.splitWith?.length || 0) + 1)).toFixed(2)}
                                           </span>
                                         )}
                                       </div>
                                     ))
                                   ) : (
-                                    <div className="text-center py-4 text-sm text-gray-500 dark:text-gray-400">
+                                    <div className="text-center py-4 text-sm text-gray-500">
                                       <Users className="w-8 h-8 mx-auto mb-2 opacity-50" />
                                       <p>No friends added yet</p>
                                       <p className="text-xs">Add friends to split expenses with them</p>
@@ -505,9 +505,9 @@ export default function Index() {
                                 
                                 {/* Split Amount Display */}
                                 {newExpense.splitWith && newExpense.splitWith.length > 0 && newExpense.amount > 0 && (
-                                  <div className="mt-3 p-3 bg-green-50 dark:bg-green-900/20 rounded border">
-                                    <div className="text-sm font-medium text-green-800 dark:text-green-200">Split Summary:</div>
-                                    <div className="text-xs text-green-700 dark:text-green-300 mt-1">
+                                  <div className="mt-3 p-3 bg-green-50 rounded border">
+                                    <div className="text-sm font-medium text-green-800">Split Summary:</div>
+                                    <div className="text-xs text-green-700 mt-1">
                                       <div>Total Bill: ₹{newExpense.amount}</div>
                                       <div>Friends Selected: {newExpense.splitWith.length}</div>
                                       <div>Each Person Pays: ₹{(newExpense.amount / (newExpense.splitWith.length + 1)).toFixed(2)}</div>
@@ -518,7 +518,7 @@ export default function Index() {
                               </div>
                               
                               {useCustomSplit && newExpense.splitWith && newExpense.splitWith.length > 0 && (
-                                <div className="text-xs text-gray-600 dark:text-gray-400 p-2 bg-blue-50 dark:bg-blue-900/20 rounded">
+                                <div className="text-xs text-gray-600 p-2 bg-blue-50 rounded">
                                   <strong>Split Summary:</strong><br/>
                                   Total: ₹{newExpense.amount}<br/>
                                   Assigned: ₹{Object.values(customSplitAmounts).reduce((sum, amount) => sum + amount, 0)}<br/>
@@ -714,32 +714,32 @@ export default function Index() {
                     ) : recentExpenses.length > 0 ? (
                       <div className="space-y-3">
                         {recentExpenses.map(expense => (
-                          <div key={expense.id} className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
+                          <div key={expense.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
                             <div className="flex items-center space-x-3">
                               <div className={`w-3 h-3 rounded-full ${CATEGORY_COLORS[expense.category as keyof typeof CATEGORY_COLORS] || 'bg-gray-500'}`} />
                               <div>
                                 <div className="flex items-center gap-2">
-                                  <p className="font-medium text-sm text-gray-900 dark:text-gray-100">{expense.description}</p>
+                                  <p className="font-medium text-sm text-gray-900">{expense.description}</p>
                                   {expense.isLinkedExpense && (
                                     <Badge variant="secondary" className="text-xs px-2 py-0">
                                       Split
                                     </Badge>
                                   )}
                                 </div>
-                                <p className="text-xs text-gray-600 dark:text-gray-400">{expense.category}</p>
+                                <p className="text-xs text-gray-600">{expense.category}</p>
                               </div>
                             </div>
                             <div className="flex items-center gap-2">
                               <div className="text-right">
-                                <p className="font-semibold text-gray-900 dark:text-gray-100">₹{expense.amount.toLocaleString()}</p>
-                                <p className="text-xs text-gray-600 dark:text-gray-400">{expense.paidBy}</p>
+                                <p className="font-semibold text-gray-900">₹{expense.amount.toLocaleString()}</p>
+                                <p className="text-xs text-gray-600">{expense.paidBy}</p>
                               </div>
                               <Button
                                 variant="ghost"
                                 size="sm"
                                 onClick={() => deleteExpenseMutation.mutate(expense.id)}
                                 disabled={deleteExpenseMutation.isPending || expense.isLinkedExpense}
-                                className="text-red-600 hover:text-red-700 hover:bg-red-50 dark:text-red-400 dark:hover:text-red-300 dark:hover:bg-red-950/20 disabled:opacity-50 disabled:cursor-not-allowed"
+                                className="text-red-600 hover:text-red-700 hover:bg-red-50 disabled:opacity-50 disabled:cursor-not-allowed"
                                 title={expense.isLinkedExpense ? "Cannot delete split expense directly" : "Delete expense"}
                               >
                                 <Trash2 className="w-4 h-4" />
@@ -749,7 +749,7 @@ export default function Index() {
                         ))}
                       </div>
                     ) : (
-                      <div className="text-center py-8 text-gray-500 dark:text-gray-400">
+                      <div className="text-center py-8 text-gray-500">
                         <PieChart className="w-12 h-12 mx-auto mb-4 opacity-50" />
                         <p>No expenses yet</p>
                         <p className="text-sm">Add your first expense to get started</p>
@@ -784,7 +784,7 @@ export default function Index() {
                   {totalExpenses > 0 ? (
                     <ExpenseChart data={getCategoryExpenses()} totalExpenses={totalExpenses} />
                   ) : (
-                    <div className="text-center py-8 text-gray-500 dark:text-gray-400">
+                    <div className="text-center py-8 text-gray-500">
                       <BarChart3 className="w-12 h-12 mx-auto mb-4 opacity-50" />
                       <p>No spending data available</p>
                       <p className="text-sm">Add some expenses to see the breakdown</p>
@@ -810,24 +810,24 @@ export default function Index() {
                   <div className="space-y-3">
                     {expenses.map(expense => (
                       <div key={expense.id} className="space-y-2">
-                        <div className="flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors dark:border-gray-700">
+                        <div className="flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50 transition-colors">
                           <div className="flex items-center space-x-4">
                             <div className={`w-4 h-4 rounded-full ${CATEGORY_COLORS[expense.category as keyof typeof CATEGORY_COLORS] || 'bg-gray-500'}`} />
                             <div>
                               <div className="flex items-center gap-2">
-                                <p className="font-medium text-gray-900 dark:text-gray-100">{expense.description}</p>
+                                <p className="font-medium text-gray-900">{expense.description}</p>
                                 {expense.isLinkedExpense && (
                                   <Badge variant="secondary" className="text-xs px-2 py-0">
                                     Split
                                   </Badge>
                                 )}
                               </div>
-                              <p className="text-sm text-gray-600 dark:text-gray-400">{expense.category} • {new Date(expense.date).toLocaleDateString()}</p>
+                              <p className="text-sm text-gray-600">{expense.category} • {new Date(expense.date).toLocaleDateString()}</p>
                               {expense.splitWith && expense.splitWith.length > 0 && (
                                 <div className="text-xs space-y-1">
-                                  <p className="text-blue-600 dark:text-blue-400">Split with: {expense.splitWith.join(', ')}</p>
+                                  <p className="text-blue-600">Split with: {expense.splitWith.join(', ')}</p>
                                   {expense.splitDetails && (
-                                    <p className="text-green-600 dark:text-green-400">
+                                    <p className="text-green-600">
                                       ₹{expense.splitDetails.amountPerPerson.toFixed(2)} per person 
                                       ({expense.splitDetails.totalParticipants} people)
                                     </p>
@@ -843,10 +843,10 @@ export default function Index() {
                           </div>
                           <div className="flex items-center gap-3">
                             <div className="text-right">
-                              <p className="font-semibold text-lg text-gray-900 dark:text-gray-100">₹{expense.amount.toLocaleString()}</p>
-                              <p className="text-sm text-gray-600 dark:text-gray-400">by {expense.paidBy}</p>
+                              <p className="font-semibold text-lg text-gray-900">₹{expense.amount.toLocaleString()}</p>
+                              <p className="text-sm text-gray-600">by {expense.paidBy}</p>
                               {expense.splitWith && expense.splitWith.length > 0 && expense.splitDetails && (
-                                <p className="text-xs text-blue-600 dark:text-blue-400">
+                                <p className="text-xs text-blue-600">
                                   You owe: ₹{expense.splitDetails.amountPerPerson.toFixed(2)}
                                 </p>
                               )}
@@ -856,7 +856,7 @@ export default function Index() {
                               size="sm"
                               onClick={() => deleteExpenseMutation.mutate(expense.id)}
                               disabled={deleteExpenseMutation.isPending || expense.isLinkedExpense}
-                              className="text-red-600 hover:text-red-700 hover:bg-red-50 dark:text-red-400 dark:hover:text-red-300 dark:hover:bg-red-950/20 disabled:opacity-50 disabled:cursor-not-allowed"
+                              className="text-red-600 hover:text-red-700 hover:bg-red-50 disabled:opacity-50 disabled:cursor-not-allowed"
                               title={expense.isLinkedExpense ? "Cannot delete split expense directly" : "Delete expense"}
                             >
                               <Trash2 className="w-4 h-4" />
@@ -868,7 +868,7 @@ export default function Index() {
                     ))}
                   </div>
                 ) : (
-                  <div className="text-center py-12 text-gray-500 dark:text-gray-400">
+                  <div className="text-center py-12 text-gray-500">
                     <PieChart className="w-16 h-16 mx-auto mb-4 opacity-50" />
                     <p className="text-lg font-medium">No expenses found</p>
                     <p className="text-sm">Start tracking your expenses by adding your first one</p>
@@ -892,21 +892,21 @@ export default function Index() {
                 ) : incomes.length > 0 ? (
                   <div className="space-y-3">
                     {incomes.map(income => (
-                      <div key={income.id} className="flex items-center justify-between p-4 border rounded-lg hover:bg-green-50 dark:hover:bg-green-950/20 transition-colors dark:border-gray-700">
+                      <div key={income.id} className="flex items-center justify-between p-4 border rounded-lg hover:bg-green-50 transition-colors">
                         <div>
-                          <p className="font-medium text-gray-900 dark:text-gray-100">{income.description}</p>
-                          <p className="text-sm text-gray-600 dark:text-gray-400">{income.source} • {new Date(income.date).toLocaleDateString()}</p>
+                          <p className="font-medium text-gray-900">{income.description}</p>
+                          <p className="text-sm text-gray-600">{income.source} • {new Date(income.date).toLocaleDateString()}</p>
                         </div>
                         <div className="flex items-center gap-3">
                           <div className="text-right">
-                            <p className="font-semibold text-lg text-green-600 dark:text-green-400">+₹{income.amount.toLocaleString()}</p>
+                            <p className="font-semibold text-lg text-green-600">+₹{income.amount.toLocaleString()}</p>
                           </div>
                           <Button
                             variant="ghost"
                             size="sm"
                             onClick={() => deleteIncomeMutation.mutate(income.id)}
                             disabled={deleteIncomeMutation.isPending}
-                            className="text-red-600 hover:text-red-700 hover:bg-red-50 dark:text-red-400 dark:hover:text-red-300 dark:hover:bg-red-950/20"
+                            className="text-red-600 hover:text-red-700 hover:bg-red-50"
                           >
                             <Trash2 className="w-4 h-4" />
                           </Button>
@@ -915,7 +915,7 @@ export default function Index() {
                     ))}
                   </div>
                 ) : (
-                  <div className="text-center py-12 text-gray-500 dark:text-gray-400">
+                  <div className="text-center py-12 text-gray-500">
                     <TrendingUp className="w-16 h-16 mx-auto mb-4 opacity-50" />
                     <p className="text-lg font-medium">No income recorded</p>
                     <p className="text-sm">Add your income sources to track your earnings</p>

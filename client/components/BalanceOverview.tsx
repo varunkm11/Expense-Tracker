@@ -87,7 +87,7 @@ export function BalanceOverview() {
             <CardContent>
               <div className="flex items-center gap-1">
                 <IndianRupee className="w-5 h-5 text-emerald-500" />
-                <span className="text-2xl font-bold text-emerald-600 dark:text-emerald-400">
+                <span className="text-2xl font-bold text-emerald-600">
                   {balances.totalOwed.toLocaleString()}
                 </span>
               </div>
@@ -111,7 +111,7 @@ export function BalanceOverview() {
             <CardContent>
               <div className="flex items-center gap-1">
                 <IndianRupee className="w-5 h-5 text-rose-500" />
-                <span className="text-2xl font-bold text-rose-600 dark:text-rose-400">
+                <span className="text-2xl font-bold text-rose-600">
                   {balances.totalOwing.toLocaleString()}
                 </span>
               </div>
@@ -177,7 +177,7 @@ export function BalanceOverview() {
                 >
                   <div className="flex items-center gap-3">
                     <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
-                      amount > 0 ? 'bg-emerald-100 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400' : 'bg-rose-100 dark:bg-rose-900/20 text-rose-600 dark:text-rose-400'
+                      amount > 0 ? 'bg-emerald-100 text-emerald-600' : 'bg-rose-100 text-rose-600'
                     }`}>
                       {amount > 0 ? <TrendingUp className="w-5 h-5" /> : <TrendingDown className="w-5 h-5" />}
                     </div>
