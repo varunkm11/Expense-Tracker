@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from 'react';
+import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell } from 'recharts';
+import React, { useMemo } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -14,6 +15,7 @@ import {
 } from 'lucide-react';
 import { apiClient } from '@/lib/api-client';
 import { useAuth } from '@/contexts/AuthContext';
+import { useQuery } from "@tanstack/react-query";
 import type { Expense } from '@shared/api';
 
 interface SplitBalance {
@@ -24,67 +26,36 @@ interface SplitBalance {
 
 export function SplitExpensesSummary() {
   const { user } = useAuth();
-  const [expenses, setExpenses] = useState<Expense[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [splitBalances, setSplitBalances] = useState<SplitBalance[]>([]);
+  const { data, isLoading: loading } = useQuery({
+    queryKey: ["expenses"],
+    queryFn: () => apiClient.getExpenses({ limit: 50 }),
+    staleTime: 1000 * 60, // 1 minute
+  });
+  const expenses = data?.data || [];
 
-  useEffect(() => {
-    fetchExpenses();
-  }, []);
-
-  useEffect(() => {
-    if (expenses.length > 0 && user) {
-      calculateSplitBalances();
-    }
-  }, [expenses, user]);
-
-  const fetchExpenses = async () => {
-    try {
-      setLoading(true);
-      const response = await apiClient.getExpenses();
-      setExpenses(response.data);
-    } catch (error) {
-      console.error('Error fetching expenses:', error);
-      toast.error('Failed to fetch expenses');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const calculateSplitBalances = () => {
-    if (!user) return;
-
+  // Calculate split balances using useMemo for performance
+  const splitBalances = useMemo(() => {
+    if (!user) return [];
     const balanceMap = new Map<string, number>();
-
     expenses.forEach(expense => {
       if (!expense.splitDetails || expense.splitDetails.totalParticipants <= 1) return;
-
-      const currentUserPayment = expense.splitDetails.payments.find(p => p.participant === user.name);
-      if (!currentUserPayment && expense.paidBy !== user.name) return;
-
-      expense.splitDetails.payments.forEach(payment => {
-        if (payment.participant === user.name) return;
-
-        // If current user paid the expense
-        if (expense.paidBy === user.name) {
-          // Others owe the current user, but only if not paid yet
-          if (!payment.isPaid) {
-            const amountOwed = payment.amount;
-            balanceMap.set(payment.participant, (balanceMap.get(payment.participant) || 0) + amountOwed);
+      // If you are the payer, others owe you (only unpaid)
+      if (expense.paidBy === user.email) {
+        expense.splitDetails.payments.forEach(payment => {
+          if (payment.participant !== user.email && !payment.isPaid) {
+            balanceMap.set(payment.participant, (balanceMap.get(payment.participant) || 0) + payment.amount);
           }
-        } 
-        // If someone else paid the expense and current user has a payment
-        else if (expense.paidBy === payment.participant && currentUserPayment) {
-          // Current user owes this participant, but only if not paid yet
-          if (!currentUserPayment.isPaid) {
-            const amountOwing = currentUserPayment.amount;
-            balanceMap.set(payment.participant, (balanceMap.get(payment.participant) || 0) - amountOwing);
-          }
+        });
+      }
+      // If you are a participant (not payer), you owe the payer (only unpaid)
+      else {
+        const myPayment = expense.splitDetails.payments.find(p => p.participant === user.email);
+        if (myPayment && !myPayment.isPaid) {
+          balanceMap.set(expense.paidBy, (balanceMap.get(expense.paidBy) || 0) - myPayment.amount);
         }
-      });
+      }
     });
-
-    const balances: SplitBalance[] = Array.from(balanceMap.entries())
+    return Array.from(balanceMap.entries())
       .filter(([_, amount]) => Math.abs(amount) > 0)
       .map(([participant, amount]) => ({
         participant,
@@ -92,28 +63,22 @@ export function SplitExpensesSummary() {
         isOwed: amount > 0
       }))
       .sort((a, b) => b.amount - a.amount);
+  }, [expenses, user]);
 
-    setSplitBalances(balances);
-  };
-
-  const totalOwed = splitBalances
-    .filter(b => b.isOwed)
-    .reduce((sum, b) => sum + b.amount, 0);
-
-  const totalOwing = splitBalances
-    .filter(b => !b.isOwed)
-    .reduce((sum, b) => sum + b.amount, 0);
-
+  const totalOwed = splitBalances.filter(b => b.isOwed).reduce((sum, b) => sum + b.amount, 0);
+  const totalOwing = splitBalances.filter(b => !b.isOwed).reduce((sum, b) => sum + b.amount, 0);
   const netBalance = totalOwed - totalOwing;
 
-  const recentSplitExpenses = expenses
-    .filter(expense => 
-      expense.splitDetails && 
-      expense.splitDetails.totalParticipants > 1 &&
-      (expense.splitDetails.payments.some(p => p.participant === user?.email) || expense.paidBy === user?.name)
-    )
-    .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
-    .slice(0, 5);
+  const recentSplitExpenses = useMemo(() => {
+    return expenses
+      .filter(expense => 
+        expense.splitDetails && 
+        expense.splitDetails.totalParticipants > 1 &&
+        (expense.splitDetails.payments.some(p => p.participant === user?.email) || expense.paidBy === user?.name)
+      )
+      .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+      .slice(0, 5);
+  }, [expenses, user]);
 
   if (loading) {
     return (
@@ -145,7 +110,7 @@ export function SplitExpensesSummary() {
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
-        {/* Balance Summary */}
+  {/* Balance Summary */}
         <div className="grid grid-cols-3 gap-3">
           <div className="text-center p-3 bg-green-50 rounded-lg border">
             <div className="flex items-center justify-center mb-1">
@@ -190,6 +155,29 @@ export function SplitExpensesSummary() {
           </div>
         </div>
 
+        {/* Minimalist Split Balances Bar Chart */}
+        {splitBalances.length > 0 && (
+          <div className="w-full h-32 mt-2">
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart
+                data={splitBalances}
+                layout="vertical"
+                margin={{ top: 8, right: 16, left: 16, bottom: 8 }}
+                barCategoryGap={12}
+              >
+                <XAxis type="number" hide domain={[0, 'dataMax']} />
+                <YAxis type="category" dataKey="participant" width={80} tick={{ fontSize: 12 }} />
+                <Tooltip formatter={v => `₹${v}`} />
+                <Bar dataKey="amount" radius={[4, 4, 4, 4]}>
+                  {splitBalances.map((entry, idx) => (
+                    <Cell key={`cell-${entry.participant}`} fill={entry.isOwed ? '#22c55e' : '#ef4444'} />
+                  ))}
+                </Bar>
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+        )}
+
         {/* Split Balances */}
         {splitBalances.length > 0 && (
           <div>
@@ -226,53 +214,35 @@ export function SplitExpensesSummary() {
           </div>
         )}
 
-        {/* Recent Split Expenses */}
+        {/* Minimalist Recent Split Expenses */}
         {recentSplitExpenses.length > 0 && (
           <div>
             <h4 className="font-medium text-sm mb-3 flex items-center gap-2">
               <CheckCircle className="h-4 w-4" />
-              Recent Split Expenses
+              Recent Split History
             </h4>
             <ScrollArea className="h-32">
-              <div className="space-y-2">
-                {recentSplitExpenses.map((expense) => (
-                  <div key={expense.id} className="flex items-center justify-between p-2 bg-muted/50 rounded text-sm">
-                    <div className="flex-1">
-                      <div className="font-medium text-gray-900">{expense.description}</div>
-                      <div className="text-xs text-muted-foreground">
-                        Paid by <span className="font-semibold text-gray-800">{expense.paidBy}</span> • {expense.splitDetails?.totalParticipants} people • {new Date(expense.date).toLocaleDateString()}
-                        {expense.splitDetails?.payments.map((p, idx) => {
-                          const isPaid = p.isPaid;
-                          return (
-                            <span key={p.participant} className="ml-2">
-                              <span className={`font-semibold ${isPaid ? 'text-green-700' : 'text-blue-700'}`}>
-                                {p.participant}
-                                {isPaid && ' ✓'}
-                              </span>
-                              {idx < (expense.splitDetails?.payments.length || 0) - 1 ? ',' : ''}
-                            </span>
-                          );
-                        })}
+              <ul className="space-y-1">
+                {recentSplitExpenses.map((expense) => {
+                  const settled = expense.splitDetails?.payments.every(p => p.isPaid);
+                  return (
+                    <li key={expense.id} className="flex items-center justify-between px-2 py-1 rounded hover:bg-gray-50 dark:hover:bg-gray-800 transition text-xs border border-transparent">
+                      <div className="flex flex-col">
+                        <span className="font-medium text-gray-900 dark:text-white truncate max-w-[160px]">{expense.description}</span>
+                        <span className="text-gray-500 dark:text-gray-400">{new Date(expense.date).toLocaleDateString()}</span>
                       </div>
-                      {expense.splitDetails?.payments.some(p => p.isPaid) && (
-                        <div className="text-xs text-green-600 mt-1">
-                          <CheckCircle className="h-3 w-3 inline mr-1" />
-                          {expense.splitDetails.payments.filter(p => p.isPaid).length} of {expense.splitDetails.payments.length} payments settled
-                        </div>
-                      )}
-                    </div>
-                    <div className="text-right">
-                      <div className="font-medium text-gray-900">₹{expense.amount.toLocaleString()}</div>
-                      <div className="text-xs text-muted-foreground">
-                        Your share: <span className="font-semibold text-gray-800">₹{(
-                          expense.splitDetails?.payments.find(p => p.participant === user?.email)?.amount || 
-                          expense.splitDetails?.amountPerPerson || 0
-                        ).toLocaleString()}</span>
+                      <div className="flex items-center gap-2">
+                        <span className="font-semibold text-gray-900 dark:text-white">₹{expense.amount.toLocaleString()}</span>
+                        {settled ? (
+                          <span className="inline-flex items-center gap-1 text-green-600 dark:text-green-400"><CheckCircle className="h-3 w-3" />Settled</span>
+                        ) : (
+                          <span className="inline-flex items-center gap-1 text-yellow-600 dark:text-yellow-400"><AlertTriangle className="h-3 w-3" />Pending</span>
+                        )}
                       </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
+                    </li>
+                  );
+                })}
+              </ul>
             </ScrollArea>
           </div>
         )}

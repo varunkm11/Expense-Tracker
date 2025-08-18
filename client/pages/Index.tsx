@@ -220,7 +220,9 @@ export default function Index() {
             participant,
             amount: customSplitAmounts[participant] || 0,
             isPaid: false,
-            notes: ''
+            paidAt: undefined,
+            notes: '',
+            markedPaidBy: undefined
           }))
         };
       } else {
@@ -233,7 +235,9 @@ export default function Index() {
             participant,
             amount: amountPerPerson,
             isPaid: false,
-            notes: ''
+            paidAt: undefined,
+            notes: '',
+            markedPaidBy: undefined
           }))
         };
       }
