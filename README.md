@@ -108,10 +108,6 @@ This project is licensed under the MIT License.
 
 ---
 
-[Visit the repository on GitHub](https://github.com/varunkm11/Expense-Tracker)
-
----
-
 
 ## Collaboration
 
