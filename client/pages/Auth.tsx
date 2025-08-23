@@ -375,22 +375,6 @@ export default function Auth() {
             </Tabs>
           </CardContent>
         </Card>
-
-        {/* Demo credentials */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.8 }}
-          className="mt-6 p-4 bg-white/50 backdrop-blur-sm rounded-lg border border-orange-200"
-        >
-          <p className="text-sm text-gray-600 text-center mb-2">
-            <strong>Demo Credentials:</strong>
-          </p>
-          <div className="text-xs text-gray-500 space-y-1">
-            <p>Email: demo@example.com</p>
-            <p>Password: demo123</p>
-          </div>
-        </motion.div>
         </motion.div>
       </div>
     </div>
